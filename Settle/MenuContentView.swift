@@ -195,6 +195,7 @@ private struct LayoutRow: View {
 
             LayoutSnapshotPreviewButton(layout: layout)
                 .environmentObject(coordinator)
+                .id(layout.snapshotFileName ?? layout.id.uuidString)
 
             Button {
                 coordinator.restore(layout)
