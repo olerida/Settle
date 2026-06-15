@@ -8,9 +8,9 @@ enum AppLauncherError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .appNotInstalled(let bundleIdentifier):
-            "La app \(bundleIdentifier) no está instalada."
+            L10n.format("The app %@ is not installed.", bundleIdentifier)
         case .launchFailed(let bundleIdentifier):
-            "No se pudo abrir \(bundleIdentifier)."
+            L10n.format("This app could not be opened: %@.", bundleIdentifier)
         }
     }
 }

@@ -13,7 +13,7 @@ struct MenuContentView: View {
             footer
         }
         .padding(14)
-        .frame(width: 480)
+        .frame(width: 430)
         .background(Color(nsColor: .windowBackgroundColor))
         .sheet(isPresented: $coordinator.isSaveSheetPresented) {
             SaveLayoutSheet()
@@ -36,12 +36,12 @@ struct MenuContentView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Settle")
                     .font(.headline)
-                Text("Window layouts for the current desktop")
+                Text(L10n.tr("Window layouts for the current desktop"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Settings") {
+            Button(L10n.tr("Settings")) {
                 NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
             }
             .buttonStyle(.borderless)
@@ -52,15 +52,15 @@ struct MenuContentView: View {
     private var permissionBanner: some View {
         if !coordinator.permissionManager.isTrusted {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Accessibility access required")
+                Text(L10n.tr("Accessibility access required"))
                     .font(.subheadline.weight(.semibold))
-                Text("Settle needs Accessibility permission to read, move, and resize windows.")
+                Text(L10n.tr("Settle needs Accessibility permission to read, move, and resize windows."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("If you just enabled it in System Settings and this warning remains, close and reopen the app.")
+                Text(L10n.tr("If you just enabled it in System Settings and this warning remains, close and reopen the app."))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
-                Button("Open System Prompt") {
+                Button(L10n.tr("Open System Prompt")) {
                     coordinator.requestAccessibilityPermission()
                 }
             }
@@ -71,15 +71,21 @@ struct MenuContentView: View {
 
     private var actionButtons: some View {
         HStack(spacing: 8) {
-            Button("Save Current Layout...") {
+            Button {
                 coordinator.prepareSave()
+            } label: {
+                Label(L10n.tr("Save Layout"), systemImage: "plus.circle")
+                    .labelStyle(.titleAndIcon)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(ActionChipButtonStyle())
 
-            Button("Quick Save") {
+            Button {
                 coordinator.quickSave()
+            } label: {
+                Label(L10n.tr("Quick Save"), systemImage: "bolt.circle")
+                    .labelStyle(.titleAndIcon)
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(ActionChipButtonStyle())
         }
         .controlSize(.small)
     }
@@ -87,7 +93,7 @@ struct MenuContentView: View {
     private var layoutsList: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Saved Layouts")
+                Text(L10n.tr("Saved Layouts"))
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(coordinator.layouts.count)")
@@ -96,7 +102,7 @@ struct MenuContentView: View {
             }
 
             if coordinator.layouts.isEmpty {
-                Text("No layouts yet.")
+                Text(L10n.tr("No layouts yet."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -128,11 +134,29 @@ struct MenuContentView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
             Spacer()
-            Button("Quit") {
+            Button(L10n.tr("Quit")) {
                 NSApp.terminate(nil)
             }
             .buttonStyle(.borderless)
         }
+    }
+}
+
+private struct ActionChipButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.1 : 0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.08))
+            )
     }
 }
 
@@ -160,7 +184,7 @@ private struct LayoutRow: View {
                 }
 
                 HStack(spacing: 10) {
-                    Label("\(layout.apps.count) apps", systemImage: "square.stack.3d.up")
+                    Label(L10n.format("%d apps", layout.apps.count), systemImage: "square.stack.3d.up")
                     Label(layout.updatedAt.settleRowTimestamp, systemImage: "clock")
                 }
                 .font(.caption)
@@ -168,6 +192,9 @@ private struct LayoutRow: View {
             }
 
             Spacer(minLength: 8)
+
+            LayoutSnapshotPreviewButton(layout: layout)
+                .environmentObject(coordinator)
 
             Button {
                 coordinator.restore(layout)
@@ -178,8 +205,8 @@ private struct LayoutRow: View {
             .buttonStyle(.plain)
             .controlSize(.small)
             .foregroundStyle(Color.accentColor)
-            .accessibilityLabel("Restore layout")
-            .help("Restore layout")
+            .accessibilityLabel(L10n.tr("Restore layout"))
+            .help(L10n.tr("Restore layout"))
 
             Button {
                 coordinator.overwrite(layout)
@@ -190,18 +217,18 @@ private struct LayoutRow: View {
             .buttonStyle(.plain)
             .controlSize(.small)
             .foregroundStyle(.secondary)
-            .accessibilityLabel("Update layout")
-            .help("Update layout with current windows")
+            .accessibilityLabel(L10n.tr("Update layout"))
+            .help(L10n.tr("Update layout with current windows"))
 
             Menu {
-                Button(layout.pinned ? "Unpin" : "Pin") {
+                Button(L10n.tr(layout.pinned ? "Unpin" : "Pin")) {
                     coordinator.togglePinned(layout)
                 }
-                Button("Rename") {
+                Button(L10n.tr("Rename")) {
                     coordinator.beginRename(layout)
                 }
                 Divider()
-                Button("Delete", role: .destructive) {
+                Button(L10n.tr("Delete"), role: .destructive) {
                     coordinator.delete(layout)
                 }
             } label: {
@@ -216,22 +243,77 @@ private struct LayoutRow: View {
     }
 }
 
+private struct LayoutSnapshotPreviewButton: View {
+    @EnvironmentObject private var coordinator: LayoutCoordinator
+    let layout: Layout
+
+    @State private var isPreviewPresented = false
+
+    var body: some View {
+        let snapshotURL = coordinator.snapshotURL(for: layout)
+
+        Button {
+            guard snapshotURL != nil else { return }
+            isPreviewPresented.toggle()
+        } label: {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.body)
+        }
+        .buttonStyle(.plain)
+        .controlSize(.small)
+        .foregroundStyle(snapshotURL == nil ? .tertiary : .secondary)
+        .disabled(snapshotURL == nil)
+        .accessibilityLabel(L10n.tr("Show snapshot preview"))
+        .help(L10n.tr("Show snapshot preview"))
+        .onHover { hovering in
+            guard snapshotURL != nil else {
+                isPreviewPresented = false
+                return
+            }
+            isPreviewPresented = hovering
+        }
+        .popover(isPresented: $isPreviewPresented, arrowEdge: .trailing) {
+            if let snapshotURL, let image = snapshotImage(at: snapshotURL) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(layout.name)
+                        .font(.headline)
+                    Image(nsImage: image)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 320, height: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .padding(12)
+            }
+        }
+    }
+
+    private func snapshotImage(at url: URL) -> NSImage? {
+        guard let data = try? Data(contentsOf: url), let image = NSImage(data: data) else {
+            return nil
+        }
+        image.size = image.size
+        return image
+    }
+}
+
 private struct SaveLayoutSheet: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Save Current Layout")
+            Text(L10n.tr("Save Current Layout"))
                 .font(.headline)
-            TextField("Layout name", text: $coordinator.saveName)
+            TextField(L10n.tr("Layout name"), text: $coordinator.saveName)
                 .textFieldStyle(.roundedBorder)
             HStack {
                 Spacer()
-                Button("Cancel") {
+                Button(L10n.tr("Cancel")) {
                     dismiss()
                 }
-                Button("Save") {
+                Button(L10n.tr("Save")) {
                     Task {
                         await coordinator.saveCurrentLayout(named: coordinator.saveName)
                         dismiss()
@@ -260,17 +342,17 @@ private struct RenameLayoutSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Rename Layout")
+            Text(L10n.tr("Rename Layout"))
                 .font(.headline)
-            TextField("Layout name", text: $coordinator.renameName)
+            TextField(L10n.tr("Layout name"), text: $coordinator.renameName)
                 .textFieldStyle(.roundedBorder)
             HStack {
                 Spacer()
-                Button("Cancel") {
+                Button(L10n.tr("Cancel")) {
                     coordinator.cancelRename()
                     dismiss()
                 }
-                Button("Save") {
+                Button(L10n.tr("Save")) {
                     coordinator.commitRename()
                     dismiss()
                 }

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 71;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,6 +19,8 @@
 		A00000000000000000000109 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000209 /* SettingsView.swift */; };
 		A0000000000000000000010A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020A /* Assets.xcassets */; };
 		A0000000000000000000010B /* SettleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020C /* SettleTests.swift */; };
+		A0000000000000000000010C /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020E /* L10n.swift */; };
+		A0000000000000000000010D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000212 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +48,12 @@
 		A0000000000000000000020B /* Settle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Settle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0000000000000000000020C /* SettleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettleTests.swift; sourceTree = "<group>"; };
 		A0000000000000000000020D /* SettleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SettleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000020E /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		A0000000000000000000020F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A00000000000000000000210 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A00000000000000000000211 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A00000000000000000000213 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A00000000000000000000214 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,8 +85,6 @@
 		};
 		A00000000000000000000003 /* Settle */ = {
 			isa = PBXGroup;
-			path = Settle;
-			sourceTree = "<group>";
 			children = (
 				A00000000000000000000200 /* SettleApp.swift */,
 				A00000000000000000000201 /* Models.swift */,
@@ -90,16 +96,20 @@
 				A00000000000000000000207 /* LayoutCoordinator.swift */,
 				A00000000000000000000208 /* MenuContentView.swift */,
 				A00000000000000000000209 /* SettingsView.swift */,
+				A0000000000000000000020E /* L10n.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
+				A00000000000000000000212 /* Localizable.strings */,
 			);
+			path = Settle;
+			sourceTree = "<group>";
 		};
 		A00000000000000000000004 /* SettleTests */ = {
 			isa = PBXGroup;
-			path = SettleTests;
-			sourceTree = "<group>";
 			children = (
 				A0000000000000000000020C /* SettleTests.swift */,
 			);
+			path = SettleTests;
+			sourceTree = "<group>";
 		};
 		A00000000000000000000005 /* Products */ = {
 			isa = PBXGroup;
@@ -156,6 +166,8 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
+				KnownAssetTags = (
+				);
 				TargetAttributes = {
 					A00000000000000000000010 = {
 						CreatedOnToolsVersion = 26.0;
@@ -172,6 +184,10 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				es,
+				ca,
+				fr,
+				de,
 				Base,
 			);
 			mainGroup = A00000000000000000000002;
@@ -191,6 +207,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0000000000000000000010A /* Assets.xcassets in Resources */,
+				A0000000000000000000010D /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +228,7 @@
 				A00000000000000000000107 /* LayoutCoordinator.swift in Sources */,
 				A00000000000000000000108 /* MenuContentView.swift in Sources */,
 				A00000000000000000000109 /* SettingsView.swift in Sources */,
+				A0000000000000000000010C /* L10n.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,18 +250,35 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		A00000000000000000000212 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A0000000000000000000020F /* en */,
+				A00000000000000000000210 /* es */,
+				A00000000000000000000211 /* ca */,
+				A00000000000000000000213 /* fr */,
+				A00000000000000000000214 /* de */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		A00000000000000000000050 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_TESTABILITY = YES;
+				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Settle;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -266,12 +301,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Settle;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";

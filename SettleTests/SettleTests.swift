@@ -1,15 +1,99 @@
+import ApplicationServices
 import CoreGraphics
 import XCTest
 @testable import Settle
 
 final class SettleTests: XCTestCase {
+    @MainActor
+    func testLayoutStorePersistsAndDeletesSnapshotFile() throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storageURL = rootURL.appendingPathComponent("layouts.json")
+        let snapshotsURL = rootURL.appendingPathComponent("Snapshots", isDirectory: true)
+        let store = LayoutStore(storageURL: storageURL, snapshotsDirectoryURL: snapshotsURL)
+        let layout = Layout(
+            name: "Snapshot",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.TextEdit",
+                    appDisplayName: "TextEdit",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Notes",
+                            frame: WindowFrame(rect: CGRect(x: 10, y: 10, width: 300, height: 200)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 1
+                        )
+                    ]
+                )
+            ]
+        )
+        let pngData = Data([0x89, 0x50, 0x4E, 0x47])
+
+        try store.save(layout, snapshotPNGData: pngData)
+
+        let persisted = try XCTUnwrap(store.listLayouts().first)
+        let snapshotURL = try XCTUnwrap(store.snapshotURL(for: persisted))
+        XCTAssertEqual(try Data(contentsOf: snapshotURL), pngData)
+
+        try store.deleteLayout(id: persisted.id)
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: snapshotURL.path))
+    }
+
+    @MainActor
+    func testLayoutStoreReplacesSnapshotWithFreshFileNameOnOverwrite() throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storageURL = rootURL.appendingPathComponent("layouts.json")
+        let snapshotsURL = rootURL.appendingPathComponent("Snapshots", isDirectory: true)
+        let store = LayoutStore(storageURL: storageURL, snapshotsDirectoryURL: snapshotsURL)
+        let layout = Layout(
+            name: "Snapshot",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.TextEdit",
+                    appDisplayName: "TextEdit",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Notes",
+                            frame: WindowFrame(rect: CGRect(x: 10, y: 10, width: 300, height: 200)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 1
+                        )
+                    ]
+                )
+            ]
+        )
+
+        try store.save(layout, snapshotPNGData: Data([0x01]))
+        let firstPersisted = try XCTUnwrap(store.listLayouts().first)
+        let firstSnapshotURL = try XCTUnwrap(store.snapshotURL(for: firstPersisted))
+
+        var updatedLayout = firstPersisted
+        updatedLayout.updatedAt = .now
+        try store.save(updatedLayout, snapshotPNGData: Data([0x02]))
+
+        let secondPersisted = try XCTUnwrap(store.listLayouts().first)
+        let secondSnapshotURL = try XCTUnwrap(store.snapshotURL(for: secondPersisted))
+
+        XCTAssertNotEqual(firstPersisted.snapshotFileName, secondPersisted.snapshotFileName)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: firstSnapshotURL.path))
+        XCTAssertEqual(try Data(contentsOf: secondSnapshotURL), Data([0x02]))
+    }
+
     func testWindowMatcherPrefersExactTitleAndGeometry() {
         let target = WindowSnapshot(
             windowTitleSnapshot: "Project",
             frame: WindowFrame(rect: CGRect(x: 100, y: 100, width: 800, height: 600)),
             isMinimized: false,
             isMainWindowCandidate: true,
-            orderIndex: 0
+            orderIndex: 0,
+            stackingIndex: 0
         )
 
         let candidates = [
@@ -28,7 +112,8 @@ final class SettleTests: XCTestCase {
                     frame: WindowFrame(rect: CGRect(x: 10, y: 10, width: 300, height: 200)),
                     isMinimized: false,
                     isMainWindowCandidate: true,
-                    orderIndex: 0
+                    orderIndex: 0,
+                    stackingIndex: 0
                 )
             ])
         ])
@@ -44,5 +129,154 @@ final class SettleTests: XCTestCase {
 
         XCTAssertEqual(decoded.layouts.first?.name, "Work")
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.windowTitleSnapshot, "Notes")
+        XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 0)
+    }
+
+    func testLegacyWindowSnapshotDecodesWithoutStackingIndex() throws {
+        let json = """
+        {
+          "version": 1,
+          "layouts": [
+            {
+              "id": "C8B0ED5A-22E6-4EFA-BF54-F6B620E2B9DF",
+              "name": "Legacy",
+              "createdAt": "2026-06-15T20:00:00Z",
+              "updatedAt": "2026-06-15T20:00:00Z",
+              "pinned": false,
+              "spacePolicy": "currentSpaceOnly",
+              "extraWindowsBehaviorDefault": "leaveUntouched",
+              "apps": [
+                {
+                  "id": "64338CF7-22B3-418F-8FF4-2817D708FD22",
+                  "bundleIdentifier": "com.apple.TextEdit",
+                  "appDisplayName": "TextEdit",
+                  "windows": [
+                    {
+                      "id": "47FEFF67-8F3C-4B38-9054-77C1A615C4E9",
+                      "windowTitleSnapshot": "Notes",
+                      "frame": { "x": 10, "y": 10, "width": 300, "height": 200 },
+                      "isMinimized": false,
+                      "isMainWindowCandidate": true,
+                      "orderIndex": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let decoded = try decoder.decode(LayoutDocument.self, from: json)
+        XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.orderIndex, 3)
+        XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 3)
+    }
+
+    func testLayoutCanPersistSnapshotReference() throws {
+        let layout = Layout(
+            name: "Snapshot",
+            snapshotFileName: "abc123.png",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.TextEdit",
+                    appDisplayName: "TextEdit",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Notes",
+                            frame: WindowFrame(rect: CGRect(x: 10, y: 10, width: 300, height: 200)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 2
+                        )
+                    ]
+                )
+            ]
+        )
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let data = try encoder.encode(LayoutDocument(version: LayoutDocument.currentVersion, layouts: [layout]))
+        let decoded = try decoder.decode(LayoutDocument.self, from: data)
+
+        XCTAssertEqual(decoded.layouts.first?.snapshotFileName, "abc123.png")
+        XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 2)
+    }
+
+    func testRaiseOrderUsesBackToFrontSequence() {
+        let front = WindowSnapshot(
+            windowTitleSnapshot: "Front",
+            frame: WindowFrame(rect: CGRect(x: 0, y: 0, width: 100, height: 100)),
+            isMinimized: false,
+            isMainWindowCandidate: true,
+            orderIndex: 0,
+            stackingIndex: 0
+        )
+        let middle = WindowSnapshot(
+            windowTitleSnapshot: "Middle",
+            frame: WindowFrame(rect: CGRect(x: 10, y: 10, width: 100, height: 100)),
+            isMinimized: false,
+            isMainWindowCandidate: false,
+            orderIndex: 1,
+            stackingIndex: 1
+        )
+        let back = WindowSnapshot(
+            windowTitleSnapshot: "Back",
+            frame: WindowFrame(rect: CGRect(x: 20, y: 20, width: 100, height: 100)),
+            isMinimized: false,
+            isMainWindowCandidate: false,
+            orderIndex: 2,
+            stackingIndex: 2
+        )
+
+        let orderedTitles = WindowManager
+            .matchesInRaiseOrder([
+                (front, AXUIElementCreateApplication(1)),
+                (back, AXUIElementCreateApplication(2)),
+                (middle, AXUIElementCreateApplication(3))
+            ])
+            .map(\.0.windowTitleSnapshot)
+
+        XCTAssertEqual(orderedTitles, ["Back", "Middle", "Front"])
+    }
+
+    func testSnapshotBoundsFitsVisibleLayoutWindows() {
+        let layout = Layout(
+            name: "Preview",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.Safari",
+                    appDisplayName: "Safari",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Main",
+                            frame: WindowFrame(rect: CGRect(x: 100, y: 80, width: 900, height: 700)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 0
+                        ),
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Inspector",
+                            frame: WindowFrame(rect: CGRect(x: 1040, y: 140, width: 320, height: 500)),
+                            isMinimized: false,
+                            isMainWindowCandidate: false,
+                            orderIndex: 1,
+                            stackingIndex: 1
+                        )
+                    ]
+                )
+            ]
+        )
+
+        let bounds = WindowManager.snapshotBounds(for: layout, padding: 20)
+
+        XCTAssertEqual(bounds, CGRect(x: 80, y: 60, width: 1300, height: 740))
     }
 }

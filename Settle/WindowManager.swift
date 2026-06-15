@@ -10,15 +10,34 @@ enum WindowManagerError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .accessibilityPermissionMissing:
-            "Settle necesita permiso de Accesibilidad para leer y mover ventanas."
+            L10n.tr("The window layout could not be restored because Accessibility access is missing.")
         case .captureFailed:
-            "No se pudo capturar el escritorio actual."
+            L10n.tr("The current desktop could not be captured.")
         }
     }
 }
 
 struct WindowManager {
-    func captureCurrentLayout(name: String) throws -> Layout {
+    struct CapturedLayoutResult {
+        let layout: Layout
+        let previewWindows: [PreviewWindowCapture]
+    }
+
+    struct PreviewWindowCapture {
+        let windowID: CGWindowID
+        let frame: CGRect
+        let stackingIndex: Int
+    }
+
+    private struct VisibleWindowRecord {
+        let offset: Int
+        let windowID: CGWindowID
+        let pid: pid_t
+        let frame: CGRect
+        let title: String
+    }
+
+    func captureCurrentLayout(name: String) throws -> CapturedLayoutResult {
         guard AXIsProcessTrusted() else {
             throw WindowManagerError.accessibilityPermissionMissing
         }
@@ -27,10 +46,11 @@ struct WindowManager {
             as? [[String: Any]] ?? []
 
         let currentPID = ProcessInfo.processInfo.processIdentifier
-        let filtered = visibleWindows.enumerated().compactMap { offset, windowInfo -> (Int, pid_t, CGRect, String?)? in
+        let filtered = visibleWindows.enumerated().compactMap { offset, windowInfo -> VisibleWindowRecord? in
             guard
                 let pid = windowInfo[kCGWindowOwnerPID as String] as? pid_t,
                 pid != currentPID,
+                let windowID = windowInfo[kCGWindowNumber as String] as? CGWindowID,
                 let boundsDict = windowInfo[kCGWindowBounds as String] as? [String: CGFloat]
             else {
                 return nil
@@ -47,32 +67,49 @@ struct WindowManager {
             )
 
             guard frame.width > 80, frame.height > 60 else { return nil }
-            let title = windowInfo[kCGWindowName as String] as? String
-            return (offset, pid, frame, title)
+            let title = windowInfo[kCGWindowName as String] as? String ?? ""
+            return VisibleWindowRecord(
+                offset: offset,
+                windowID: windowID,
+                pid: pid,
+                frame: frame,
+                title: title
+            )
         }
 
-        let grouped = Dictionary(grouping: filtered, by: \.1)
+        let grouped = Dictionary(grouping: filtered, by: \.pid)
+        var previewWindows: [PreviewWindowCapture] = []
+
         let appSnapshots = grouped.compactMap { pid, windows -> AppLayoutSnapshot? in
             guard
                 let runningApp = NSRunningApplication(processIdentifier: pid),
                 let bundleIdentifier = runningApp.bundleIdentifier,
-                !bundleIdentifier.isEmpty
+                !bundleIdentifier.isEmpty,
+                shouldCaptureApp(bundleIdentifier: bundleIdentifier, appName: runningApp.localizedName ?? "")
             else {
                 return nil
             }
 
             let accessibleWindows = axWindows(for: pid)
-            let ordered = windows.sorted { $0.0 < $1.0 }
+            let ordered = windows.sorted { $0.offset < $1.offset }
             let snapshots = ordered.enumerated().compactMap { orderIndex, entry in
                 makeWindowSnapshot(
                     orderIndex: orderIndex,
-                    title: entry.3 ?? "",
-                    frame: entry.2,
+                    stackingIndex: entry.offset,
+                    title: entry.title,
+                    frame: entry.frame,
                     accessibleWindows: accessibleWindows
                 )
             }
 
             guard !snapshots.isEmpty else { return nil }
+            previewWindows.append(contentsOf: ordered.map {
+                PreviewWindowCapture(
+                    windowID: $0.windowID,
+                    frame: $0.frame,
+                    stackingIndex: $0.offset
+                )
+            })
             let appName = runningApp.localizedName ?? bundleIdentifier
             return AppLayoutSnapshot(bundleIdentifier: bundleIdentifier, appDisplayName: appName, windows: snapshots)
         }
@@ -82,7 +119,167 @@ struct WindowManager {
             throw WindowManagerError.captureFailed
         }
 
-        return Layout(name: name, apps: appSnapshots)
+        return CapturedLayoutResult(
+            layout: Layout(name: name, apps: appSnapshots),
+            previewWindows: previewWindows
+        )
+    }
+
+    func captureDesktopSnapshotPNGData(
+        for layout: Layout,
+        previewWindows: [PreviewWindowCapture],
+        maxPreviewSize: CGSize = CGSize(width: 360, height: 220),
+        padding: CGFloat = 24
+    ) -> Data? {
+        guard
+            !previewWindows.isEmpty,
+            let snapshotBounds = Self.snapshotBounds(for: previewWindows, fallbackLayout: layout, padding: padding),
+            let compositeImage = compositePreviewImage(previewWindows, within: snapshotBounds)
+        else {
+            return nil
+        }
+
+        let sourceSize = CGSize(width: compositeImage.width, height: compositeImage.height)
+        guard sourceSize.width > 0, sourceSize.height > 0 else { return nil }
+
+        let scale = min(
+            1,
+            maxPreviewSize.width / sourceSize.width,
+            maxPreviewSize.height / sourceSize.height
+        )
+        let targetSize = CGSize(
+            width: max(1, floor(sourceSize.width * scale)),
+            height: max(1, floor(sourceSize.height * scale))
+        )
+        let rendered = NSImage(cgImage: compositeImage, size: sourceSize)
+
+        guard
+            let bitmap = NSBitmapImageRep(
+                bitmapDataPlanes: nil,
+                pixelsWide: Int(targetSize.width),
+                pixelsHigh: Int(targetSize.height),
+                bitsPerSample: 8,
+                samplesPerPixel: 4,
+                hasAlpha: true,
+                isPlanar: false,
+                colorSpaceName: .deviceRGB,
+                bytesPerRow: 0,
+                bitsPerPixel: 0
+            )
+        else {
+            return nil
+        }
+
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
+        rendered.draw(in: CGRect(origin: .zero, size: targetSize))
+        NSGraphicsContext.restoreGraphicsState()
+
+        return bitmap.representation(using: .png, properties: [:])
+    }
+
+    static func snapshotBounds(for layout: Layout, padding: CGFloat = 24) -> CGRect? {
+        let frames = layout.apps
+            .flatMap(\.windows)
+            .map { $0.frame.cgRect }
+            .filter { $0.width > 1 && $0.height > 1 }
+
+        guard let union = frames.reduce(nil, { partial, frame in
+            partial?.union(frame) ?? frame
+        }) else {
+            return nil
+        }
+
+        return union
+            .insetBy(dx: -padding, dy: -padding)
+            .integral
+    }
+
+    private static func snapshotBounds(
+        for previewWindows: [PreviewWindowCapture],
+        fallbackLayout layout: Layout,
+        padding: CGFloat = 24
+    ) -> CGRect? {
+        let frames = previewWindows
+            .map(\.frame)
+            .filter { $0.width > 1 && $0.height > 1 }
+
+        guard let union = frames.reduce(nil, { partial, frame in
+            partial?.union(frame) ?? frame
+        }) else {
+            return snapshotBounds(for: layout, padding: padding)
+        }
+
+        return union
+            .insetBy(dx: -padding, dy: -padding)
+            .integral
+    }
+
+    private func compositePreviewImage(
+        _ previewWindows: [PreviewWindowCapture],
+        within snapshotBounds: CGRect
+    ) -> CGImage? {
+        let canvasSize = CGSize(
+            width: max(1, ceil(snapshotBounds.width)),
+            height: max(1, ceil(snapshotBounds.height))
+        )
+
+        guard
+            let context = CGContext(
+                data: nil,
+                width: Int(canvasSize.width),
+                height: Int(canvasSize.height),
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )
+        else {
+            return nil
+        }
+
+        context.interpolationQuality = .high
+        context.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 0))
+        context.fill(CGRect(origin: .zero, size: canvasSize))
+
+        var renderedAnyWindow = false
+
+        for previewWindow in previewWindows.sorted(by: { $0.stackingIndex > $1.stackingIndex }) {
+            guard let image = CGWindowListCreateImage(
+                CGRectNull,
+                .optionIncludingWindow,
+                previewWindow.windowID,
+                [.boundsIgnoreFraming, .bestResolution]
+            ) else {
+                continue
+            }
+
+            let drawRect = CGRect(
+                x: previewWindow.frame.minX - snapshotBounds.minX,
+                y: snapshotBounds.maxY - previewWindow.frame.maxY,
+                width: previewWindow.frame.width,
+                height: previewWindow.frame.height
+            )
+
+            context.draw(image, in: drawRect)
+            renderedAnyWindow = true
+        }
+
+        guard renderedAnyWindow else { return nil }
+        return context.makeImage()
+    }
+
+    private func shouldCaptureApp(bundleIdentifier: String, appName: String) -> Bool {
+        if bundleIdentifier.hasPrefix("com.apple.accessibility.") {
+            return false
+        }
+
+        let loweredName = appName.lowercased()
+        if loweredName.contains("authwarn") {
+            return false
+        }
+
+        return true
     }
 
     func restoreLayout(_ layout: Layout, appLauncher: AppLauncher) async -> RestoreReport {
@@ -93,6 +290,7 @@ struct WindowManager {
         }
 
         var report = RestoreReport()
+        var matchedWindows: [(WindowSnapshot, AXUIElement)] = []
 
         for appSnapshot in layout.apps {
             do {
@@ -129,6 +327,7 @@ struct WindowManager {
                     let axIndex = windowCandidates[matchIndex].0
                     let element = unmatchedWindows.remove(at: axIndex)
                     apply(window: element, target: targetWindow)
+                    matchedWindows.append((targetWindow, element))
                     report.restoredWindows.append(label(for: appSnapshot, window: targetWindow))
                 }
             } catch {
@@ -137,6 +336,8 @@ struct WindowManager {
                 )
             }
         }
+
+        await raiseWindowsToSavedOrder(matchedWindows)
 
         return report
     }
@@ -149,12 +350,13 @@ struct WindowManager {
     }
 
     private func label(for appSnapshot: AppLayoutSnapshot, window: WindowSnapshot) -> String {
-        let title = window.windowTitleSnapshot.isEmpty ? "Untitled Window" : window.windowTitleSnapshot
+        let title = window.windowTitleSnapshot.isEmpty ? L10n.tr("Untitled Window") : window.windowTitleSnapshot
         return "\(appSnapshot.appDisplayName) - \(title)"
     }
 
     private func makeWindowSnapshot(
         orderIndex: Int,
+        stackingIndex: Int,
         title: String,
         frame: CGRect,
         accessibleWindows: [AXUIElement]
@@ -179,8 +381,20 @@ struct WindowManager {
             isMinimized: minimized,
             isMainWindowCandidate: isMain,
             orderIndex: orderIndex,
+            stackingIndex: stackingIndex,
             screenHint: NSScreen.screens.first(where: { $0.frame.intersects(frame) })?.localizedName
         )
+    }
+
+    private func raiseWindowsToSavedOrder(_ matches: [(WindowSnapshot, AXUIElement)]) async {
+        for match in Self.matchesInRaiseOrder(matches) {
+            AXUIElementPerformAction(match.1, kAXRaiseAction as CFString)
+            try? await Task.sleep(for: .milliseconds(35))
+        }
+    }
+
+    static func matchesInRaiseOrder(_ matches: [(WindowSnapshot, AXUIElement)]) -> [(WindowSnapshot, AXUIElement)] {
+        matches.sorted(by: { $0.0.stackingIndex > $1.0.stackingIndex })
     }
 
     private func apply(window: AXUIElement, target: WindowSnapshot) {

@@ -36,6 +36,7 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
     var isMinimized: Bool
     var isMainWindowCandidate: Bool
     var orderIndex: Int
+    var stackingIndex: Int
     var screenHint: String?
 
     init(
@@ -45,6 +46,7 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
         isMinimized: Bool,
         isMainWindowCandidate: Bool,
         orderIndex: Int,
+        stackingIndex: Int,
         screenHint: String? = nil
     ) {
         self.id = id
@@ -53,7 +55,31 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
         self.isMinimized = isMinimized
         self.isMainWindowCandidate = isMainWindowCandidate
         self.orderIndex = orderIndex
+        self.stackingIndex = stackingIndex
         self.screenHint = screenHint
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case windowTitleSnapshot
+        case frame
+        case isMinimized
+        case isMainWindowCandidate
+        case orderIndex
+        case stackingIndex
+        case screenHint
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        windowTitleSnapshot = try container.decode(String.self, forKey: .windowTitleSnapshot)
+        frame = try container.decode(WindowFrame.self, forKey: .frame)
+        isMinimized = try container.decode(Bool.self, forKey: .isMinimized)
+        isMainWindowCandidate = try container.decode(Bool.self, forKey: .isMainWindowCandidate)
+        orderIndex = try container.decode(Int.self, forKey: .orderIndex)
+        stackingIndex = try container.decodeIfPresent(Int.self, forKey: .stackingIndex) ?? orderIndex
+        screenHint = try container.decodeIfPresent(String.self, forKey: .screenHint)
     }
 }
 
@@ -82,6 +108,7 @@ struct Layout: Codable, Hashable, Identifiable {
     var createdAt: Date
     var updatedAt: Date
     var pinned: Bool
+    var snapshotFileName: String?
     var spacePolicy: SpacePolicy
     var extraWindowsBehaviorDefault: ExtraWindowsBehavior
     var apps: [AppLayoutSnapshot]
@@ -92,6 +119,7 @@ struct Layout: Codable, Hashable, Identifiable {
         createdAt: Date = .now,
         updatedAt: Date = .now,
         pinned: Bool = false,
+        snapshotFileName: String? = nil,
         spacePolicy: SpacePolicy = .currentSpaceOnly,
         extraWindowsBehaviorDefault: ExtraWindowsBehavior = .leaveUntouched,
         apps: [AppLayoutSnapshot]
@@ -101,6 +129,7 @@ struct Layout: Codable, Hashable, Identifiable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.pinned = pinned
+        self.snapshotFileName = snapshotFileName
         self.spacePolicy = spacePolicy
         self.extraWindowsBehaviorDefault = extraWindowsBehaviorDefault
         self.apps = apps

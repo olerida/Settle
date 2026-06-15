@@ -3,7 +3,7 @@ import Foundation
 
 @MainActor
 final class LayoutCoordinator: ObservableObject {
-    @Published var statusMessage = "Ready"
+    @Published var statusMessage = L10n.tr("Ready")
     @Published var saveName = ""
     @Published var renameName = ""
     @Published var isSaveSheetPresented = false
@@ -41,9 +41,15 @@ final class LayoutCoordinator: ObservableObject {
         store.layouts
     }
 
+    func snapshotURL(for layout: Layout) -> URL? {
+        store.snapshotURL(for: layout)
+    }
+
     func requestAccessibilityPermission() {
         permissionManager.requestIfNeeded()
-        statusMessage = permissionManager.isTrusted ? "Accessibility access enabled" : "Grant Accessibility access in System Settings"
+        statusMessage = permissionManager.isTrusted
+            ? L10n.tr("Accessibility access enabled")
+            : L10n.tr("Grant Accessibility access in System Settings")
     }
 
     func refreshPermissions() {
@@ -65,13 +71,17 @@ final class LayoutCoordinator: ObservableObject {
         do {
             let normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !normalized.isEmpty else {
-                statusMessage = "Name required"
+                statusMessage = L10n.tr("Name required")
                 return
             }
-            statusMessage = "Capturing windows..."
-            let layout = try windowManager.captureCurrentLayout(name: normalized)
-            try store.save(layout)
-            statusMessage = "Saved \(layout.apps.count) apps"
+            statusMessage = L10n.tr("Capturing windows...")
+            let captured = try windowManager.captureCurrentLayout(name: normalized)
+            let snapshotPNGData = windowManager.captureDesktopSnapshotPNGData(
+                for: captured.layout,
+                previewWindows: captured.previewWindows
+            )
+            try store.save(captured.layout, snapshotPNGData: snapshotPNGData)
+            statusMessage = L10n.format("Saved %d apps", captured.layout.apps.count)
             isSaveSheetPresented = false
         } catch {
             statusMessage = error.localizedDescription
@@ -84,7 +94,7 @@ final class LayoutCoordinator: ObservableObject {
     func overwrite(_ layout: Layout) {
         Task {
             do {
-                statusMessage = "Updating layout..."
+                statusMessage = L10n.tr("Updated layout...")
                 let captured = try windowManager.captureCurrentLayout(name: layout.name)
                 let updatedLayout = Layout(
                     id: layout.id,
@@ -92,12 +102,17 @@ final class LayoutCoordinator: ObservableObject {
                     createdAt: layout.createdAt,
                     updatedAt: .now,
                     pinned: layout.pinned,
+                    snapshotFileName: layout.snapshotFileName,
                     spacePolicy: layout.spacePolicy,
                     extraWindowsBehaviorDefault: layout.extraWindowsBehaviorDefault,
-                    apps: captured.apps
+                    apps: captured.layout.apps
                 )
-                try store.save(updatedLayout)
-                statusMessage = "Updated \(layout.name)"
+                let snapshotPNGData = windowManager.captureDesktopSnapshotPNGData(
+                    for: updatedLayout,
+                    previewWindows: captured.previewWindows
+                )
+                try store.save(updatedLayout, snapshotPNGData: snapshotPNGData)
+                statusMessage = L10n.format("Updated %@", layout.name)
             } catch {
                 statusMessage = error.localizedDescription
                 if !permissionManager.isTrusted {
@@ -109,16 +124,16 @@ final class LayoutCoordinator: ObservableObject {
 
     func restore(_ layout: Layout) {
         Task {
-            statusMessage = "Launching apps..."
+            statusMessage = L10n.tr("Launching apps...")
             let report = await windowManager.restoreLayout(layout, appLauncher: appLauncher)
             latestReport = report
 
             if !report.failures.isEmpty {
-                statusMessage = report.failures.first?.message ?? "Restore failed"
+                statusMessage = report.failures.first?.message ?? L10n.tr("Restore failed")
             } else if !report.unreconciledWindows.isEmpty {
-                statusMessage = "Restored with \(report.unreconciledWindows.count) unresolved windows"
+                statusMessage = L10n.format("Restored with %d unresolved windows", report.unreconciledWindows.count)
             } else {
-                statusMessage = "Done"
+                statusMessage = L10n.tr("Done")
             }
         }
     }
@@ -126,7 +141,7 @@ final class LayoutCoordinator: ObservableObject {
     func delete(_ layout: Layout) {
         do {
             try store.deleteLayout(id: layout.id)
-            statusMessage = "Deleted \(layout.name)"
+            statusMessage = L10n.format("Deleted %@", layout.name)
         } catch {
             statusMessage = error.localizedDescription
         }
@@ -141,7 +156,7 @@ final class LayoutCoordinator: ObservableObject {
         guard let layout = renamingLayout else { return }
         do {
             try store.renameLayout(id: layout.id, name: renameName)
-            statusMessage = "Renamed layout"
+            statusMessage = L10n.tr("Renamed layout")
             renamingLayout = nil
         } catch {
             statusMessage = error.localizedDescription
@@ -155,7 +170,7 @@ final class LayoutCoordinator: ObservableObject {
     func togglePinned(_ layout: Layout) {
         do {
             try store.togglePinned(id: layout.id)
-            statusMessage = layout.pinned ? "Unpinned \(layout.name)" : "Pinned \(layout.name)"
+            statusMessage = layout.pinned ? L10n.format("Unpinned %@", layout.name) : L10n.format("Pinned %@", layout.name)
         } catch {
             statusMessage = error.localizedDescription
         }
