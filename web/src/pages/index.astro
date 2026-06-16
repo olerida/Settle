@@ -1,3 +1,28 @@
 ---
-return Astro.redirect('/en');
+const supportedLanguages = ['en', 'es', 'ca', 'fr', 'de'];
+const fallbackLanguage = 'en';
 ---
+
+<!doctype html>
+<html lang={fallbackLanguage}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Settle</title>
+    <script is:inline define:vars={{ supportedLanguages, fallbackLanguage }}>
+      const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+      const language = browserLanguages
+        .map((value) => value?.toLowerCase().split('-')[0])
+        .find((value) => supportedLanguages.includes(value)) || fallbackLanguage;
+
+      window.location.replace(`/${language}`);
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <meta http-equiv="refresh" content={`0;url=/${fallbackLanguage}`} />
+      <a href={`/${fallbackLanguage}`}>Settle</a>
+    </noscript>
+  </body>
+</html>
