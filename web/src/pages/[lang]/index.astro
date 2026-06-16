@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { copy, defaultLanguage, isLanguage, languages } from '../../data/i18n';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const lang = isLanguage(Astro.params.lang) ? Astro.params.lang : defaultLanguage;
+const t = copy[lang];
+---
+
+<BaseLayout lang={lang} title={t.metaTitle} description={t.metaDescription}>
+  <header class="site-header" aria-label="Settle">
+    <a class="brand" href={`/${lang}`} aria-label="Settle">
+      <img src="/app-icon.png" width="32" height="32" alt="" />
+      <span>Settle</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">{t.navFeatures}</a>
+      <a href="#privacy">{t.navPrivacy}</a>
+      <a class="download-link" href="#download">{t.navDownload}</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">{t.heroEyebrow}</p>
+        <h1 id="hero-title">Settle</h1>
+        <p class="hero-title">{t.heroTitle}</p>
+        <p class="hero-body">{t.heroBody}</p>
+        <div class="hero-actions">
+          <a class="primary-button" href="#download">{t.primaryCta}</a>
+          <a class="secondary-button" href="https://github.com/olerida/Settle">{t.secondaryCta}</a>
+        </div>
+      </div>
+
+      <div class="product-visual" aria-label={t.visualSubtitle}>
+        <div class="desktop-plane">
+          <div class="window window-large"></div>
+          <div class="window window-small"></div>
+          <div class="window window-tall"></div>
+        </div>
+        <div class="menu-popover">
+          <div class="popover-top">
+            <div>
+              <p>{t.visualTitle}</p>
+              <strong>{t.visualSubtitle}</strong>
+            </div>
+            <span>{t.visualStatus}</span>
+          </div>
+          <div class="popover-actions">
+            <span>{t.visualSave}</span>
+            <span>{t.visualRestore}</span>
+          </div>
+          <div class="layout-row active">
+            <i></i>
+            <div>
+              <strong>{t.visualItemOne}</strong>
+              <span>{t.visualFourApps}</span>
+            </div>
+          </div>
+          <div class="layout-row">
+            <i></i>
+            <div>
+              <strong>{t.visualItemTwo}</strong>
+              <span>{t.visualSixApps}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="support-section">
+      <div class="section-lead">
+        <p class="eyebrow">{t.navFeatures}</p>
+        <h2>{t.supportTitle}</h2>
+        <p>{t.supportBody}</p>
+      </div>
+      <div class="feature-list">
+        <article>
+          <span>01</span>
+          <h3>{t.supportOneTitle}</h3>
+          <p>{t.supportOneBody}</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>{t.supportTwoTitle}</h3>
+          <p>{t.supportTwoBody}</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>{t.supportThreeTitle}</h3>
+          <p>{t.supportThreeBody}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow-section">
+      <div>
+        <h2>{t.workflowTitle}</h2>
+        <p>{t.workflowBody}</p>
+      </div>
+      <ol class="workflow-steps">
+        <li>{t.stepOne}</li>
+        <li>{t.stepTwo}</li>
+        <li>{t.stepThree}</li>
+      </ol>
+    </section>
+
+    <section class="detail-section">
+      <div class="detail-copy">
+        <h2>{t.detailTitle}</h2>
+        <p>{t.detailBody}</p>
+      </div>
+      <ul class="detail-list">
+        <li>{t.detailOne}</li>
+        <li>{t.detailTwo}</li>
+        <li>{t.detailThree}</li>
+      </ul>
+    </section>
+
+    <section id="privacy" class="privacy-section">
+      <h2>{t.privacyTitle}</h2>
+      <p>{t.privacyBody}</p>
+    </section>
+
+    <section id="download" class="final-cta">
+      <h2>{t.finalTitle}</h2>
+      <p>{t.finalBody}</p>
+      <a class="primary-button" href="https://github.com/olerida/Settle">{t.primaryCta}</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>{t.footer}</span>
+    <div class="language-links" aria-label={t.languageLabel}>
+      {languages.map((locale) => (
+        <a href={`/${locale}`} aria-current={locale === lang ? 'page' : undefined}>{locale.toUpperCase()}</a>
+      ))}
+    </div>
+  </footer>
+</BaseLayout>

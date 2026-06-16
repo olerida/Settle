@@ -1,2 +1,5 @@
 .DS_Store
 .DerivedData/
+web/.astro/
+web/dist/
+web/node_modules/

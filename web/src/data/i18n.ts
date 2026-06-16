@@ -1,0 +1,283 @@
+export const languages = ['en', 'es', 'ca', 'fr', 'de'] as const;
+
+export type Language = (typeof languages)[number];
+
+type Copy = {
+  metaTitle: string;
+  metaDescription: string;
+  navFeatures: string;
+  navPrivacy: string;
+  navDownload: string;
+  heroEyebrow: string;
+  heroTitle: string;
+  heroBody: string;
+  primaryCta: string;
+  secondaryCta: string;
+  visualTitle: string;
+  visualSubtitle: string;
+  visualSave: string;
+  visualRestore: string;
+  visualStatus: string;
+  visualItemOne: string;
+  visualItemTwo: string;
+  visualFourApps: string;
+  visualSixApps: string;
+  supportTitle: string;
+  supportBody: string;
+  supportOneTitle: string;
+  supportOneBody: string;
+  supportTwoTitle: string;
+  supportTwoBody: string;
+  supportThreeTitle: string;
+  supportThreeBody: string;
+  workflowTitle: string;
+  workflowBody: string;
+  stepOne: string;
+  stepTwo: string;
+  stepThree: string;
+  detailTitle: string;
+  detailBody: string;
+  detailOne: string;
+  detailTwo: string;
+  detailThree: string;
+  privacyTitle: string;
+  privacyBody: string;
+  finalTitle: string;
+  finalBody: string;
+  footer: string;
+  languageLabel: string;
+};
+
+export const copy: Record<Language, Copy> = {
+  en: {
+    metaTitle: 'Settle - Window layouts for macOS',
+    metaDescription: 'Save and restore your macOS window layouts from a quiet menu bar app.',
+    navFeatures: 'Features',
+    navPrivacy: 'Privacy',
+    navDownload: 'Download',
+    heroEyebrow: 'Menu bar app for macOS',
+    heroTitle: 'Put every window back where it belongs.',
+    heroBody: 'Settle saves the size and position of your visible windows, then restores that layout when your desk needs to feel familiar again.',
+    primaryCta: 'Download for macOS',
+    secondaryCta: 'View source',
+    visualTitle: 'Current desktop',
+    visualSubtitle: 'Window layouts',
+    visualSave: 'Save Layout',
+    visualRestore: 'Restore',
+    visualStatus: 'Ready',
+    visualItemOne: 'Morning focus',
+    visualItemTwo: 'Design review',
+    visualFourApps: '4 apps',
+    visualSixApps: '6 apps',
+    supportTitle: 'Built for the way macOS already works.',
+    supportBody: 'Settle stays in the menu bar, uses native permissions, and keeps the current desktop as the boundary.',
+    supportOneTitle: 'Save the current layout',
+    supportOneBody: 'Capture visible app windows, their sizes, and their positions in one action.',
+    supportTwoTitle: 'Restore with intent',
+    supportTwoBody: 'Reopen apps when possible and move windows back into place using Accessibility.',
+    supportThreeTitle: 'Leave extra windows alone',
+    supportThreeBody: 'Version 1 does not close, hide, or minimize windows outside the selected layout.',
+    workflowTitle: 'A calmer reset for messy desktops.',
+    workflowBody: 'Use Settle after plugging into a display, returning from a meeting, or switching between deep work and review.',
+    stepOne: 'Save',
+    stepTwo: 'Name',
+    stepThree: 'Restore',
+    detailTitle: 'Native, transparent, and predictable.',
+    detailBody: 'Settle uses the macOS Accessibility API only to inspect visible windows and restore their frames.',
+    detailOne: 'Current desktop only',
+    detailTwo: 'Accessibility permission required',
+    detailThree: 'Unresolved windows are reported',
+    privacyTitle: 'Privacy',
+    privacyBody: 'Your layouts stay on your Mac. The app does not need an account to save or restore windows.',
+    finalTitle: 'Make your Mac return to shape.',
+    finalBody: 'A small utility for people who care where their work lives on screen.',
+    footer: 'Settle for macOS',
+    languageLabel: 'Languages'
+  },
+  es: {
+    metaTitle: 'Settle - Layouts de ventanas para macOS',
+    metaDescription: 'Guarda y restaura tus layouts de ventanas de macOS desde una app discreta en la barra de menús.',
+    navFeatures: 'Funciones',
+    navPrivacy: 'Privacidad',
+    navDownload: 'Descargar',
+    heroEyebrow: 'App de barra de menús para macOS',
+    heroTitle: 'Devuelve cada ventana a su sitio.',
+    heroBody: 'Settle guarda el tamaño y la posición de tus ventanas visibles y restaura ese layout cuando necesitas recuperar tu mesa de trabajo.',
+    primaryCta: 'Descargar para macOS',
+    secondaryCta: 'Ver código',
+    visualTitle: 'Escritorio actual',
+    visualSubtitle: 'Layouts de ventanas',
+    visualSave: 'Guardar layout',
+    visualRestore: 'Restaurar',
+    visualStatus: 'Listo',
+    visualItemOne: 'Foco de mañana',
+    visualItemTwo: 'Revisión de diseño',
+    visualFourApps: '4 apps',
+    visualSixApps: '6 apps',
+    supportTitle: 'Pensada para cómo macOS ya funciona.',
+    supportBody: 'Settle vive en la barra de menús, usa permisos nativos y toma el escritorio actual como límite.',
+    supportOneTitle: 'Guarda el layout actual',
+    supportOneBody: 'Captura ventanas visibles, tamaños y posiciones en una sola acción.',
+    supportTwoTitle: 'Restaura con intención',
+    supportTwoBody: 'Reabre apps cuando es posible y recoloca ventanas mediante Accesibilidad.',
+    supportThreeTitle: 'Deja intactas las ventanas extra',
+    supportThreeBody: 'La versión 1 no cierra, oculta ni minimiza ventanas fuera del layout seleccionado.',
+    workflowTitle: 'Un reinicio más limpio para escritorios desordenados.',
+    workflowBody: 'Usa Settle al conectar una pantalla, volver de una reunión o cambiar entre foco y revisión.',
+    stepOne: 'Guarda',
+    stepTwo: 'Nombra',
+    stepThree: 'Restaura',
+    detailTitle: 'Nativa, transparente y predecible.',
+    detailBody: 'Settle usa la API de Accesibilidad de macOS solo para inspeccionar ventanas visibles y restaurar sus marcos.',
+    detailOne: 'Solo escritorio actual',
+    detailTwo: 'Requiere permiso de Accesibilidad',
+    detailThree: 'Informa ventanas no resueltas',
+    privacyTitle: 'Privacidad',
+    privacyBody: 'Tus layouts se quedan en tu Mac. La app no necesita una cuenta para guardar o restaurar ventanas.',
+    finalTitle: 'Haz que tu Mac vuelva a su forma.',
+    finalBody: 'Una utilidad pequeña para quien cuida dónde vive su trabajo en pantalla.',
+    footer: 'Settle para macOS',
+    languageLabel: 'Idiomas'
+  },
+  ca: {
+    metaTitle: 'Settle - Layouts de finestres per a macOS',
+    metaDescription: 'Desa i restaura els layouts de finestres de macOS des d’una app discreta a la barra de menús.',
+    navFeatures: 'Funcions',
+    navPrivacy: 'Privacitat',
+    navDownload: 'Descarrega',
+    heroEyebrow: 'App de barra de menús per a macOS',
+    heroTitle: 'Torna cada finestra al seu lloc.',
+    heroBody: 'Settle desa la mida i la posició de les finestres visibles i restaura aquest layout quan necessites recuperar l’espai de treball.',
+    primaryCta: 'Descarrega per a macOS',
+    secondaryCta: 'Veure codi',
+    visualTitle: 'Escriptori actual',
+    visualSubtitle: 'Layouts de finestres',
+    visualSave: 'Desa layout',
+    visualRestore: 'Restaura',
+    visualStatus: 'A punt',
+    visualItemOne: 'Focus del matí',
+    visualItemTwo: 'Revisió de disseny',
+    visualFourApps: '4 apps',
+    visualSixApps: '6 apps',
+    supportTitle: 'Feta per a la manera com macOS ja funciona.',
+    supportBody: 'Settle viu a la barra de menús, usa permisos natius i pren l’escriptori actual com a límit.',
+    supportOneTitle: 'Desa el layout actual',
+    supportOneBody: 'Captura finestres visibles, mides i posicions en una sola acció.',
+    supportTwoTitle: 'Restaura amb intenció',
+    supportTwoBody: 'Reobre apps quan és possible i recol·loca finestres amb Accessibilitat.',
+    supportThreeTitle: 'Deixa intactes les finestres extra',
+    supportThreeBody: 'La versió 1 no tanca, amaga ni minimitza finestres fora del layout seleccionat.',
+    workflowTitle: 'Un reinici més net per a escriptoris desordenats.',
+    workflowBody: 'Fes servir Settle en connectar una pantalla, tornar d’una reunió o canviar entre focus i revisió.',
+    stepOne: 'Desa',
+    stepTwo: 'Anomena',
+    stepThree: 'Restaura',
+    detailTitle: 'Nativa, transparent i previsible.',
+    detailBody: 'Settle usa l’API d’Accessibilitat de macOS només per inspeccionar finestres visibles i restaurar-ne els marcs.',
+    detailOne: 'Només escriptori actual',
+    detailTwo: 'Cal permís d’Accessibilitat',
+    detailThree: 'Informa finestres no resoltes',
+    privacyTitle: 'Privacitat',
+    privacyBody: 'Els teus layouts es queden al Mac. L’app no necessita cap compte per desar o restaurar finestres.',
+    finalTitle: 'Fes que el Mac torni a la seva forma.',
+    finalBody: 'Una utilitat petita per a qui cuida on viu la feina a la pantalla.',
+    footer: 'Settle per a macOS',
+    languageLabel: 'Idiomes'
+  },
+  fr: {
+    metaTitle: 'Settle - Agencements de fenêtres pour macOS',
+    metaDescription: 'Enregistrez et restaurez vos agencements de fenêtres macOS depuis une app discrète dans la barre des menus.',
+    navFeatures: 'Fonctions',
+    navPrivacy: 'Confidentialité',
+    navDownload: 'Télécharger',
+    heroEyebrow: 'App de barre des menus pour macOS',
+    heroTitle: 'Remettez chaque fenêtre à sa place.',
+    heroBody: 'Settle enregistre la taille et la position de vos fenêtres visibles, puis restaure cet agencement quand votre bureau doit redevenir familier.',
+    primaryCta: 'Télécharger pour macOS',
+    secondaryCta: 'Voir le code',
+    visualTitle: 'Bureau actuel',
+    visualSubtitle: 'Agencements de fenêtres',
+    visualSave: 'Enregistrer',
+    visualRestore: 'Restaurer',
+    visualStatus: 'Prêt',
+    visualItemOne: 'Concentration du matin',
+    visualItemTwo: 'Revue design',
+    visualFourApps: '4 apps',
+    visualSixApps: '6 apps',
+    supportTitle: 'Pensée pour la façon dont macOS fonctionne déjà.',
+    supportBody: 'Settle reste dans la barre des menus, utilise les autorisations natives et limite son action au bureau actuel.',
+    supportOneTitle: 'Enregistrez l’agencement actuel',
+    supportOneBody: 'Capturez les fenêtres visibles, leurs tailles et leurs positions en une action.',
+    supportTwoTitle: 'Restaurez avec précision',
+    supportTwoBody: 'Rouvrez les apps quand c’est possible et replacez les fenêtres avec Accessibilité.',
+    supportThreeTitle: 'Laissez les fenêtres en plus tranquilles',
+    supportThreeBody: 'La version 1 ne ferme pas, ne masque pas et ne minimise pas les fenêtres hors de l’agencement sélectionné.',
+    workflowTitle: 'Une remise en ordre plus calme pour les bureaux chargés.',
+    workflowBody: 'Utilisez Settle après avoir branché un écran, au retour d’une réunion ou en changeant de mode de travail.',
+    stepOne: 'Enregistrer',
+    stepTwo: 'Nommer',
+    stepThree: 'Restaurer',
+    detailTitle: 'Native, transparente et prévisible.',
+    detailBody: 'Settle utilise l’API Accessibilité de macOS uniquement pour inspecter les fenêtres visibles et restaurer leur cadre.',
+    detailOne: 'Bureau actuel uniquement',
+    detailTwo: 'Autorisation Accessibilité requise',
+    detailThree: 'Fenêtres non résolues signalées',
+    privacyTitle: 'Confidentialité',
+    privacyBody: 'Vos agencements restent sur votre Mac. L’app n’a pas besoin de compte pour enregistrer ou restaurer les fenêtres.',
+    finalTitle: 'Redonnez sa forme à votre Mac.',
+    finalBody: 'Un petit utilitaire pour celles et ceux qui soignent la place de leur travail à l’écran.',
+    footer: 'Settle pour macOS',
+    languageLabel: 'Langues'
+  },
+  de: {
+    metaTitle: 'Settle - Fensterlayouts für macOS',
+    metaDescription: 'Speichere und stelle deine macOS-Fensterlayouts mit einer ruhigen Menüleisten-App wieder her.',
+    navFeatures: 'Funktionen',
+    navPrivacy: 'Datenschutz',
+    navDownload: 'Download',
+    heroEyebrow: 'Menüleisten-App für macOS',
+    heroTitle: 'Jedes Fenster zurück an seinen Platz.',
+    heroBody: 'Settle speichert Größe und Position deiner sichtbaren Fenster und stellt dieses Layout wieder her, wenn dein Schreibtisch vertraut wirken soll.',
+    primaryCta: 'Für macOS laden',
+    secondaryCta: 'Quellcode',
+    visualTitle: 'Aktueller Schreibtisch',
+    visualSubtitle: 'Fensterlayouts',
+    visualSave: 'Layout speichern',
+    visualRestore: 'Wiederherstellen',
+    visualStatus: 'Bereit',
+    visualItemOne: 'Morgenfokus',
+    visualItemTwo: 'Design-Review',
+    visualFourApps: '4 Apps',
+    visualSixApps: '6 Apps',
+    supportTitle: 'Gemacht für die Art, wie macOS bereits funktioniert.',
+    supportBody: 'Settle bleibt in der Menüleiste, nutzt native Berechtigungen und behandelt den aktuellen Schreibtisch als Grenze.',
+    supportOneTitle: 'Aktuelles Layout speichern',
+    supportOneBody: 'Sichtbare App-Fenster, Größen und Positionen mit einer Aktion erfassen.',
+    supportTwoTitle: 'Gezielt wiederherstellen',
+    supportTwoBody: 'Apps nach Möglichkeit erneut öffnen und Fenster per Bedienungshilfen zurücksetzen.',
+    supportThreeTitle: 'Zusätzliche Fenster bleiben unberührt',
+    supportThreeBody: 'Version 1 schließt, versteckt oder minimiert keine Fenster außerhalb des gewählten Layouts.',
+    workflowTitle: 'Ein ruhiger Reset für unordentliche Schreibtische.',
+    workflowBody: 'Nutze Settle nach dem Anschließen eines Displays, nach Meetings oder beim Wechsel zwischen Fokus und Review.',
+    stepOne: 'Speichern',
+    stepTwo: 'Benennen',
+    stepThree: 'Wiederherstellen',
+    detailTitle: 'Nativ, transparent und vorhersehbar.',
+    detailBody: 'Settle nutzt die macOS-API für Bedienungshilfen nur, um sichtbare Fenster zu prüfen und ihre Rahmen wiederherzustellen.',
+    detailOne: 'Nur aktueller Schreibtisch',
+    detailTwo: 'Berechtigung für Bedienungshilfen erforderlich',
+    detailThree: 'Nicht aufgelöste Fenster werden gemeldet',
+    privacyTitle: 'Datenschutz',
+    privacyBody: 'Deine Layouts bleiben auf deinem Mac. Die App braucht kein Konto, um Fenster zu speichern oder wiederherzustellen.',
+    finalTitle: 'Bring deinen Mac wieder in Form.',
+    finalBody: 'Ein kleines Werkzeug für Menschen, denen wichtig ist, wo ihre Arbeit auf dem Bildschirm liegt.',
+    footer: 'Settle für macOS',
+    languageLabel: 'Sprachen'
+  }
+};
+
+export const defaultLanguage: Language = 'en';
+
+export function isLanguage(value: string | undefined): value is Language {
+  return Boolean(value && languages.includes(value as Language));
+}

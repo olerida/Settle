@@ -61,6 +61,10 @@ final class LayoutCoordinator: ObservableObject {
         isSaveSheetPresented = true
     }
 
+    func cancelSave() {
+        isSaveSheetPresented = false
+    }
+
     func quickSave() {
         Task {
             await saveCurrentLayout(named: Self.defaultLayoutName())

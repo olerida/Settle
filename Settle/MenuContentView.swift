@@ -9,20 +9,13 @@ struct MenuContentView: View {
             header
             permissionBanner
             actionButtons
+            inlineEditor
             layoutsList
             footer
         }
         .padding(14)
         .frame(width: 430)
         .background(Color(nsColor: .windowBackgroundColor))
-        .sheet(isPresented: $coordinator.isSaveSheetPresented) {
-            SaveLayoutSheet()
-                .environmentObject(coordinator)
-        }
-        .sheet(item: $coordinator.renamingLayout) { _ in
-            RenameLayoutSheet()
-                .environmentObject(coordinator)
-        }
         .onAppear {
             coordinator.refreshPermissions()
         }
@@ -88,6 +81,17 @@ struct MenuContentView: View {
             .buttonStyle(ActionChipButtonStyle())
         }
         .controlSize(.small)
+    }
+
+    @ViewBuilder
+    private var inlineEditor: some View {
+        if coordinator.isSaveSheetPresented {
+            SaveLayoutPanel()
+                .environmentObject(coordinator)
+        } else if coordinator.renamingLayout != nil {
+            RenameLayoutPanel()
+                .environmentObject(coordinator)
+        }
     }
 
     private var layoutsList: some View {
@@ -299,9 +303,8 @@ private struct LayoutSnapshotPreviewButton: View {
     }
 }
 
-private struct SaveLayoutSheet: View {
+private struct SaveLayoutPanel: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -312,19 +315,18 @@ private struct SaveLayoutSheet: View {
             HStack {
                 Spacer()
                 Button(L10n.tr("Cancel")) {
-                    dismiss()
+                    coordinator.cancelSave()
                 }
                 Button(L10n.tr("Save")) {
                     Task {
                         await coordinator.saveCurrentLayout(named: coordinator.saveName)
-                        dismiss()
                     }
                 }
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(20)
-        .frame(width: 360)
+        .padding(12)
+        .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -337,9 +339,8 @@ private extension Date {
     }
 }
 
-private struct RenameLayoutSheet: View {
+private struct RenameLayoutPanel: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -351,16 +352,14 @@ private struct RenameLayoutSheet: View {
                 Spacer()
                 Button(L10n.tr("Cancel")) {
                     coordinator.cancelRename()
-                    dismiss()
                 }
                 Button(L10n.tr("Save")) {
                     coordinator.commitRename()
-                    dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(20)
-        .frame(width: 360)
+        .padding(12)
+        .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
     }
 }

@@ -306,10 +306,22 @@ struct WindowManager {
                     unmatchedWindows = axWindows(for: runningApp.processIdentifier)
                 }
 
+                var currentSpaceWindowRequests = 0
                 var reopenAttempted = false
 
                 for targetWindow in appSnapshot.windows.sorted(by: { $0.orderIndex < $1.orderIndex }) {
                     var windowCandidates = candidates(for: unmatchedWindows)
+
+                    while WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) == nil, currentSpaceWindowRequests < 2 {
+                        try await appLauncher.requestWindowInCurrentSpace(
+                            bundleIdentifier: appSnapshot.bundleIdentifier,
+                            runningApp: runningApp
+                        )
+                        currentSpaceWindowRequests += 1
+                        try await Task.sleep(for: .milliseconds(900))
+                        unmatchedWindows = axWindows(for: runningApp.processIdentifier)
+                        windowCandidates = candidates(for: unmatchedWindows)
+                    }
 
                     if WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) == nil, !reopenAttempted {
                         try await appLauncher.reopen(bundleIdentifier: appSnapshot.bundleIdentifier)

@@ -50,12 +50,22 @@ struct AppLauncher {
     }
 
     func reopen(bundleIdentifier: String) async throws {
+        try await open(bundleIdentifier: bundleIdentifier, activates: false)
+    }
+
+    func requestWindowInCurrentSpace(bundleIdentifier: String, runningApp: NSRunningApplication) async throws {
+        runningApp.activate(options: [])
+        try await Task.sleep(for: .milliseconds(250))
+        try await open(bundleIdentifier: bundleIdentifier, activates: true)
+    }
+
+    private func open(bundleIdentifier: String, activates: Bool) async throws {
         guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) else {
             throw AppLauncherError.appNotInstalled(bundleIdentifier)
         }
 
         let configuration = NSWorkspace.OpenConfiguration()
-        configuration.activates = false
+        configuration.activates = activates
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             NSWorkspace.shared.openApplication(at: appURL, configuration: configuration) { _, error in

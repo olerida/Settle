@@ -1,0 +1,31 @@
+---
+import '../styles/global.css';
+import { languages, type Language } from '../data/i18n';
+
+type Props = {
+  lang: Language;
+  title: string;
+  description: string;
+};
+
+const { lang, title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/app-icon.png" />
+    {languages.map((locale) => (
+      <link rel="alternate" hreflang={locale} href={`/${locale}`} />
+    ))}
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
