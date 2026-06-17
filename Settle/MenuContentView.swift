@@ -270,13 +270,6 @@ private struct LayoutSnapshotPreviewButton: View {
         .disabled(snapshotURL == nil)
         .accessibilityLabel(L10n.tr("Show snapshot preview"))
         .help(L10n.tr("Show snapshot preview"))
-        .onHover { hovering in
-            guard snapshotURL != nil else {
-                isPreviewPresented = false
-                return
-            }
-            isPreviewPresented = hovering
-        }
         .popover(isPresented: $isPreviewPresented, arrowEdge: .trailing) {
             if let snapshotURL, let image = snapshotImage(at: snapshotURL) {
                 VStack(alignment: .leading, spacing: 8) {
