@@ -12,9 +12,15 @@ const fallbackLanguage = 'en';
     <title>Settle</title>
     <script is:inline define:vars={{ supportedLanguages, fallbackLanguage }}>
       const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
-      const language = browserLanguages
-        .map((value) => value?.toLowerCase().split('-')[0])
-        .find((value) => supportedLanguages.includes(value)) || fallbackLanguage;
+      const normalizedLanguages = browserLanguages
+        .map((value) => value?.toLowerCase())
+        .filter(Boolean);
+      const prefersSpanish = normalizedLanguages.some((value) => value === 'es' || value.startsWith('es-'));
+      const language = prefersSpanish
+        ? 'es'
+        : normalizedLanguages
+          .map((value) => value.split('-')[0])
+          .find((value) => supportedLanguages.includes(value)) || fallbackLanguage;
 
       window.location.replace(`/${language}`);
     </script>

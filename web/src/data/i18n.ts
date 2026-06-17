@@ -46,12 +46,26 @@ type Copy = {
   finalBody: string;
   footer: string;
   languageLabel: string;
+  downloadMeta: string;
+  trustLine: string;
+  midCtaTitle: string;
+  requirementsTitle: string;
+  requirementMinimum: string;
+  requirementChip: string;
+  requirementSize: string;
+  requirementSignature: string;
+  accessibilityTitle: string;
+  accessibilityBody: string;
+  accessibilityDoes: string;
+  accessibilityDoesNot: string;
+  sourceTitle: string;
+  sourceBody: string;
 };
 
 export const copy: Record<Language, Copy> = {
   en: {
-    metaTitle: 'Settle - Window layouts for macOS',
-    metaDescription: 'Save and restore your macOS window layouts from a quiet menu bar app.',
+    metaTitle: 'Settle - Save and restore macOS window layouts',
+    metaDescription: 'Settle is a lightweight macOS menu bar app that saves and restores window layouts on the current desktop.',
     navFeatures: 'Features',
     navPrivacy: 'Privacy',
     navDownload: 'Download',
@@ -92,11 +106,25 @@ export const copy: Record<Language, Copy> = {
     finalTitle: 'Make your Mac return to shape.',
     finalBody: 'A small utility for people who care where their work lives on screen.',
     footer: 'Settle for macOS',
-    languageLabel: 'Languages'
+    languageLabel: 'Languages',
+    downloadMeta: 'Version 1.0 · universal DMG for Apple silicon and Intel · about 1 MB',
+    trustLine: 'Signed with Apple Developer Team V8L35RAQCL. Notarization status is not advertised until the release artifact is verified.',
+    midCtaTitle: 'Ready when your desktop drifts.',
+    requirementsTitle: 'Requirements',
+    requirementMinimum: 'macOS 14.0 or later',
+    requirementChip: 'Apple silicon and Intel Macs',
+    requirementSize: 'DMG: about 1 MB',
+    requirementSignature: 'Signed app bundle',
+    accessibilityTitle: 'Why Accessibility permission is needed',
+    accessibilityBody: 'Settle uses macOS Accessibility to read visible window frames and move those windows back into place.',
+    accessibilityDoes: 'It reads window titles, app names, positions, and sizes.',
+    accessibilityDoesNot: 'It does not read document contents, keystrokes, passwords, or browser pages.',
+    sourceTitle: 'Open source for transparency',
+    sourceBody: 'The code is public on GitHub, so the permission model and restore logic can be inspected.'
   },
   es: {
-    metaTitle: 'Settle - Layouts de ventanas para macOS',
-    metaDescription: 'Guarda y restaura tus layouts de ventanas de macOS desde una app discreta en la barra de menús.',
+    metaTitle: 'Settle - Guarda y restaura layouts de ventanas en macOS',
+    metaDescription: 'Settle es una app ligera de barra de menús para macOS que guarda y restaura layouts de ventanas del escritorio actual.',
     navFeatures: 'Funciones',
     navPrivacy: 'Privacidad',
     navDownload: 'Descargar',
@@ -137,11 +165,25 @@ export const copy: Record<Language, Copy> = {
     finalTitle: 'Haz que tu Mac vuelva a su forma.',
     finalBody: 'Una utilidad pequeña para quien cuida dónde vive su trabajo en pantalla.',
     footer: 'Settle para macOS',
-    languageLabel: 'Idiomas'
+    languageLabel: 'Idiomas',
+    downloadMeta: 'Versión 1.0 · DMG universal para Apple silicon e Intel · alrededor de 1 MB',
+    trustLine: 'App firmada con Apple Developer Team V8L35RAQCL. La notarización no se anuncia hasta verificar el artefacto final de release.',
+    midCtaTitle: 'Listo cuando tu escritorio se desordena.',
+    requirementsTitle: 'Requisitos',
+    requirementMinimum: 'macOS 14.0 o posterior',
+    requirementChip: 'Macs Apple silicon e Intel',
+    requirementSize: 'DMG: alrededor de 1 MB',
+    requirementSignature: 'Bundle de app firmado',
+    accessibilityTitle: 'Por qué necesita permiso de Accesibilidad',
+    accessibilityBody: 'Settle usa Accesibilidad de macOS para leer los marcos de las ventanas visibles y devolverlas a su sitio.',
+    accessibilityDoes: 'Lee títulos de ventanas, nombres de apps, posiciones y tamaños.',
+    accessibilityDoesNot: 'No lee contenido de documentos, teclas, contraseñas ni páginas del navegador.',
+    sourceTitle: 'Código abierto para mayor transparencia',
+    sourceBody: 'El código está publicado en GitHub, así que se puede revisar el uso de permisos y la lógica de restauración.'
   },
   ca: {
-    metaTitle: 'Settle - Layouts de finestres per a macOS',
-    metaDescription: 'Desa i restaura els layouts de finestres de macOS des d’una app discreta a la barra de menús.',
+    metaTitle: 'Settle - Desa i restaura layouts de finestres a macOS',
+    metaDescription: 'Settle és una app lleugera de barra de menús per a macOS que desa i restaura layouts de finestres de l’escriptori actual.',
     navFeatures: 'Funcions',
     navPrivacy: 'Privacitat',
     navDownload: 'Descarrega',
@@ -182,11 +224,25 @@ export const copy: Record<Language, Copy> = {
     finalTitle: 'Fes que el Mac torni a la seva forma.',
     finalBody: 'Una utilitat petita per a qui cuida on viu la feina a la pantalla.',
     footer: 'Settle per a macOS',
-    languageLabel: 'Idiomes'
+    languageLabel: 'Idiomes',
+    downloadMeta: 'Versió 1.0 · DMG universal per a Apple silicon i Intel · prop d’1 MB',
+    trustLine: 'App signada amb Apple Developer Team V8L35RAQCL. La notarització no s’anuncia fins que l’artefacte final de release estigui verificat.',
+    midCtaTitle: 'A punt quan l’escriptori es desordena.',
+    requirementsTitle: 'Requisits',
+    requirementMinimum: 'macOS 14.0 o posterior',
+    requirementChip: 'Macs Apple silicon i Intel',
+    requirementSize: 'DMG: prop d’1 MB',
+    requirementSignature: 'Bundle d’app signat',
+    accessibilityTitle: 'Per què necessita permís d’Accessibilitat',
+    accessibilityBody: 'Settle usa Accessibilitat de macOS per llegir els marcs de les finestres visibles i tornar-les al seu lloc.',
+    accessibilityDoes: 'Llegeix títols de finestres, noms d’apps, posicions i mides.',
+    accessibilityDoesNot: 'No llegeix contingut de documents, tecles, contrasenyes ni pàgines del navegador.',
+    sourceTitle: 'Codi obert per a més transparència',
+    sourceBody: 'El codi és públic a GitHub, així es pot revisar l’ús dels permisos i la lògica de restauració.'
   },
   fr: {
-    metaTitle: 'Settle - Agencements de fenêtres pour macOS',
-    metaDescription: 'Enregistrez et restaurez vos agencements de fenêtres macOS depuis une app discrète dans la barre des menus.',
+    metaTitle: 'Settle - Enregistrer et restaurer les fenêtres sur macOS',
+    metaDescription: 'Settle est une app légère de barre des menus pour macOS qui enregistre et restaure les agencements de fenêtres du bureau actuel.',
     navFeatures: 'Fonctions',
     navPrivacy: 'Confidentialité',
     navDownload: 'Télécharger',
@@ -227,11 +283,25 @@ export const copy: Record<Language, Copy> = {
     finalTitle: 'Redonnez sa forme à votre Mac.',
     finalBody: 'Un petit utilitaire pour celles et ceux qui soignent la place de leur travail à l’écran.',
     footer: 'Settle pour macOS',
-    languageLabel: 'Langues'
+    languageLabel: 'Langues',
+    downloadMeta: 'Version 1.0 · DMG universel Apple silicon et Intel · environ 1 Mo',
+    trustLine: 'App signée avec Apple Developer Team V8L35RAQCL. La notarisation ne sera annoncée qu’après vérification de l’artefact final.',
+    midCtaTitle: 'Prête quand votre bureau se dérange.',
+    requirementsTitle: 'Prérequis',
+    requirementMinimum: 'macOS 14.0 ou plus récent',
+    requirementChip: 'Mac Apple silicon et Intel',
+    requirementSize: 'DMG : environ 1 Mo',
+    requirementSignature: 'Bundle d’app signé',
+    accessibilityTitle: 'Pourquoi l’autorisation Accessibilité est nécessaire',
+    accessibilityBody: 'Settle utilise Accessibilité macOS pour lire les cadres des fenêtres visibles et les remettre en place.',
+    accessibilityDoes: 'Lit les titres de fenêtres, noms d’apps, positions et tailles.',
+    accessibilityDoesNot: 'Ne lit pas le contenu des documents, frappes, mots de passe ni pages web.',
+    sourceTitle: 'Open source pour la transparence',
+    sourceBody: 'Le code est public sur GitHub, ce qui permet de vérifier les permissions et la logique de restauration.'
   },
   de: {
-    metaTitle: 'Settle - Fensterlayouts für macOS',
-    metaDescription: 'Speichere und stelle deine macOS-Fensterlayouts mit einer ruhigen Menüleisten-App wieder her.',
+    metaTitle: 'Settle - macOS-Fensterlayouts speichern und wiederherstellen',
+    metaDescription: 'Settle ist eine leichte Menüleisten-App für macOS, die Fensterlayouts des aktuellen Schreibtischs speichert und wiederherstellt.',
     navFeatures: 'Funktionen',
     navPrivacy: 'Datenschutz',
     navDownload: 'Download',
@@ -272,7 +342,21 @@ export const copy: Record<Language, Copy> = {
     finalTitle: 'Bring deinen Mac wieder in Form.',
     finalBody: 'Ein kleines Werkzeug für Menschen, denen wichtig ist, wo ihre Arbeit auf dem Bildschirm liegt.',
     footer: 'Settle für macOS',
-    languageLabel: 'Sprachen'
+    languageLabel: 'Sprachen',
+    downloadMeta: 'Version 1.0 · universelles DMG für Apple Silicon und Intel · etwa 1 MB',
+    trustLine: 'App signiert mit Apple Developer Team V8L35RAQCL. Notarisierung wird erst nach Prüfung des finalen Release-Artefakts angegeben.',
+    midCtaTitle: 'Bereit, wenn dein Schreibtisch aus dem Takt gerät.',
+    requirementsTitle: 'Voraussetzungen',
+    requirementMinimum: 'macOS 14.0 oder neuer',
+    requirementChip: 'Apple-Silicon- und Intel-Macs',
+    requirementSize: 'DMG: etwa 1 MB',
+    requirementSignature: 'Signiertes App-Bundle',
+    accessibilityTitle: 'Warum Bedienungshilfen benötigt werden',
+    accessibilityBody: 'Settle nutzt macOS-Bedienungshilfen, um sichtbare Fensterrahmen zu lesen und Fenster zurückzusetzen.',
+    accessibilityDoes: 'Liest Fenstertitel, App-Namen, Positionen und Größen.',
+    accessibilityDoesNot: 'Liest keine Dokumentinhalte, Tastatureingaben, Passwörter oder Browserseiten.',
+    sourceTitle: 'Open Source für Transparenz',
+    sourceBody: 'Der Code ist auf GitHub öffentlich, damit Berechtigungen und Wiederherstellungslogik geprüft werden können.'
   }
 };
 

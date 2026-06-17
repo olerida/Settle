@@ -8,6 +8,8 @@ export function getStaticPaths() {
 
 const lang = isLanguage(Astro.params.lang) ? Astro.params.lang : defaultLanguage;
 const t = copy[lang];
+const downloadUrl = 'https://github.com/olerida/Settle/releases/latest/download/Settle.dmg';
+const githubUrl = 'https://github.com/olerida/Settle';
 ---
 
 <BaseLayout lang={lang} title={t.metaTitle} description={t.metaDescription}>
@@ -31,9 +33,10 @@ const t = copy[lang];
         <p class="hero-title">{t.heroTitle}</p>
         <p class="hero-body">{t.heroBody}</p>
         <div class="hero-actions">
-          <a class="primary-button" href="#download">{t.primaryCta}</a>
-          <a class="secondary-button" href="https://github.com/olerida/Settle">{t.secondaryCta}</a>
+          <a class="primary-button" href={downloadUrl}>{t.primaryCta}</a>
+          <a class="secondary-button" href={githubUrl}>{t.secondaryCta}</a>
         </div>
+        <p class="download-meta">{t.downloadMeta}</p>
       </div>
 
       <div class="product-visual" aria-label={t.visualSubtitle}>
@@ -72,6 +75,21 @@ const t = copy[lang];
       </div>
     </section>
 
+    <section class="requirements-strip" aria-label={t.requirementsTitle}>
+      <div>
+        <span>{t.requirementsTitle}</span>
+        <strong>{t.requirementMinimum}</strong>
+      </div>
+      <div>
+        <span>{t.requirementChip}</span>
+        <strong>{t.requirementSize}</strong>
+      </div>
+      <div>
+        <span>{t.requirementSignature}</span>
+        <strong>{t.trustLine}</strong>
+      </div>
+    </section>
+
     <section id="features" class="support-section">
       <div class="section-lead">
         <p class="eyebrow">{t.navFeatures}</p>
@@ -97,6 +115,11 @@ const t = copy[lang];
       </div>
     </section>
 
+    <section class="mid-cta">
+      <h2>{t.midCtaTitle}</h2>
+      <a class="primary-button" href={downloadUrl}>{t.primaryCta}</a>
+    </section>
+
     <section class="workflow-section">
       <div>
         <h2>{t.workflowTitle}</h2>
@@ -109,27 +132,40 @@ const t = copy[lang];
       </ol>
     </section>
 
-    <section class="detail-section">
+    <section class="detail-section" id="privacy">
       <div class="detail-copy">
-        <h2>{t.detailTitle}</h2>
-        <p>{t.detailBody}</p>
+        <h2>{t.accessibilityTitle}</h2>
+        <p>{t.accessibilityBody}</p>
       </div>
       <ul class="detail-list">
-        <li>{t.detailOne}</li>
-        <li>{t.detailTwo}</li>
+        <li>{t.accessibilityDoes}</li>
+        <li>{t.accessibilityDoesNot}</li>
         <li>{t.detailThree}</li>
       </ul>
     </section>
 
-    <section id="privacy" class="privacy-section">
-      <h2>{t.privacyTitle}</h2>
-      <p>{t.privacyBody}</p>
+    <section class="source-section">
+      <div>
+        <h2>{t.sourceTitle}</h2>
+        <p>{t.sourceBody}</p>
+      </div>
+      <a class="secondary-button" href={githubUrl}>{t.secondaryCta}</a>
+    </section>
+
+    <section class="privacy-section">
+      <h2>{t.detailTitle}</h2>
+      <p>{t.detailBody}</p>
+      <ul class="detail-list compact-list">
+        <li>{t.detailOne}</li>
+        <li>{t.detailTwo}</li>
+        <li>{t.privacyBody}</li>
+      </ul>
     </section>
 
     <section id="download" class="final-cta">
       <h2>{t.finalTitle}</h2>
       <p>{t.finalBody}</p>
-      <a class="primary-button" href="https://github.com/olerida/Settle">{t.primaryCta}</a>
+      <a class="primary-button" href={downloadUrl}>{t.primaryCta}</a>
     </section>
   </main>
 
