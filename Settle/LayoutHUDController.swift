@@ -50,10 +50,10 @@ final class LayoutHUDController {
             panel.animator().alphaValue = 1
         }
 
-        hideTask = Task { [weak self] in
+        hideTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(duration))
             guard !Task.isCancelled else { return }
-            await self?.hide()
+            self?.hide()
         }
     }
 
@@ -64,7 +64,9 @@ final class LayoutHUDController {
                 panel.animator().alphaValue = 0
             },
             completionHandler: { [panel] in
-                panel.orderOut(nil)
+                Task { @MainActor in
+                    panel.orderOut(nil)
+                }
             }
         )
     }
