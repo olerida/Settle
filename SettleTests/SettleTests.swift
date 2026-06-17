@@ -279,4 +279,115 @@ final class SettleTests: XCTestCase {
 
         XCTAssertEqual(bounds, CGRect(x: 80, y: 60, width: 1300, height: 740))
     }
+
+    func testLayoutVisibilityMatcherFindsRestoredLayoutForMatchingDesktop() {
+        let restored = Layout(
+            name: "Work",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.Safari",
+                    appDisplayName: "Safari",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Docs",
+                            frame: WindowFrame(rect: CGRect(x: 40, y: 60, width: 900, height: 700)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 0
+                        )
+                    ]
+                ),
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.dt.Xcode",
+                    appDisplayName: "Xcode",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Settle",
+                            frame: WindowFrame(rect: CGRect(x: 960, y: 70, width: 820, height: 980)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 1
+                        )
+                    ]
+                )
+            ]
+        )
+
+        let currentApps = [
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.apple.Safari",
+                appDisplayName: "Safari",
+                windows: [
+                    WindowSnapshot(
+                        windowTitleSnapshot: "Docs",
+                        frame: WindowFrame(rect: CGRect(x: 44, y: 63, width: 896, height: 696)),
+                        isMinimized: false,
+                        isMainWindowCandidate: true,
+                        orderIndex: 0,
+                        stackingIndex: 0
+                    )
+                ]
+            ),
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.apple.dt.Xcode",
+                appDisplayName: "Xcode",
+                windows: [
+                    WindowSnapshot(
+                        windowTitleSnapshot: "Settle",
+                        frame: WindowFrame(rect: CGRect(x: 958, y: 72, width: 824, height: 975)),
+                        isMinimized: false,
+                        isMainWindowCandidate: true,
+                        orderIndex: 0,
+                        stackingIndex: 1
+                    )
+                ]
+            )
+        ]
+
+        let match = LayoutVisibilityMatcher.bestMatch(currentApps: currentApps, among: [restored])
+        XCTAssertEqual(match?.id, restored.id)
+    }
+
+    func testLayoutVisibilityMatcherRejectsWeakDesktopOverlap() {
+        let restored = Layout(
+            name: "Work",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.Safari",
+                    appDisplayName: "Safari",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Docs",
+                            frame: WindowFrame(rect: CGRect(x: 40, y: 60, width: 900, height: 700)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 0
+                        )
+                    ]
+                )
+            ]
+        )
+
+        let currentApps = [
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.apple.Terminal",
+                appDisplayName: "Terminal",
+                windows: [
+                    WindowSnapshot(
+                        windowTitleSnapshot: "shell",
+                        frame: WindowFrame(rect: CGRect(x: 300, y: 180, width: 1000, height: 700)),
+                        isMinimized: false,
+                        isMainWindowCandidate: true,
+                        orderIndex: 0,
+                        stackingIndex: 0
+                    )
+                ]
+            )
+        ]
+
+        XCTAssertNil(LayoutVisibilityMatcher.bestMatch(currentApps: currentApps, among: [restored]))
+    }
 }

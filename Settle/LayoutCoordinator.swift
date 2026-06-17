@@ -1,3 +1,4 @@
+import AppKit
 import Combine
 import Foundation
 
@@ -15,24 +16,39 @@ final class LayoutCoordinator: ObservableObject {
 
     private let windowManager: WindowManager
     private let appLauncher: AppLauncher
+    private let hudController: LayoutHUDController
     private var cancellables = Set<AnyCancellable>()
+    private var restoredLayoutIDs = Set<UUID>()
+    private var lastDetectedLayoutID: UUID?
+    private var lastPresentedLayoutID: UUID?
+    private var lastPresentedAt: Date = .distantPast
+    private var activeSpaceTask: Task<Void, Never>?
 
     init(
         permissionManager: AccessibilityPermissionManager = AccessibilityPermissionManager(),
         store: LayoutStore = LayoutStore(),
         windowManager: WindowManager = WindowManager(),
-        appLauncher: AppLauncher = AppLauncher()
+        appLauncher: AppLauncher = AppLauncher(),
+        hudController: LayoutHUDController = LayoutHUDController()
     ) {
         self.permissionManager = permissionManager
         self.store = store
         self.windowManager = windowManager
         self.appLauncher = appLauncher
+        self.hudController = hudController
         self.saveName = Self.defaultLayoutName()
 
         store.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.scheduleActiveSpaceDetection()
             }
             .store(in: &cancellables)
     }
@@ -87,6 +103,7 @@ final class LayoutCoordinator: ObservableObject {
             try store.save(captured.layout, snapshotPNGData: snapshotPNGData)
             statusMessage = L10n.format("Saved %d apps", captured.layout.apps.count)
             isSaveSheetPresented = false
+            presentHUD(for: captured.layout)
         } catch {
             statusMessage = error.localizedDescription
             if !permissionManager.isTrusted {
@@ -117,6 +134,7 @@ final class LayoutCoordinator: ObservableObject {
                 )
                 try store.save(updatedLayout, snapshotPNGData: snapshotPNGData)
                 statusMessage = L10n.format("Updated %@", layout.name)
+                presentHUD(for: updatedLayout)
             } catch {
                 statusMessage = error.localizedDescription
                 if !permissionManager.isTrusted {
@@ -139,12 +157,23 @@ final class LayoutCoordinator: ObservableObject {
             } else {
                 statusMessage = L10n.tr("Done")
             }
+
+            let restoreDidMeaningfullyRun = !report.restoredWindows.isEmpty || !report.launchedApps.isEmpty || report.failures.isEmpty
+            if restoreDidMeaningfullyRun {
+                restoredLayoutIDs.insert(layout.id)
+                lastDetectedLayoutID = layout.id
+                presentHUD(for: layout)
+            }
         }
     }
 
     func delete(_ layout: Layout) {
         do {
             try store.deleteLayout(id: layout.id)
+            restoredLayoutIDs.remove(layout.id)
+            if lastDetectedLayoutID == layout.id {
+                lastDetectedLayoutID = nil
+            }
             statusMessage = L10n.format("Deleted %@", layout.name)
         } catch {
             statusMessage = error.localizedDescription
@@ -185,5 +214,50 @@ final class LayoutCoordinator: ObservableObject {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: .now)
+    }
+
+    private func scheduleActiveSpaceDetection() {
+        activeSpaceTask?.cancel()
+        activeSpaceTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(450))
+            guard !Task.isCancelled else { return }
+            await self?.handleActiveSpaceChange()
+        }
+    }
+
+    private func handleActiveSpaceChange() async {
+        guard permissionManager.isTrusted else { return }
+
+        let restoredLayouts = store.layouts.filter { restoredLayoutIDs.contains($0.id) }
+        guard !restoredLayouts.isEmpty else { return }
+
+        do {
+            let currentApps = try windowManager.captureVisibleAppSnapshots()
+            guard let matchedLayout = LayoutVisibilityMatcher.bestMatch(currentApps: currentApps, among: restoredLayouts) else {
+                lastDetectedLayoutID = nil
+                return
+            }
+
+            guard matchedLayout.id != lastDetectedLayoutID || shouldRedisplayHUD(for: matchedLayout.id) else {
+                return
+            }
+
+            lastDetectedLayoutID = matchedLayout.id
+            presentHUD(for: matchedLayout)
+        } catch {
+            lastDetectedLayoutID = nil
+        }
+    }
+
+    private func presentHUD(for layout: Layout) {
+        guard shouldRedisplayHUD(for: layout.id) else { return }
+        lastPresentedLayoutID = layout.id
+        lastPresentedAt = .now
+        hudController.show(layoutName: layout.name)
+    }
+
+    private func shouldRedisplayHUD(for layoutID: UUID) -> Bool {
+        guard lastPresentedLayoutID == layoutID else { return true }
+        return Date.now.timeIntervalSince(lastPresentedAt) > 2
     }
 }
