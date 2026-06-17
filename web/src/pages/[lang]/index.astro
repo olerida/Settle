@@ -40,38 +40,10 @@ const githubUrl = 'https://github.com/olerida/Settle';
       </div>
 
       <div class="product-visual" aria-label={t.visualSubtitle}>
-        <div class="desktop-plane">
-          <div class="window window-large"></div>
-          <div class="window window-small"></div>
-          <div class="window window-tall"></div>
-        </div>
-        <div class="menu-popover">
-          <div class="popover-top">
-            <div>
-              <p>{t.visualTitle}</p>
-              <strong>{t.visualSubtitle}</strong>
-            </div>
-            <span>{t.visualStatus}</span>
-          </div>
-          <div class="popover-actions">
-            <span>{t.visualSave}</span>
-            <span>{t.visualRestore}</span>
-          </div>
-          <div class="layout-row active">
-            <i></i>
-            <div>
-              <strong>{t.visualItemOne}</strong>
-              <span>{t.visualFourApps}</span>
-            </div>
-          </div>
-          <div class="layout-row">
-            <i></i>
-            <div>
-              <strong>{t.visualItemTwo}</strong>
-              <span>{t.visualSixApps}</span>
-            </div>
-          </div>
-        </div>
+        <picture class="real-app-shot">
+          <source srcset="/settle-menu-dark.png" media="(prefers-color-scheme: dark)" />
+          <img src="/settle-menu-light.png" width="960" height="960" alt={t.screenshotAlt} loading="eager" decoding="async" />
+        </picture>
       </div>
     </section>
 

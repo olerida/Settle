@@ -22,6 +22,7 @@ type Copy = {
   visualItemTwo: string;
   visualFourApps: string;
   visualSixApps: string;
+  screenshotAlt: string;
   supportTitle: string;
   supportBody: string;
   supportOneTitle: string;
@@ -83,6 +84,7 @@ export const copy: Record<Language, Copy> = {
     visualItemTwo: 'Design review',
     visualFourApps: '4 apps',
     visualSixApps: '6 apps',
+    screenshotAlt: 'Settle menu showing saved window layouts',
     supportTitle: 'Built for the way macOS already works.',
     supportBody: 'Settle stays in the menu bar, uses native permissions, and keeps the current desktop as the boundary.',
     supportOneTitle: 'Save the current layout',
@@ -142,6 +144,7 @@ export const copy: Record<Language, Copy> = {
     visualItemTwo: 'Revisión de diseño',
     visualFourApps: '4 apps',
     visualSixApps: '6 apps',
+    screenshotAlt: 'Menú de Settle mostrando layouts de ventanas guardados',
     supportTitle: 'Pensada para cómo macOS ya funciona.',
     supportBody: 'Settle vive en la barra de menús, usa permisos nativos y toma el escritorio actual como límite.',
     supportOneTitle: 'Guarda el layout actual',
@@ -201,6 +204,7 @@ export const copy: Record<Language, Copy> = {
     visualItemTwo: 'Revisió de disseny',
     visualFourApps: '4 apps',
     visualSixApps: '6 apps',
+    screenshotAlt: 'Menú de Settle amb layouts de finestres desats',
     supportTitle: 'Feta per a la manera com macOS ja funciona.',
     supportBody: 'Settle viu a la barra de menús, usa permisos natius i pren l’escriptori actual com a límit.',
     supportOneTitle: 'Desa el layout actual',
@@ -260,6 +264,7 @@ export const copy: Record<Language, Copy> = {
     visualItemTwo: 'Revue design',
     visualFourApps: '4 apps',
     visualSixApps: '6 apps',
+    screenshotAlt: 'Menu Settle affichant des agencements de fenêtres enregistrés',
     supportTitle: 'Pensée pour la façon dont macOS fonctionne déjà.',
     supportBody: 'Settle reste dans la barre des menus, utilise les autorisations natives et limite son action au bureau actuel.',
     supportOneTitle: 'Enregistrez l’agencement actuel',
@@ -319,6 +324,7 @@ export const copy: Record<Language, Copy> = {
     visualItemTwo: 'Design-Review',
     visualFourApps: '4 Apps',
     visualSixApps: '6 Apps',
+    screenshotAlt: 'Settle-Menü mit gespeicherten Fensterlayouts',
     supportTitle: 'Gemacht für die Art, wie macOS bereits funktioniert.',
     supportBody: 'Settle bleibt in der Menüleiste, nutzt native Berechtigungen und behandelt den aktuellen Schreibtisch als Grenze.',
     supportOneTitle: 'Aktuelles Layout speichern',
