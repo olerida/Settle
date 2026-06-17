@@ -21,6 +21,8 @@
 		A0000000000000000000010B /* SettleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020C /* SettleTests.swift */; };
 		A0000000000000000000010C /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020E /* L10n.swift */; };
 		A0000000000000000000010D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000212 /* Localizable.strings */; };
+		A0000000000000000000010E /* LayoutVisibilityMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000215 /* LayoutVisibilityMatcher.swift */; };
+		A0000000000000000000010F /* LayoutHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000216 /* LayoutHUDController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,8 @@
 		A00000000000000000000211 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A00000000000000000000213 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A00000000000000000000214 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A00000000000000000000215 /* LayoutVisibilityMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutVisibilityMatcher.swift; sourceTree = "<group>"; };
+		A00000000000000000000216 /* LayoutHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutHUDController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +101,8 @@
 				A00000000000000000000208 /* MenuContentView.swift */,
 				A00000000000000000000209 /* SettingsView.swift */,
 				A0000000000000000000020E /* L10n.swift */,
+				A00000000000000000000215 /* LayoutVisibilityMatcher.swift */,
+				A00000000000000000000216 /* LayoutHUDController.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
 				A00000000000000000000212 /* Localizable.strings */,
 			);
@@ -229,6 +235,8 @@
 				A00000000000000000000108 /* MenuContentView.swift in Sources */,
 				A00000000000000000000109 /* SettingsView.swift in Sources */,
 				A0000000000000000000010C /* L10n.swift in Sources */,
+				A0000000000000000000010E /* LayoutVisibilityMatcher.swift in Sources */,
+				A0000000000000000000010F /* LayoutHUDController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,7 +282,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -288,7 +296,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -305,7 +313,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -318,7 +326,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

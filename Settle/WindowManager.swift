@@ -23,6 +23,11 @@ struct WindowManager {
         let previewWindows: [PreviewWindowCapture]
     }
 
+    private struct VisibleDesktopCapture {
+        let appSnapshots: [AppLayoutSnapshot]
+        let previewWindows: [PreviewWindowCapture]
+    }
+
     struct PreviewWindowCapture {
         let windowID: CGWindowID
         let frame: CGRect
@@ -38,6 +43,18 @@ struct WindowManager {
     }
 
     func captureCurrentLayout(name: String) throws -> CapturedLayoutResult {
+        let capture = try captureVisibleDesktop()
+        return CapturedLayoutResult(
+            layout: Layout(name: name, apps: capture.appSnapshots),
+            previewWindows: capture.previewWindows
+        )
+    }
+
+    func captureVisibleAppSnapshots() throws -> [AppLayoutSnapshot] {
+        try captureVisibleDesktop().appSnapshots
+    }
+
+    private func captureVisibleDesktop() throws -> VisibleDesktopCapture {
         guard AXIsProcessTrusted() else {
             throw WindowManagerError.accessibilityPermissionMissing
         }
@@ -119,10 +136,7 @@ struct WindowManager {
             throw WindowManagerError.captureFailed
         }
 
-        return CapturedLayoutResult(
-            layout: Layout(name: name, apps: appSnapshots),
-            previewWindows: previewWindows
-        )
+        return VisibleDesktopCapture(appSnapshots: appSnapshots, previewWindows: previewWindows)
     }
 
     func captureDesktopSnapshotPNGData(
