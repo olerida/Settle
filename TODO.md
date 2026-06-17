@@ -1,5 +1,6 @@
 # TODO
 
+- Implementar `about Settle`
 - Implementar `Pinned layouts` visibles en una sección superior dedicada, no solo con flag interno.
 - Implementar `Restore at login` con selección explícita de layout por defecto.
 - Implementar `Focus layouts` para ocultar o minimizar ventanas ajenas al layout.
