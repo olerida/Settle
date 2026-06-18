@@ -23,9 +23,15 @@ struct WindowManager {
         let previewWindows: [PreviewWindowCapture]
     }
 
+    enum WindowMutationAction {
+        case close
+        case minimize
+    }
+
     private struct VisibleDesktopCapture {
         let appSnapshots: [AppLayoutSnapshot]
         let previewWindows: [PreviewWindowCapture]
+        let visibleWindowsByPID: [pid_t: [VisibleWindowRecord]]
     }
 
     struct PreviewWindowCapture {
@@ -136,7 +142,82 @@ struct WindowManager {
             throw WindowManagerError.captureFailed
         }
 
-        return VisibleDesktopCapture(appSnapshots: appSnapshots, previewWindows: previewWindows)
+        return VisibleDesktopCapture(
+            appSnapshots: appSnapshots,
+            previewWindows: previewWindows,
+            visibleWindowsByPID: grouped
+        )
+    }
+
+    func closeAllWindowsAcrossAllSpaces(excludingBundleIdentifiers: Set<String> = []) async throws -> Int {
+        guard AXIsProcessTrusted() else {
+            throw WindowManagerError.accessibilityPermissionMissing
+        }
+
+        let runningApps = NSWorkspace.shared.runningApplications
+            .filter { app in
+                guard let bundleIdentifier = app.bundleIdentifier else { return false }
+                guard !excludingBundleIdentifiers.contains(bundleIdentifier) else { return false }
+                guard !bundleIdentifier.isEmpty else { return false }
+                guard app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return false }
+                return app.activationPolicy == .regular
+            }
+            .sorted {
+                ($0.localizedName ?? $0.bundleIdentifier ?? "").localizedCaseInsensitiveCompare($1.localizedName ?? $1.bundleIdentifier ?? "") == .orderedAscending
+            }
+
+        var closedCount = 0
+        for app in runningApps {
+            if await quit(app: app) {
+                closedCount += 1
+                try? await Task.sleep(for: .milliseconds(120))
+            }
+        }
+
+        return closedCount
+    }
+
+    func mutateVisibleWindowsOutsideLayoutInCurrentSpace(
+        _ layout: Layout,
+        action: WindowMutationAction
+    ) async throws -> Int {
+        guard AXIsProcessTrusted() else {
+            throw WindowManagerError.accessibilityPermissionMissing
+        }
+
+        let capture = try captureVisibleDesktop()
+        let extras = Self.extraVisibleWindowsByBundle(
+            visibleWindowsByPID: capture.visibleWindowsByPID,
+            currentApps: capture.appSnapshots,
+            layout: layout
+        )
+
+        var affectedCount = 0
+
+        for (pid, windowRecords) in extras {
+            guard let app = NSRunningApplication(processIdentifier: pid) else { continue }
+            await prepareAppForWindowMutation(app)
+            var accessibleWindows = axWindows(for: pid)
+
+            for record in windowRecords {
+                guard let matchIndex = bestAXWindowMatchIndex(for: record, in: accessibleWindows) else { continue }
+                let window = accessibleWindows.remove(at: matchIndex)
+
+                switch action {
+                case .close:
+                    if close(window: window, pid: pid) {
+                        affectedCount += 1
+                        try? await Task.sleep(for: .milliseconds(35))
+                    }
+                case .minimize:
+                    if setMinimized(true, for: window) {
+                        affectedCount += 1
+                    }
+                }
+            }
+        }
+
+        return affectedCount
     }
 
     func captureDesktopSnapshotPNGData(
@@ -423,10 +504,42 @@ struct WindowManager {
         matches.sorted(by: { $0.0.stackingIndex > $1.0.stackingIndex })
     }
 
-    private func apply(window: AXUIElement, target: WindowSnapshot) {
-        if let falseValue = try? axValue(target.isMinimized ? kCFBooleanTrue : kCFBooleanFalse) {
-            AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, falseValue)
+    private static func extraVisibleWindowsByBundle(
+        visibleWindowsByPID: [pid_t: [VisibleWindowRecord]],
+        currentApps: [AppLayoutSnapshot],
+        layout: Layout
+    ) -> [pid_t: [VisibleWindowRecord]] {
+        let unmatchedIndicesByBundle = LayoutVisibilityMatcher.unmatchedVisibleWindowOrderIndices(
+            currentApps: currentApps,
+            against: layout
+        )
+        var extrasByPID: [pid_t: [VisibleWindowRecord]] = [:]
+
+        for (pid, windows) in visibleWindowsByPID {
+            guard
+                let app = NSRunningApplication(processIdentifier: pid),
+                let bundleIdentifier = app.bundleIdentifier,
+                !bundleIdentifier.isEmpty
+            else {
+                continue
+            }
+
+            let orderedWindows = windows.sorted { $0.offset < $1.offset }
+            if let unmatchedIndices = unmatchedIndicesByBundle[bundleIdentifier] {
+                let extraWindows = unmatchedIndices.compactMap { index in
+                    orderedWindows.indices.contains(index) ? orderedWindows[index] : nil
+                }
+                if !extraWindows.isEmpty {
+                    extrasByPID[pid] = extraWindows
+                }
+            }
         }
+
+        return extrasByPID
+    }
+
+    private func apply(window: AXUIElement, target: WindowSnapshot) {
+        _ = setMinimized(target.isMinimized, for: window)
 
         var position = CGPoint(x: target.frame.x, y: target.frame.y)
         var size = CGSize(width: target.frame.width, height: target.frame.height)
@@ -436,9 +549,7 @@ struct WindowManager {
         if let sizeValue = AXValueCreate(.cgSize, &size) {
             AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, sizeValue)
         }
-        if let minimizedValue = try? axValue(target.isMinimized ? kCFBooleanTrue : kCFBooleanFalse) {
-            AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, minimizedValue)
-        }
+        _ = setMinimized(target.isMinimized, for: window)
     }
 
     private func axWindows(for pid: pid_t) -> [AXUIElement] {
@@ -514,6 +625,132 @@ struct WindowManager {
         let result = AXUIElementCopyAttributeValue(element, attribute as CFString, &value)
         guard result == .success, let value else { return nil }
         return value
+    }
+
+    private func bestAXWindowMatchIndex(for record: VisibleWindowRecord, in windows: [AXUIElement]) -> Int? {
+        let candidates = windows.enumerated().compactMap { index, element -> (Int, WindowCandidate)? in
+            guard let frame = axFrameValue(element), frame.width > 40, frame.height > 40 else {
+                return nil
+            }
+
+            return (
+                index,
+                WindowCandidate(
+                    title: axStringValue(element, attribute: kAXTitleAttribute),
+                    frame: frame,
+                    orderIndex: index,
+                    isMainWindowCandidate: (axBoolValue(element, attribute: kAXMainAttribute) ?? false) || index == 0
+                )
+            )
+        }
+
+        guard !candidates.isEmpty else { return nil }
+
+        let target = WindowSnapshot(
+            windowTitleSnapshot: record.title,
+            frame: WindowFrame(rect: record.frame),
+            isMinimized: false,
+            isMainWindowCandidate: record.offset == 0,
+            orderIndex: record.offset,
+            stackingIndex: record.offset
+        )
+
+        guard let candidateIndex = WindowMatcher.bestMatch(target: target, candidates: candidates.map { $0.1 }) else {
+            return nil
+        }
+
+        return candidates[candidateIndex].0
+    }
+
+    private func setMinimized(_ minimized: Bool, for window: AXUIElement) -> Bool {
+        guard let value = try? axValue(minimized ? kCFBooleanTrue : kCFBooleanFalse) else {
+            return false
+        }
+
+        return AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, value) == .success
+    }
+
+    private func close(window: AXUIElement, pid: pid_t) -> Bool {
+        prepareWindowForClose(window)
+
+        guard
+            let closeButton = axRawValue(window, attribute: kAXCloseButtonAttribute),
+            CFGetTypeID(closeButton) == AXUIElementGetTypeID()
+        else {
+            return sendCommandW(to: pid)
+        }
+
+        let button = unsafeDowncast(closeButton, to: AXUIElement.self)
+        if AXUIElementPerformAction(button, kAXPressAction as CFString) == .success {
+            return true
+        }
+
+        return sendCommandW(to: pid)
+    }
+
+    private func quit(app: NSRunningApplication) async -> Bool {
+        if app.terminate(), await waitUntilTerminated(app, attempts: 18) {
+            return true
+        }
+
+        await prepareAppForWindowMutation(app)
+        if sendCommandQ(to: app.processIdentifier), await waitUntilTerminated(app, attempts: 18) {
+            return true
+        }
+
+        if app.forceTerminate(), await waitUntilTerminated(app, attempts: 10) {
+            return true
+        }
+
+        return app.isTerminated
+    }
+
+    private func prepareAppForWindowMutation(_ app: NSRunningApplication) async {
+        app.activate(options: [.activateAllWindows])
+        try? await Task.sleep(for: .milliseconds(180))
+    }
+
+    private func prepareWindowForClose(_ window: AXUIElement) {
+        AXUIElementPerformAction(window, kAXRaiseAction as CFString)
+
+        if let trueValue = try? axValue(kCFBooleanTrue) {
+            AXUIElementSetAttributeValue(window, kAXMainAttribute as CFString, trueValue)
+            AXUIElementSetAttributeValue(window, kAXFocusedAttribute as CFString, trueValue)
+        }
+    }
+
+    private func waitUntilTerminated(_ app: NSRunningApplication, attempts: Int) async -> Bool {
+        for _ in 0..<attempts {
+            if app.isTerminated {
+                return true
+            }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        return app.isTerminated
+    }
+
+    private func sendCommandW(to pid: pid_t) -> Bool {
+        sendKeyboardShortcut(to: pid, virtualKey: 13)
+    }
+
+    private func sendCommandQ(to pid: pid_t) -> Bool {
+        sendKeyboardShortcut(to: pid, virtualKey: 12)
+    }
+
+    private func sendKeyboardShortcut(to pid: pid_t, virtualKey: CGKeyCode) -> Bool {
+        guard
+            let source = CGEventSource(stateID: .hidSystemState),
+            let keyDown = CGEvent(keyboardEventSource: source, virtualKey: virtualKey, keyDown: true),
+            let keyUp = CGEvent(keyboardEventSource: source, virtualKey: virtualKey, keyDown: false)
+        else {
+            return false
+        }
+
+        keyDown.flags = .maskCommand
+        keyUp.flags = .maskCommand
+        keyDown.postToPid(pid)
+        keyUp.postToPid(pid)
+        return true
     }
 
     private func axValue(_ value: CFBoolean) throws -> CFTypeRef {

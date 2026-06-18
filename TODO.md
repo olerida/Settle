@@ -1,5 +1,8 @@
-# TODO
+# TODOs
 
+- [x] Implementar boton que en cierre absolutamente todas las ventadas de todas las apps en todos los spaces.
+- [x] Implementar boton que en caso de estar en un space donde se restauro un layout cierre todas las ventanas que no sean del layout.
+- [x] Implementar boton que en caso de estar en un space donde se restauro un layout minimize todas las ventanas que no sean del layout.
 - [ ] Implementar `about Settle`
 - [ ] Implementar `Pinned layouts` visibles en una sección superior dedicada, no solo con flag interno.
 - [ ] Implementar `Restore at login` con selección explícita de layout por defecto.

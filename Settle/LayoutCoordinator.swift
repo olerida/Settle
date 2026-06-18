@@ -9,6 +9,7 @@ final class LayoutCoordinator: ObservableObject {
     @Published var renameName = ""
     @Published var isSaveSheetPresented = false
     @Published var renamingLayout: Layout?
+    @Published var isCloseAllConfirmationPresented = false
     @Published var latestReport: RestoreReport?
 
     let permissionManager: AccessibilityPermissionManager
@@ -19,7 +20,12 @@ final class LayoutCoordinator: ObservableObject {
     private let hudController: LayoutHUDController
     private var cancellables = Set<AnyCancellable>()
     private var restoredLayoutIDs = Set<UUID>()
-    private var lastDetectedLayoutID: UUID?
+    private var lastDetectedLayoutID: UUID? {
+        didSet {
+            guard lastDetectedLayoutID != oldValue else { return }
+            objectWillChange.send()
+        }
+    }
     private var lastPresentedLayoutID: UUID?
     private var lastPresentedAt: Date = .distantPast
     private var activeSpaceTask: Task<Void, Never>?
@@ -57,6 +63,11 @@ final class LayoutCoordinator: ObservableObject {
         store.layouts
     }
 
+    var activeRestoredLayout: Layout? {
+        guard let lastDetectedLayoutID else { return nil }
+        return store.layouts.first(where: { $0.id == lastDetectedLayoutID })
+    }
+
     func snapshotURL(for layout: Layout) -> URL? {
         store.snapshotURL(for: layout)
     }
@@ -85,6 +96,46 @@ final class LayoutCoordinator: ObservableObject {
         Task {
             await saveCurrentLayout(named: Self.defaultLayoutName())
         }
+    }
+
+    func askToCloseAllWindows() {
+        isCloseAllConfirmationPresented = true
+    }
+
+    func cancelCloseAllWindows() {
+        isCloseAllConfirmationPresented = false
+    }
+
+    func closeAllWindows() {
+        isCloseAllConfirmationPresented = false
+
+        Task {
+            do {
+                statusMessage = L10n.tr("Closing apps...")
+                let closedWindows = try await windowManager.closeAllWindowsAcrossAllSpaces(
+                    excludingBundleIdentifiers: Set([Bundle.main.bundleIdentifier].compactMap { $0 })
+                )
+                restoredLayoutIDs.removeAll()
+                lastDetectedLayoutID = nil
+
+                statusMessage = closedWindows > 0
+                    ? L10n.format("Closed %d apps", closedWindows)
+                    : L10n.tr("No apps to close")
+            } catch {
+                statusMessage = error.localizedDescription
+                if !permissionManager.isTrusted {
+                    permissionManager.refresh()
+                }
+            }
+        }
+    }
+
+    func closeWindowsOutsideActiveLayout() {
+        mutateWindowsOutsideActiveLayout(action: .close)
+    }
+
+    func minimizeWindowsOutsideActiveLayout() {
+        mutateWindowsOutsideActiveLayout(action: .minimize)
     }
 
     func saveCurrentLayout(named name: String) async {
@@ -259,5 +310,36 @@ final class LayoutCoordinator: ObservableObject {
     private func shouldRedisplayHUD(for layoutID: UUID) -> Bool {
         guard lastPresentedLayoutID == layoutID else { return true }
         return Date.now.timeIntervalSince(lastPresentedAt) > 2
+    }
+
+    private func mutateWindowsOutsideActiveLayout(action: WindowManager.WindowMutationAction) {
+        guard let layout = activeRestoredLayout else {
+            statusMessage = L10n.tr("Current Space does not match a restored layout.")
+            return
+        }
+
+        Task {
+            do {
+                statusMessage = action == .close
+                    ? L10n.tr("Closing other windows...")
+                    : L10n.tr("Minimizing other windows...")
+                let affectedWindows = try await windowManager.mutateVisibleWindowsOutsideLayoutInCurrentSpace(layout, action: action)
+                statusMessage = switch action {
+                case .close:
+                    affectedWindows > 0
+                        ? L10n.format("Closed %d extra windows", affectedWindows)
+                        : L10n.tr("No extra windows found")
+                case .minimize:
+                    affectedWindows > 0
+                        ? L10n.format("Minimized %d extra windows", affectedWindows)
+                        : L10n.tr("No extra windows found")
+                }
+            } catch {
+                statusMessage = error.localizedDescription
+                if !permissionManager.isTrusted {
+                    permissionManager.refresh()
+                }
+            }
+        }
     }
 }

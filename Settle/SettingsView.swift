@@ -18,7 +18,7 @@ struct SettingsView: View {
             Section(L10n.tr("Behavior")) {
                 LabeledContent(L10n.tr("Spaces"), value: L10n.tr("Current desktop only"))
                 LabeledContent(L10n.tr("Extra windows"), value: L10n.tr("Leave untouched"))
-                Text(L10n.tr("v1 does not close, hide, or minimize windows that are not part of the selected layout."))
+                Text(L10n.tr("By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

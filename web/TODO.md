@@ -5,7 +5,7 @@
 - [x] ~~Definir landing limpia para app macOS siguiendo una estética próxima a Apple.~~
 - [x] ~~Añadir estructura de localización para inglés, español, catalán, francés y alemán.~~
 - [x] ~~Reutilizar el icono existente de Settle como asset web.~~
-- [ ] Sustituir enlaces temporales de descarga por la URL final de distribución o Mac App Store.
+- [x] ~~Sustituir enlaces temporales de descarga por la URL final de distribución.~~
 - [ ] Añadir capturas reales de la app cuando la UI macOS esté cerrada.
 - [ ] Añadir página dedicada de soporte.
 - [ ] Añadir página legal de privacidad si se publica fuera del README.

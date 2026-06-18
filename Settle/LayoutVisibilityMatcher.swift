@@ -66,4 +66,47 @@ enum LayoutVisibilityMatcher {
 
         return max(0, (appCoverage * 0.4) + (windowCoverage * 0.4) + (quality * 0.25) - extraAppPenalty)
     }
+
+    static func unmatchedVisibleWindowOrderIndices(
+        currentApps: [AppLayoutSnapshot],
+        against layout: Layout
+    ) -> [String: [Int]] {
+        let expectedApps = Dictionary(uniqueKeysWithValues: layout.apps.map { ($0.bundleIdentifier, $0) })
+        var unmatchedByBundle: [String: [Int]] = [:]
+
+        for currentApp in currentApps {
+            guard let expectedApp = expectedApps[currentApp.bundleIdentifier] else {
+                unmatchedByBundle[currentApp.bundleIdentifier] = Array(currentApp.windows.indices)
+                continue
+            }
+
+            var remainingCandidates = currentApp.windows.enumerated().map { index, window in
+                (
+                    index,
+                    WindowCandidate(
+                        title: window.windowTitleSnapshot,
+                        frame: window.frame.cgRect,
+                        orderIndex: window.orderIndex,
+                        isMainWindowCandidate: window.isMainWindowCandidate
+                    )
+                )
+            }
+
+            for expectedWindow in expectedApp.windows.sorted(by: { $0.orderIndex < $1.orderIndex }) {
+                let candidates = remainingCandidates.map(\.1)
+                guard let matchIndex = WindowMatcher.bestMatch(target: expectedWindow, candidates: candidates) else {
+                    continue
+                }
+
+                remainingCandidates.remove(at: matchIndex)
+            }
+
+            let unmatched = remainingCandidates.map(\.0)
+            if !unmatched.isEmpty {
+                unmatchedByBundle[currentApp.bundleIdentifier] = unmatched
+            }
+        }
+
+        return unmatchedByBundle
+    }
 }

@@ -390,4 +390,108 @@ final class SettleTests: XCTestCase {
 
         XCTAssertNil(LayoutVisibilityMatcher.bestMatch(currentApps: currentApps, among: [restored]))
     }
+
+    func testUnmatchedVisibleWindowIndicesDetectExtraAppWindows() {
+        let layout = Layout(
+            name: "Work",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.apple.dt.Xcode",
+                    appDisplayName: "Xcode",
+                    windows: [
+                        WindowSnapshot(
+                            windowTitleSnapshot: "Project",
+                            frame: WindowFrame(rect: CGRect(x: 40, y: 40, width: 900, height: 700)),
+                            isMinimized: false,
+                            isMainWindowCandidate: true,
+                            orderIndex: 0,
+                            stackingIndex: 0
+                        )
+                    ]
+                )
+            ]
+        )
+
+        let currentApps = [
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.apple.dt.Xcode",
+                appDisplayName: "Xcode",
+                windows: [
+                    WindowSnapshot(
+                        windowTitleSnapshot: "Project",
+                        frame: WindowFrame(rect: CGRect(x: 40, y: 40, width: 900, height: 700)),
+                        isMinimized: false,
+                        isMainWindowCandidate: true,
+                        orderIndex: 0,
+                        stackingIndex: 0
+                    ),
+                    WindowSnapshot(
+                        windowTitleSnapshot: "Welcome",
+                        frame: WindowFrame(rect: CGRect(x: 980, y: 120, width: 500, height: 420)),
+                        isMinimized: false,
+                        isMainWindowCandidate: false,
+                        orderIndex: 1,
+                        stackingIndex: 1
+                    )
+                ]
+            ),
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.googlecode.iterm2",
+                appDisplayName: "iTerm2",
+                windows: [
+                    WindowSnapshot(
+                        windowTitleSnapshot: "shell",
+                        frame: WindowFrame(rect: CGRect(x: 120, y: 120, width: 800, height: 500)),
+                        isMinimized: false,
+                        isMainWindowCandidate: true,
+                        orderIndex: 0,
+                        stackingIndex: 2
+                    )
+                ]
+            )
+        ]
+
+        let unmatched = LayoutVisibilityMatcher.unmatchedVisibleWindowOrderIndices(
+            currentApps: currentApps,
+            against: layout
+        )
+
+        XCTAssertEqual(unmatched["com.apple.dt.Xcode"], [1])
+        XCTAssertEqual(unmatched["com.googlecode.iterm2"], [0])
+    }
+
+    func testUnmatchedVisibleWindowIndicesReturnsEmptyWhenVisibleWindowsMatchLayout() {
+        let currentApps = [
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.apple.Safari",
+                appDisplayName: "Safari",
+                windows: [
+                    WindowSnapshot(
+                        windowTitleSnapshot: "Docs",
+                        frame: WindowFrame(rect: CGRect(x: 100, y: 90, width: 1000, height: 760)),
+                        isMinimized: false,
+                        isMainWindowCandidate: true,
+                        orderIndex: 0,
+                        stackingIndex: 0
+                    ),
+                    WindowSnapshot(
+                        windowTitleSnapshot: "Mail",
+                        frame: WindowFrame(rect: CGRect(x: 1120, y: 110, width: 780, height: 700)),
+                        isMinimized: false,
+                        isMainWindowCandidate: false,
+                        orderIndex: 1,
+                        stackingIndex: 1
+                    )
+                ]
+            )
+        ]
+        let layout = Layout(name: "Browsing", apps: currentApps)
+
+        let unmatched = LayoutVisibilityMatcher.unmatchedVisibleWindowOrderIndices(
+            currentApps: currentApps,
+            against: layout
+        )
+
+        XCTAssertTrue(unmatched.isEmpty)
+    }
 }

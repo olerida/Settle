@@ -9,12 +9,14 @@ struct MenuContentView: View {
             header
             permissionBanner
             actionButtons
+            windowActions
             inlineEditor
             layoutsList
             footer
         }
-        .padding(14)
         .frame(width: 430)
+        .frame(minHeight: 520, maxHeight: .infinity, alignment: .top)
+        .padding(14)
         .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
             coordinator.refreshPermissions()
@@ -84,8 +86,66 @@ struct MenuContentView: View {
     }
 
     @ViewBuilder
+    private var windowActions: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(L10n.tr("Window Actions"))
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                if let activeLayout = coordinator.activeRestoredLayout {
+                    Text(L10n.format("Active layout: %@", activeLayout.name))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+
+            HStack(spacing: 8) {
+                Button {
+                    coordinator.askToCloseAllWindows()
+                } label: {
+                    Label(L10n.tr("Close All"), systemImage: "xmark.circle")
+                        .labelStyle(.titleAndIcon)
+                }
+                .buttonStyle(ActionChipButtonStyle(role: .destructive))
+                .help(L10n.tr("Ask every app across every Space to quit"))
+
+                if coordinator.activeRestoredLayout != nil {
+                    Button {
+                        coordinator.closeWindowsOutsideActiveLayout()
+                    } label: {
+                        Label(L10n.tr("Close Others"), systemImage: "xmark.bin")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .buttonStyle(ActionChipButtonStyle())
+                    .help(L10n.tr("Close visible windows that are not part of the active restored layout"))
+
+                    Button {
+                        coordinator.minimizeWindowsOutsideActiveLayout()
+                    } label: {
+                        Label(L10n.tr("Minimize Others"), systemImage: "rectangle.compress.vertical")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .buttonStyle(ActionChipButtonStyle())
+                    .help(L10n.tr("Minimize visible windows that are not part of the active restored layout"))
+                }
+            }
+            .controlSize(.small)
+
+            if coordinator.activeRestoredLayout == nil {
+                Text(L10n.tr("The contextual actions appear when Settle recognizes a restored layout in the current Space."))
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+    }
+
+    @ViewBuilder
     private var inlineEditor: some View {
-        if coordinator.isSaveSheetPresented {
+        if coordinator.isCloseAllConfirmationPresented {
+            QuitAllAppsPanel()
+                .environmentObject(coordinator)
+        } else if coordinator.isSaveSheetPresented {
             SaveLayoutPanel()
                 .environmentObject(coordinator)
         } else if coordinator.renamingLayout != nil {
@@ -126,9 +186,10 @@ struct MenuContentView: View {
                     }
                     .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
                 }
-                .frame(minHeight: 260, maxHeight: 340)
+                .frame(minHeight: 260, maxHeight: .infinity)
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     private var footer: some View {
@@ -146,20 +207,54 @@ struct MenuContentView: View {
     }
 }
 
+private struct QuitAllAppsPanel: View {
+    @EnvironmentObject private var coordinator: LayoutCoordinator
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(L10n.tr("Quit Every App"))
+                .font(.headline)
+            Text(L10n.tr("This will ask every app across all Spaces to quit. Apps may ask to save changes before closing."))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            HStack {
+                Spacer()
+                Button(L10n.tr("Cancel")) {
+                    coordinator.cancelCloseAllWindows()
+                }
+                Button(L10n.tr("Quit All Apps"), role: .destructive) {
+                    coordinator.closeAllWindows()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(12)
+        .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 private struct ActionChipButtonStyle: ButtonStyle {
+    var role: ButtonRole?
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.medium))
-            .foregroundStyle(.primary)
+            .foregroundStyle(role == .destructive ? Color.red.opacity(configuration.isPressed ? 0.9 : 0.8) : .primary)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.white.opacity(configuration.isPressed ? 0.1 : 0.06))
+                    .fill(
+                        role == .destructive
+                            ? Color.red.opacity(configuration.isPressed ? 0.14 : 0.08)
+                            : Color.white.opacity(configuration.isPressed ? 0.1 : 0.06)
+                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.08))
+                    .strokeBorder(role == .destructive ? Color.red.opacity(0.18) : Color.white.opacity(0.08))
             )
     }
 }
