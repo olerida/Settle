@@ -62,6 +62,25 @@ const githubUrl = 'https://github.com/olerida/Settle';
       </div>
     </section>
 
+    <section class="homebrew-section" aria-labelledby="homebrew-title">
+      <div class="homebrew-copy">
+        <p class="eyebrow">Homebrew</p>
+        <h2 id="homebrew-title">{t.installTitle}</h2>
+        <p>{t.installBody}</p>
+        <small>{t.installNote}</small>
+      </div>
+      <div class="terminal-commands">
+        <div>
+          <span>{t.installLabel}</span>
+          <code>brew install --cask olerida/tap/settle</code>
+        </div>
+        <div>
+          <span>{t.updateLabel}</span>
+          <code>brew upgrade --cask settle</code>
+        </div>
+      </div>
+    </section>
+
     <section id="features" class="support-section">
       <div class="section-lead">
         <p class="eyebrow">{t.navFeatures}</p>
