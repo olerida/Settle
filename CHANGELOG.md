@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.1
+
+- Fixed the distributed DMG so it now contains the correctly signed `com.olerida.Settle` app bundle.
+- Rebuilt the release packaging flow to avoid broken Accessibility identity caused by unsigned or malformed app bundles.
+
 ## v1.2.0
 
 - Replaced the old menu bar popup with a native resizable panel for a more reliable window list.
