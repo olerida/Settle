@@ -92,7 +92,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.3.0`
+Current documented release: `v1.3.1`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 
@@ -105,4 +105,4 @@ See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 
 ## License
 
-Settle is distributed under the terms of the [`LICENSE`](LICENSE) file in this repository.
+Settle is distributed under the terms of the [`MIT License`](LICENSE).

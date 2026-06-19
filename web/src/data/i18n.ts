@@ -126,7 +126,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle for macOS",
     languageLabel: "Languages",
     downloadMeta:
-      "Version 1.3.0 · universal DMG for Apple silicon and Intel · about 1.1 MB",
+      "Version 1.3.1 · universal DMG for Apple silicon and Intel · about 1.1 MB",
     trustLine:
       "Settle uses native macOS permissions, keeps layouts on your Mac, and makes the code available for review.",
     midCtaTitle: "Ready when your desktop drifts.",
@@ -209,7 +209,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle para macOS",
     languageLabel: "Idiomas",
     downloadMeta:
-      "Versión 1.3.0 · DMG universal para Apple silicon e Intel · alrededor de 1,1 MB",
+      "Versión 1.3.1 · DMG universal para Apple silicon e Intel · alrededor de 1,1 MB",
     trustLine:
       "Settle usa permisos nativos de macOS, guarda los layouts en tu Mac y mantiene el código disponible para revisión.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
@@ -292,7 +292,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle per a macOS",
     languageLabel: "Idiomes",
     downloadMeta:
-      "Versió 1.3.0 · DMG universal per a Apple silicon i Intel · prop d’1,1 MB",
+      "Versió 1.3.1 · DMG universal per a Apple silicon i Intel · prop d’1,1 MB",
     trustLine:
       "Settle usa permisos natius de macOS, desa els layouts al Mac i manté el codi disponible per revisar-lo.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
@@ -376,7 +376,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle pour macOS",
     languageLabel: "Langues",
     downloadMeta:
-      "Version 1.3.0 · DMG universel Apple silicon et Intel · environ 1,1 Mo",
+      "Version 1.3.1 · DMG universel Apple silicon et Intel · environ 1,1 Mo",
     trustLine:
       "Settle utilise les permissions natives de macOS, garde les agencements sur votre Mac et rend le code disponible à la vérification.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
@@ -459,7 +459,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle für macOS",
     languageLabel: "Sprachen",
     downloadMeta:
-      "Version 1.3.0 · universelles DMG für Apple Silicon und Intel · etwa 1,1 MB",
+      "Version 1.3.1 · universelles DMG für Apple Silicon und Intel · etwa 1,1 MB",
     trustLine:
       "Settle nutzt native macOS-Berechtigungen, speichert Layouts auf deinem Mac und stellt den Code zur Prüfung bereit.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",

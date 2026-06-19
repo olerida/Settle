@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.1
+
+- Relicensed the repository from GPL-3.0 to MIT.
+- Rewrote the main README in English with a more complete GitHub-facing project overview.
+
 ## v1.3.0
 
 - Added a native About panel with app version, developer, website, and source links.
