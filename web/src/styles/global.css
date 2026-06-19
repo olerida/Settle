@@ -209,7 +209,7 @@ h1 {
 }
 
 .requirements-strip,
-.homebrew-section,
+.install-section,
 .support-section,
 .workflow-section,
 .detail-section,
@@ -249,7 +249,7 @@ h1 {
   line-height: 1.35;
 }
 
-.homebrew-section {
+.install-section {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(440px, 1.15fr);
   gap: 72px;
@@ -258,12 +258,12 @@ h1 {
   color: white;
 }
 
-.homebrew-copy h2 {
+.install-copy h2 {
   margin-bottom: 16px;
   font-size: clamp(38px, 5vw, 68px);
 }
 
-.homebrew-copy > p:not(.eyebrow) {
+.install-copy > p:not(.eyebrow) {
   max-width: 580px;
   margin-bottom: 20px;
   color: rgba(255, 255, 255, 0.7);
@@ -271,24 +271,24 @@ h1 {
   line-height: 1.45;
 }
 
-.homebrew-copy small {
+.install-copy small {
   display: block;
   color: rgba(255, 255, 255, 0.52);
   font-size: 14px;
   line-height: 1.5;
 }
 
-.terminal-commands {
+.install-methods {
   min-width: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.terminal-commands > div {
+.install-methods > div {
   padding: 22px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.terminal-commands span {
+.install-methods span {
   display: block;
   margin-bottom: 10px;
   color: rgba(255, 255, 255, 0.5);
@@ -296,7 +296,8 @@ h1 {
   font-weight: 650;
 }
 
-.terminal-commands code {
+.install-methods code,
+.install-methods a {
   display: block;
   overflow-x: auto;
   color: #f5f5f7;
@@ -304,6 +305,23 @@ h1 {
   font-size: 17px;
   line-height: 1.5;
   white-space: nowrap;
+}
+
+.install-methods a {
+  color: #68aef5;
+  font-family: inherit;
+  font-weight: 650;
+}
+
+.install-video {
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  max-height: 720px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: #000;
+  object-fit: contain;
 }
 
 .support-section {
@@ -538,14 +556,14 @@ h2 {
   }
 
   .requirements-strip,
-  .homebrew-section,
+  .install-section,
   .feature-list,
   .workflow-section,
   .detail-section {
     grid-template-columns: 1fr;
   }
 
-  .homebrew-section {
+  .install-section {
     gap: 38px;
   }
 
@@ -580,7 +598,7 @@ h2 {
 
   .hero,
   .requirements-strip,
-  .homebrew-section,
+  .install-section,
   .support-section,
   .workflow-section,
   .detail-section,
@@ -638,16 +656,17 @@ h2 {
     padding-bottom: 32px;
   }
 
-  .homebrew-section {
+  .install-section {
     padding-top: 58px;
     padding-bottom: 58px;
   }
 
-  .homebrew-copy > p:not(.eyebrow) {
+  .install-copy > p:not(.eyebrow) {
     font-size: 18px;
   }
 
-  .terminal-commands code {
+  .install-methods code,
+  .install-methods a {
     font-size: 14px;
   }
 

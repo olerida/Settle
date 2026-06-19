@@ -63,9 +63,10 @@ type Copy = {
   sourceBody: string
   installTitle: string
   installBody: string
-  installLabel: string
-  updateLabel: string
+  directInstallLabel: string
+  homebrewInstallLabel: string
   installNote: string
+  installVideoLabel: string
 }
 
 export const copy: Record<Language, Copy> = {
@@ -144,12 +145,13 @@ export const copy: Record<Language, Copy> = {
     sourceTitle: "Open source for transparency",
     sourceBody:
       "The code is public on GitHub, so the permission model and restore logic can be inspected.",
-    installTitle: "Install with Homebrew.",
+    installTitle: "Install Settle on your Mac.",
     installBody:
-      "Homebrew downloads the latest signed release and installs Settle in your Applications folder.",
-    installLabel: "Install",
-    updateLabel: "Update later",
-    installNote: "On first launch, macOS will ask you to grant Accessibility permission.",
+      "Download the DMG or install Settle with Homebrew. Then open the app and complete the initial macOS setup.",
+    directInstallLabel: "Direct download",
+    homebrewInstallLabel: "Homebrew",
+    installNote: "On first launch, grant Accessibility permission so Settle can restore window positions.",
+    installVideoLabel: "Video showing how to install and set up Settle",
   },
   es: {
     metaTitle: "Settle - Guarda y restaura layouts de ventanas en macOS",
@@ -226,12 +228,13 @@ export const copy: Record<Language, Copy> = {
     sourceTitle: "Código abierto para mayor transparencia",
     sourceBody:
       "El código está publicado en GitHub, así que se puede revisar el uso de permisos y la lógica de restauración.",
-    installTitle: "Instala con Homebrew.",
+    installTitle: "Instala Settle en tu Mac.",
     installBody:
-      "Homebrew descarga la última versión firmada e instala Settle en la carpeta Aplicaciones.",
-    installLabel: "Instalar",
-    updateLabel: "Actualizar después",
-    installNote: "En el primer inicio, macOS te pedirá que concedas permiso de Accesibilidad.",
+      "Descarga el DMG o instala Settle con Homebrew. Después abre la app y completa la configuración inicial de macOS.",
+    directInstallLabel: "Descarga directa",
+    homebrewInstallLabel: "Homebrew",
+    installNote: "En el primer inicio, concede permiso de Accesibilidad para que Settle pueda restaurar las ventanas.",
+    installVideoLabel: "Vídeo del proceso de instalación y configuración de Settle",
   },
   ca: {
     metaTitle: "Settle - Desa i restaura layouts de finestres a macOS",
@@ -308,12 +311,13 @@ export const copy: Record<Language, Copy> = {
     sourceTitle: "Codi obert per a més transparència",
     sourceBody:
       "El codi és públic a GitHub, així es pot revisar l’ús dels permisos i la lògica de restauració.",
-    installTitle: "Instal·la amb Homebrew.",
+    installTitle: "Instal·la Settle al Mac.",
     installBody:
-      "Homebrew descarrega l’última versió signada i instal·la Settle a la carpeta Aplicacions.",
-    installLabel: "Instal·lar",
-    updateLabel: "Actualitzar després",
-    installNote: "En el primer inici, macOS et demanarà que concedeixis permís d’Accessibilitat.",
+      "Descarrega el DMG o instal·la Settle amb Homebrew. Després obre l’app i completa la configuració inicial de macOS.",
+    directInstallLabel: "Descàrrega directa",
+    homebrewInstallLabel: "Homebrew",
+    installNote: "En el primer inici, concedeix permís d’Accessibilitat perquè Settle pugui restaurar les finestres.",
+    installVideoLabel: "Vídeo del procés d’instal·lació i configuració de Settle",
   },
   fr: {
     metaTitle: "Settle - Enregistrer et restaurer les fenêtres sur macOS",
@@ -391,12 +395,13 @@ export const copy: Record<Language, Copy> = {
     sourceTitle: "Open source pour la transparence",
     sourceBody:
       "Le code est public sur GitHub, ce qui permet de vérifier les permissions et la logique de restauration.",
-    installTitle: "Installez avec Homebrew.",
+    installTitle: "Installez Settle sur votre Mac.",
     installBody:
-      "Homebrew télécharge la dernière version signée et installe Settle dans le dossier Applications.",
-    installLabel: "Installer",
-    updateLabel: "Mettre à jour ensuite",
-    installNote: "Au premier lancement, macOS vous demandera d’accorder l’autorisation Accessibilité.",
+      "Téléchargez le DMG ou installez Settle avec Homebrew. Ouvrez ensuite l’app et terminez la configuration initiale de macOS.",
+    directInstallLabel: "Téléchargement direct",
+    homebrewInstallLabel: "Homebrew",
+    installNote: "Au premier lancement, accordez l’autorisation Accessibilité pour permettre à Settle de restaurer les fenêtres.",
+    installVideoLabel: "Vidéo du processus d’installation et de configuration de Settle",
   },
   de: {
     metaTitle: "Settle - macOS-Fensterlayouts speichern und wiederherstellen",
@@ -472,12 +477,13 @@ export const copy: Record<Language, Copy> = {
     sourceTitle: "Open Source für Transparenz",
     sourceBody:
       "Der Code ist auf GitHub öffentlich, damit Berechtigungen und Wiederherstellungslogik geprüft werden können.",
-    installTitle: "Mit Homebrew installieren.",
+    installTitle: "Settle auf deinem Mac installieren.",
     installBody:
-      "Homebrew lädt die neueste signierte Version und installiert Settle im Programme-Ordner.",
-    installLabel: "Installieren",
-    updateLabel: "Später aktualisieren",
-    installNote: "Beim ersten Start fordert macOS die Berechtigung für Bedienungshilfen an.",
+      "Lade das DMG herunter oder installiere Settle mit Homebrew. Öffne danach die App und schließe die macOS-Ersteinrichtung ab.",
+    directInstallLabel: "Direkter Download",
+    homebrewInstallLabel: "Homebrew",
+    installNote: "Erteile beim ersten Start die Berechtigung für Bedienungshilfen, damit Settle Fenster wiederherstellen kann.",
+    installVideoLabel: "Video zur Installation und Einrichtung von Settle",
   },
 }
 

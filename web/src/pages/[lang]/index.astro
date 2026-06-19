@@ -62,23 +62,26 @@ const githubUrl = 'https://github.com/olerida/Settle';
       </div>
     </section>
 
-    <section class="homebrew-section" aria-labelledby="homebrew-title">
-      <div class="homebrew-copy">
-        <p class="eyebrow">Homebrew</p>
-        <h2 id="homebrew-title">{t.installTitle}</h2>
+    <section class="install-section" aria-labelledby="install-title">
+      <div class="install-copy">
+        <p class="eyebrow">macOS</p>
+        <h2 id="install-title">{t.installTitle}</h2>
         <p>{t.installBody}</p>
         <small>{t.installNote}</small>
       </div>
-      <div class="terminal-commands">
+      <div class="install-methods">
         <div>
-          <span>{t.installLabel}</span>
+          <span>{t.directInstallLabel}</span>
+          <a href={downloadUrl}>{t.primaryCta}</a>
+        </div>
+        <div>
+          <span>{t.homebrewInstallLabel}</span>
           <code>brew install --cask olerida/tap/settle</code>
         </div>
-        <div>
-          <span>{t.updateLabel}</span>
-          <code>brew upgrade --cask settle</code>
-        </div>
       </div>
+      <video class="install-video" controls playsinline preload="metadata" poster="/settle-preview.png" aria-label={t.installVideoLabel}>
+        <source src="/install.mp4" type="video/mp4" />
+      </video>
     </section>
 
     <section id="features" class="support-section">
