@@ -126,14 +126,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle for macOS",
     languageLabel: "Languages",
     downloadMeta:
-      "Version 1.3.1 · universal DMG for Apple silicon and Intel · about 1.1 MB",
+      "Version 1.3.1 · universal DMG for Apple silicon and Intel · about 1.2 MB",
     trustLine:
       "Settle uses native macOS permissions, keeps layouts on your Mac, and makes the code available for review.",
     midCtaTitle: "Ready when your desktop drifts.",
     requirementsTitle: "Requirements",
     requirementMinimum: "macOS 14.0 or later",
     requirementChip: "Apple silicon and Intel Macs",
-    requirementSize: "DMG: about 1.1 MB",
+    requirementSize: "DMG: about 1.2 MB",
     requirementSignature: "Security and transparency",
     accessibilityTitle: "Why Accessibility permission is needed",
     accessibilityBody:
@@ -209,14 +209,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle para macOS",
     languageLabel: "Idiomas",
     downloadMeta:
-      "Versión 1.3.1 · DMG universal para Apple silicon e Intel · alrededor de 1,1 MB",
+      "Versión 1.3.1 · DMG universal para Apple silicon e Intel · alrededor de 1,2 MB",
     trustLine:
       "Settle usa permisos nativos de macOS, guarda los layouts en tu Mac y mantiene el código disponible para revisión.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
     requirementsTitle: "Requisitos",
     requirementMinimum: "macOS 14.0 o posterior",
     requirementChip: "Macs Apple silicon e Intel",
-    requirementSize: "DMG: alrededor de 1,1 MB",
+    requirementSize: "DMG: alrededor de 1,2 MB",
     requirementSignature: "Seguridad y transparencia",
     accessibilityTitle: "Por qué necesita permiso de Accesibilidad",
     accessibilityBody:
@@ -292,14 +292,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle per a macOS",
     languageLabel: "Idiomes",
     downloadMeta:
-      "Versió 1.3.1 · DMG universal per a Apple silicon i Intel · prop d’1,1 MB",
+      "Versió 1.3.1 · DMG universal per a Apple silicon i Intel · prop d’1,2 MB",
     trustLine:
       "Settle usa permisos natius de macOS, desa els layouts al Mac i manté el codi disponible per revisar-lo.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
     requirementsTitle: "Requisits",
     requirementMinimum: "macOS 14.0 o posterior",
     requirementChip: "Macs Apple silicon i Intel",
-    requirementSize: "DMG: prop d’1,1 MB",
+    requirementSize: "DMG: prop d’1,2 MB",
     requirementSignature: "Seguretat i transparència",
     accessibilityTitle: "Per què necessita permís d’Accessibilitat",
     accessibilityBody:
@@ -376,14 +376,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle pour macOS",
     languageLabel: "Langues",
     downloadMeta:
-      "Version 1.3.1 · DMG universel Apple silicon et Intel · environ 1,1 Mo",
+      "Version 1.3.1 · DMG universel Apple silicon et Intel · environ 1,2 Mo",
     trustLine:
       "Settle utilise les permissions natives de macOS, garde les agencements sur votre Mac et rend le code disponible à la vérification.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
     requirementsTitle: "Prérequis",
     requirementMinimum: "macOS 14.0 ou plus récent",
     requirementChip: "Mac Apple silicon et Intel",
-    requirementSize: "DMG : environ 1,3 Mo",
+    requirementSize: "DMG : environ 1,2 Mo",
     requirementSignature: "Sécurité et transparence",
     accessibilityTitle: "Pourquoi l’autorisation Accessibilité est nécessaire",
     accessibilityBody:
@@ -459,14 +459,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle für macOS",
     languageLabel: "Sprachen",
     downloadMeta:
-      "Version 1.3.1 · universelles DMG für Apple Silicon und Intel · etwa 1,1 MB",
+      "Version 1.3.1 · universelles DMG für Apple Silicon und Intel · etwa 1,2 MB",
     trustLine:
       "Settle nutzt native macOS-Berechtigungen, speichert Layouts auf deinem Mac und stellt den Code zur Prüfung bereit.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",
     requirementsTitle: "Voraussetzungen",
     requirementMinimum: "macOS 14.0 oder neuer",
     requirementChip: "Apple-Silicon- und Intel-Macs",
-    requirementSize: "DMG: etwa 1,1 MB",
+    requirementSize: "DMG: etwa 1,2 MB",
     requirementSignature: "Sicherheit und Transparenz",
     accessibilityTitle: "Warum Bedienungshilfen benötigt werden",
     accessibilityBody:
