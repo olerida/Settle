@@ -42,7 +42,6 @@
 "Open System Prompt" = "Open System Prompt";
 "Pin" = "Pin";
 "Pinned %@" = "Pinned %@";
-"Quick Save" = "Quick Save";
 "Quit" = "Quit";
 "Quit All Apps" = "Quit All Apps";
 "Quit Every App" = "Quit Every App";
@@ -64,7 +63,6 @@
 "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows." = "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows.";
 "Spaces" = "Spaces";
 "Status" = "Status";
-"The contextual actions appear when Settle recognizes a restored layout in the current Space." = "The contextual actions appear when Settle recognizes a restored layout in the current Space.";
 "The app %@ is not installed." = "The app %@ is not installed.";
 "The current desktop could not be captured." = "The current desktop could not be captured.";
 "This will ask every app across all Spaces to quit. Apps may ask to save changes before closing." = "This will ask every app across all Spaces to quit. Apps may ask to save changes before closing.";
@@ -80,10 +78,10 @@
 "Update layout with current windows" = "Update layout with current windows";
 "Show snapshot preview" = "Show snapshot preview";
 "Active layout: %@" = "Active layout: %@";
+"Active layout" = "Active layout";
 "Ask every app across every Space to quit" = "Ask every app across every Space to quit";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "v1 does not close, hide, or minimize windows that are not part of the selected layout.";
-"Window Actions" = "Window Actions";
 "Window layouts for the current desktop" = "Window layouts for the current desktop";
 "%d apps" = "%d apps";
 "Deleted %@" = "Deleted %@";

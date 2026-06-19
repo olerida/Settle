@@ -42,7 +42,6 @@
 "Open System Prompt" = "Ouvrir la demande système";
 "Pin" = "Épingler";
 "Pinned %@" = "%@ épinglé";
-"Quick Save" = "Enregistrement rapide";
 "Quit" = "Quitter";
 "Quit All Apps" = "Quitter toutes les apps";
 "Quit Every App" = "Quitter toutes les apps";
@@ -64,7 +63,6 @@
 "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows." = "Certaines apps n'exposent pas toutes leurs fenêtres de façon fiable via Accessibilité. Dans ce cas, Settle restaure autant que macOS le permet et signale les fenêtres non résolues.";
 "Spaces" = "Espaces";
 "Status" = "État";
-"The contextual actions appear when Settle recognizes a restored layout in the current Space." = "Les actions contextuelles apparaissent lorsque Settle reconnaît un layout restauré dans l’espace actuel.";
 "The app %@ is not installed." = "L'app %@ n'est pas installée.";
 "The current desktop could not be captured." = "Le bureau actuel n'a pas pu être capturé.";
 "This will ask every app across all Spaces to quit. Apps may ask to save changes before closing." = "Cela demandera à toutes les apps de tous les espaces de quitter. Certaines apps peuvent demander d’enregistrer les modifications avant de se fermer.";
@@ -80,10 +78,10 @@
 "Update layout with current windows" = "Mettre à jour le layout avec les fenêtres actuelles";
 "Show snapshot preview" = "Afficher l’aperçu";
 "Active layout: %@" = "Layout actif : %@";
+"Active layout" = "Layout actif";
 "Ask every app across every Space to quit" = "Demander à toutes les apps de tous les espaces de quitter";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "Par défaut, restaurer un layout laisse intactes les fenêtres non liées. Utilisez les actions du menu lorsque vous souhaitez explicitement fermer ou réduire les autres fenêtres.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "La v1 ne ferme, ne masque ni ne réduit les fenêtres qui ne font pas partie du layout sélectionné.";
-"Window Actions" = "Actions sur les fenêtres";
 "Window layouts for the current desktop" = "Layouts de fenêtres pour le bureau actuel";
 "%d apps" = "%d apps";
 "Deleted %@" = "%@ supprimé";

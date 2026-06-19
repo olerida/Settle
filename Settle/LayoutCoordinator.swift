@@ -105,6 +105,10 @@ final class LayoutCoordinator: ObservableObject {
         permissionManager.refresh()
     }
 
+    func refreshActiveLayoutForCurrentSpace() {
+        scheduleActiveSpaceDetection()
+    }
+
     func prepareSave() {
         saveName = Self.defaultLayoutName()
         isSaveSheetPresented = true
@@ -131,12 +135,6 @@ final class LayoutCoordinator: ObservableObject {
             cancelSave()
         } else if renamingLayout != nil {
             cancelRename()
-        }
-    }
-
-    func quickSave() {
-        Task {
-            await saveCurrentLayout(named: Self.defaultLayoutName())
         }
     }
 

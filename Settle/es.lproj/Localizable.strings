@@ -42,7 +42,6 @@
 "Open System Prompt" = "Abrir diálogo del sistema";
 "Pin" = "Fijar";
 "Pinned %@" = "Fijado %@";
-"Quick Save" = "Guardado rápido";
 "Quit" = "Salir";
 "Quit All Apps" = "Salir de todas las apps";
 "Quit Every App" = "Salir de todas las apps";
@@ -64,7 +63,6 @@
 "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows." = "Algunas apps no exponen todas sus ventanas de forma fiable mediante Accesibilidad. En esos casos, Settle restaura todo lo que macOS permite y marca las ventanas no resueltas.";
 "Spaces" = "Escritorios";
 "Status" = "Estado";
-"The contextual actions appear when Settle recognizes a restored layout in the current Space." = "Las acciones contextuales aparecen cuando Settle reconoce un layout restaurado en el escritorio actual.";
 "The app %@ is not installed." = "La app %@ no está instalada.";
 "The current desktop could not be captured." = "No se pudo capturar el escritorio actual.";
 "This will ask every app across all Spaces to quit. Apps may ask to save changes before closing." = "Esto pedirá a todas las apps de todos los escritorios que salgan. Algunas apps pueden pedirte guardar cambios antes de cerrarse.";
@@ -80,10 +78,10 @@
 "Update layout with current windows" = "Actualizar el layout con las ventanas actuales";
 "Show snapshot preview" = "Mostrar vista previa";
 "Active layout: %@" = "Layout activo: %@";
+"Active layout" = "Layout activo";
 "Ask every app across every Space to quit" = "Pedir a todas las apps de todos los escritorios que salgan";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "Por defecto, restaurar un layout deja intactas las ventanas no relacionadas. Usa las acciones del menú cuando quieras cerrar o minimizar otras ventanas de forma explícita.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "La v1 no cierra, oculta ni minimiza las ventanas que no forman parte del layout seleccionado.";
-"Window Actions" = "Acciones de ventanas";
 "Window layouts for the current desktop" = "Layouts de ventanas para el escritorio actual";
 "%d apps" = "%d apps";
 "Deleted %@" = "Eliminado %@";

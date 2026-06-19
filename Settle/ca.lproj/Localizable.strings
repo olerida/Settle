@@ -42,7 +42,6 @@
 "Open System Prompt" = "Obrir diàleg del sistema";
 "Pin" = "Fixar";
 "Pinned %@" = "Fixat %@";
-"Quick Save" = "Desat ràpid";
 "Quit" = "Sortir";
 "Quit All Apps" = "Sortir de totes les apps";
 "Quit Every App" = "Sortir de totes les apps";
@@ -64,7 +63,6 @@
 "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows." = "Algunes apps no exposen totes les finestres de manera fiable via Accessibilitat. En aquests casos, Settle restaura tot el que macOS permet i informa de les finestres no resoltes.";
 "Spaces" = "Escriptoris";
 "Status" = "Estat";
-"The contextual actions appear when Settle recognizes a restored layout in the current Space." = "Les accions contextuals apareixen quan Settle reconeix un layout restaurat a l'escriptori actual.";
 "The app %@ is not installed." = "L'app %@ no està instal·lada.";
 "The current desktop could not be captured." = "No s'ha pogut capturar l'escriptori actual.";
 "This will ask every app across all Spaces to quit. Apps may ask to save changes before closing." = "Això demanarà a totes les apps de tots els escriptoris que surtin. Algunes apps poden demanar que desis els canvis abans de tancar-se.";
@@ -80,10 +78,10 @@
 "Update layout with current windows" = "Actualitzar el layout amb les finestres actuals";
 "Show snapshot preview" = "Mostrar vista prèvia";
 "Active layout: %@" = "Layout actiu: %@";
+"Active layout" = "Layout actiu";
 "Ask every app across every Space to quit" = "Demanar a totes les apps de tots els escriptoris que surtin";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "Per defecte, restaurar un layout deixa intactes les finestres no relacionades. Fes servir les accions del menú quan vulguis tancar o minimitzar altres finestres de manera explícita.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "La v1 no tanca, oculta ni minimitza les finestres que no formen part del layout seleccionat.";
-"Window Actions" = "Accions de finestres";
 "Window layouts for the current desktop" = "Layouts de finestres per a l'escriptori actual";
 "%d apps" = "%d apps";
 "Deleted %@" = "Eliminat %@";

@@ -5,14 +5,14 @@ import UniformTypeIdentifiers
 struct MenuContentView: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
     @State private var draggedPinnedLayoutID: UUID?
+    var onPreferredHeightChange: ((CGFloat) -> Void)?
 
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 14) {
                 header
                 permissionBanner
-                actionButtons
-                windowActions
+                actionBar
                 layoutsList
                 footer
             }
@@ -43,6 +43,29 @@ struct MenuContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             coordinator.refreshPermissions()
+        }
+        .background {
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: PanelHeightMetricsPreferenceKey.self,
+                    value: PanelHeightMetrics(panelHeight: proxy.size.height)
+                )
+            }
+        }
+        .onPreferenceChange(PanelHeightMetricsPreferenceKey.self) { metrics in
+            let preferredHeight: CGFloat
+            if coordinator.layouts.isEmpty {
+                preferredHeight = 520
+            } else {
+                guard metrics.panelHeight > 0, metrics.listViewportHeight > 0, metrics.listContentHeight > 0 else {
+                    return
+                }
+                preferredHeight = max(
+                    520,
+                    metrics.panelHeight - metrics.listViewportHeight + metrics.listContentHeight
+                )
+            }
+            onPreferredHeightChange?(preferredHeight)
         }
     }
 
@@ -101,7 +124,7 @@ struct MenuContentView: View {
         }
     }
 
-    private var actionButtons: some View {
+    private var actionBar: some View {
         HStack(spacing: 8) {
             Button {
                 coordinator.prepareSave()
@@ -109,72 +132,40 @@ struct MenuContentView: View {
                 Label(L10n.tr("Save Layout"), systemImage: "plus.circle")
                     .labelStyle(.titleAndIcon)
             }
-            .buttonStyle(ActionChipButtonStyle())
+            .buttonStyle(ActionChipButtonStyle(tone: .primary))
+
+            if coordinator.activeRestoredLayout != nil {
+                Button {
+                    coordinator.minimizeWindowsOutsideActiveLayout()
+                } label: {
+                    Image(systemName: "rectangle.compress.vertical")
+                }
+                .buttonStyle(ActionChipButtonStyle())
+                .accessibilityLabel(L10n.tr("Minimize Others"))
+                .help(L10n.tr("Minimize visible windows that are not part of the active restored layout"))
+
+                Button {
+                    coordinator.closeWindowsOutsideActiveLayout()
+                } label: {
+                    Image(systemName: "xmark.bin")
+                }
+                .buttonStyle(ActionChipButtonStyle())
+                .accessibilityLabel(L10n.tr("Close Others"))
+                .help(L10n.tr("Close visible windows that are not part of the active restored layout"))
+            }
+
+            Spacer(minLength: 8)
 
             Button {
-                coordinator.quickSave()
+                coordinator.askToCloseAllWindows()
             } label: {
-                Label(L10n.tr("Quick Save"), systemImage: "bolt.circle")
+                Label(L10n.tr("Close All"), systemImage: "xmark.circle")
                     .labelStyle(.titleAndIcon)
             }
-            .buttonStyle(ActionChipButtonStyle())
+            .buttonStyle(ActionChipButtonStyle(tone: .destructive))
+            .help(L10n.tr("Ask every app across every Space to quit"))
         }
         .controlSize(.small)
-    }
-
-    @ViewBuilder
-    private var windowActions: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(L10n.tr("Window Actions"))
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                if let activeLayout = coordinator.activeRestoredLayout {
-                    Text(L10n.format("Active layout: %@", activeLayout.name))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-
-            HStack(spacing: 8) {
-                Button {
-                    coordinator.askToCloseAllWindows()
-                } label: {
-                    Label(L10n.tr("Close All"), systemImage: "xmark.circle")
-                        .labelStyle(.titleAndIcon)
-                }
-                .buttonStyle(ActionChipButtonStyle(role: .destructive))
-                .help(L10n.tr("Ask every app across every Space to quit"))
-
-                if coordinator.activeRestoredLayout != nil {
-                    Button {
-                        coordinator.closeWindowsOutsideActiveLayout()
-                    } label: {
-                        Label(L10n.tr("Close Others"), systemImage: "xmark.bin")
-                            .labelStyle(.titleAndIcon)
-                    }
-                    .buttonStyle(ActionChipButtonStyle())
-                    .help(L10n.tr("Close visible windows that are not part of the active restored layout"))
-
-                    Button {
-                        coordinator.minimizeWindowsOutsideActiveLayout()
-                    } label: {
-                        Label(L10n.tr("Minimize Others"), systemImage: "rectangle.compress.vertical")
-                            .labelStyle(.titleAndIcon)
-                    }
-                    .buttonStyle(ActionChipButtonStyle())
-                    .help(L10n.tr("Minimize visible windows that are not part of the active restored layout"))
-                }
-            }
-            .controlSize(.small)
-
-            if coordinator.activeRestoredLayout == nil {
-                Text(L10n.tr("The contextual actions appear when Settle recognizes a restored layout in the current Space."))
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-        }
     }
 
     @ViewBuilder
@@ -266,6 +257,22 @@ struct MenuContentView: View {
                             }
                         }
                     }
+                    .background {
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: PanelHeightMetricsPreferenceKey.self,
+                                value: PanelHeightMetrics(listContentHeight: proxy.size.height)
+                            )
+                        }
+                    }
+                }
+                .background {
+                    GeometryReader { proxy in
+                        Color.clear.preference(
+                            key: PanelHeightMetricsPreferenceKey.self,
+                            value: PanelHeightMetrics(listViewportHeight: proxy.size.height)
+                        )
+                    }
                 }
                 .frame(minHeight: 260, maxHeight: .infinity)
             }
@@ -284,6 +291,29 @@ struct MenuContentView: View {
                 NSApp.terminate(nil)
             }
             .buttonStyle(.borderless)
+        }
+    }
+}
+
+private struct PanelHeightMetrics: Equatable {
+    var panelHeight: CGFloat = 0
+    var listViewportHeight: CGFloat = 0
+    var listContentHeight: CGFloat = 0
+}
+
+private struct PanelHeightMetricsPreferenceKey: PreferenceKey {
+    static let defaultValue = PanelHeightMetrics()
+
+    static func reduce(value: inout PanelHeightMetrics, nextValue: () -> PanelHeightMetrics) {
+        let next = nextValue()
+        if next.panelHeight > 0 {
+            value.panelHeight = next.panelHeight
+        }
+        if next.listViewportHeight > 0 {
+            value.listViewportHeight = next.listViewportHeight
+        }
+        if next.listContentHeight > 0 {
+            value.listContentHeight = next.listContentHeight
         }
     }
 }
@@ -438,26 +468,61 @@ private struct AboutSettlePanel: View {
 }
 
 private struct ActionChipButtonStyle: ButtonStyle {
-    var role: ButtonRole?
+    enum Tone {
+        case standard
+        case primary
+        case destructive
+    }
+
+    var tone: Tone = .standard
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.medium))
-            .foregroundStyle(role == .destructive ? Color.red.opacity(configuration.isPressed ? 0.9 : 0.8) : .primary)
+            .foregroundStyle(foregroundColor(isPressed: configuration.isPressed))
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(
-                        role == .destructive
-                            ? Color.red.opacity(configuration.isPressed ? 0.14 : 0.08)
-                            : Color.white.opacity(configuration.isPressed ? 0.1 : 0.06)
-                    )
+                    .fill(backgroundColor(isPressed: configuration.isPressed))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(role == .destructive ? Color.red.opacity(0.18) : Color.white.opacity(0.08))
+                    .strokeBorder(borderColor)
             )
+    }
+
+    private func foregroundColor(isPressed: Bool) -> Color {
+        switch tone {
+        case .standard:
+            return .primary
+        case .primary:
+            return .accentColor.opacity(isPressed ? 0.85 : 1)
+        case .destructive:
+            return .red.opacity(isPressed ? 0.9 : 0.8)
+        }
+    }
+
+    private func backgroundColor(isPressed: Bool) -> Color {
+        switch tone {
+        case .standard:
+            return .white.opacity(isPressed ? 0.1 : 0.06)
+        case .primary:
+            return .accentColor.opacity(isPressed ? 0.18 : 0.12)
+        case .destructive:
+            return .red.opacity(isPressed ? 0.14 : 0.08)
+        }
+    }
+
+    private var borderColor: Color {
+        switch tone {
+        case .standard:
+            return .white.opacity(0.08)
+        case .primary:
+            return .accentColor.opacity(0.24)
+        case .destructive:
+            return .red.opacity(0.18)
+        }
     }
 }
 
@@ -483,10 +548,14 @@ private struct LayoutRow: View {
     }
 
     var body: some View {
+        let isActive = coordinator.activeRestoredLayout?.id == layout.id
+
         HStack(alignment: .center, spacing: 10) {
             Circle()
-                .fill(layout.pinned ? Color.accentColor : Color.secondary.opacity(0.35))
+                .fill(isActive ? Color.accentColor : Color.secondary.opacity(0.35))
                 .frame(width: 8, height: 8)
+                .accessibilityHidden(!isActive)
+                .accessibilityLabel(L10n.tr("Active layout"))
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -571,6 +640,14 @@ private struct LayoutRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(isActive ? Color.accentColor.opacity(0.1) : Color.clear)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(isActive ? Color.accentColor.opacity(0.28) : Color.clear)
+        )
     }
 }
 

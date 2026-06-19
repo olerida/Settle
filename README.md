@@ -10,8 +10,11 @@ It captures visible app windows, stores their size and position, and restores th
 
 - Native macOS app built with `SwiftUI` and `AppKit`
 - Menu bar workflow with a resizable panel UI
+- Automatic panel height that fits saved layouts up to 75% of the active screen
 - Save named layouts for the current desktop
 - Restore layouts by reopening apps and repositioning windows
+- Active layout highlighting that follows the current Space
+- Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list
 - Contextual actions for restored layouts:

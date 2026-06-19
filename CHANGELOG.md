@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Reworked the menu panel into a unified action bar, removed Quick Save, and kept the destructive Close All action at the far right.
+- Added automatic panel height based on the saved layout list, capped at 75% of the active screen.
+- Added a distinct, accessible highlight for the active layout in the current Space.
+
 ## v1.3.1
 
 - Relicensed the repository from GPL-3.0 to MIT.
