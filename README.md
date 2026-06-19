@@ -1,8 +1,12 @@
 # Settle
 
-Settle is a native macOS menu bar app for saving and restoring window layouts on the current desktop.
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-007AFF?logo=apple&logoColor=white)](#requirements)
+[![Swift](https://img.shields.io/badge/Swift-native-F05138?logo=swift&logoColor=white)](Settle)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2EA44F)](LICENSE)
 
-It captures visible app windows, stores their size and position, and restores them later using macOS Accessibility APIs. The app is designed to stay conservative by default: windows outside the selected layout are left alone unless the user explicitly chooses contextual actions.
+Save and restore macOS window layouts directly from the menu bar.
+
+Switch between work, coding, meetings, and study setups in seconds. Settle reopens apps, restores each window's size and position, and leaves unrelated windows alone unless you choose otherwise.
 
 ![Settle menu preview](web/public/settle-preview.png)
 
@@ -95,7 +99,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.3.1`
+Current documented release: `v1.4.0`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 

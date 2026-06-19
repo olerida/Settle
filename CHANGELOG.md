@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.4.0
 
 - Reworked the menu panel into a unified action bar, removed Quick Save, and kept the destructive Close All action at the far right.
 - Added automatic panel height based on the saved layout list, capped at 75% of the active screen.
