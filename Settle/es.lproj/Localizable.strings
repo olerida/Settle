@@ -95,6 +95,8 @@
 "Developer" = "Desarrollador";
 "Drag the handle to reorder pinned layouts." = "Arrastra el asa para reordenar los layouts fijados.";
 "Drag to reorder" = "Arrastrar para reordenar";
+"License" = "Licencia";
+"MIT License" = "Licencia MIT";
 "No regular layouts." = "No hay layouts normales.";
 "Pinned Layouts" = "Layouts fijados";
 "Reorder pinned layout" = "Reordenar layout fijado";

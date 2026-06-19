@@ -407,6 +407,11 @@ private struct AboutSettlePanel: View {
                         .foregroundStyle(.secondary)
                     Link("github.com/olerida/Settle", destination: sourceCodeURL)
                 }
+                GridRow {
+                    Text(L10n.tr("License"))
+                        .foregroundStyle(.secondary)
+                    Text(L10n.tr("MIT License"))
+                }
             }
             .font(.subheadline)
 

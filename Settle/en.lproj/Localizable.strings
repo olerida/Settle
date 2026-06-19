@@ -95,6 +95,8 @@
 "Developer" = "Developer";
 "Drag the handle to reorder pinned layouts." = "Drag the handle to reorder pinned layouts.";
 "Drag to reorder" = "Drag to reorder";
+"License" = "License";
+"MIT License" = "MIT License";
 "No regular layouts." = "No regular layouts.";
 "Pinned Layouts" = "Pinned Layouts";
 "Reorder pinned layout" = "Reorder pinned layout";
