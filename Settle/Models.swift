@@ -108,6 +108,7 @@ struct Layout: Codable, Hashable, Identifiable {
     var createdAt: Date
     var updatedAt: Date
     var pinned: Bool
+    var pinnedOrder: Int?
     var snapshotFileName: String?
     var spacePolicy: SpacePolicy
     var extraWindowsBehaviorDefault: ExtraWindowsBehavior
@@ -119,6 +120,7 @@ struct Layout: Codable, Hashable, Identifiable {
         createdAt: Date = .now,
         updatedAt: Date = .now,
         pinned: Bool = false,
+        pinnedOrder: Int? = nil,
         snapshotFileName: String? = nil,
         spacePolicy: SpacePolicy = .currentSpaceOnly,
         extraWindowsBehaviorDefault: ExtraWindowsBehavior = .leaveUntouched,
@@ -129,10 +131,38 @@ struct Layout: Codable, Hashable, Identifiable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.pinned = pinned
+        self.pinnedOrder = pinnedOrder
         self.snapshotFileName = snapshotFileName
         self.spacePolicy = spacePolicy
         self.extraWindowsBehaviorDefault = extraWindowsBehaviorDefault
         self.apps = apps
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case createdAt
+        case updatedAt
+        case pinned
+        case pinnedOrder
+        case snapshotFileName
+        case spacePolicy
+        case extraWindowsBehaviorDefault
+        case apps
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        pinned = try container.decode(Bool.self, forKey: .pinned)
+        pinnedOrder = try container.decodeIfPresent(Int.self, forKey: .pinnedOrder)
+        snapshotFileName = try container.decodeIfPresent(String.self, forKey: .snapshotFileName)
+        spacePolicy = try container.decode(SpacePolicy.self, forKey: .spacePolicy)
+        extraWindowsBehaviorDefault = try container.decode(ExtraWindowsBehavior.self, forKey: .extraWindowsBehaviorDefault)
+        apps = try container.decode([AppLayoutSnapshot].self, forKey: .apps)
     }
 }
 
@@ -140,7 +170,7 @@ struct LayoutDocument: Codable {
     var version: Int
     var layouts: [Layout]
 
-    static let currentVersion = 1
+    static let currentVersion = 2
 }
 
 struct RestoreFailure: Error, Identifiable, Hashable {

@@ -10,6 +10,7 @@ final class LayoutCoordinator: ObservableObject {
     @Published var isSaveSheetPresented = false
     @Published var renamingLayout: Layout?
     @Published var isCloseAllConfirmationPresented = false
+    @Published var isAboutPresented = false
     @Published var latestReport: RestoreReport?
 
     let permissionManager: AccessibilityPermissionManager
@@ -63,6 +64,27 @@ final class LayoutCoordinator: ObservableObject {
         store.layouts
     }
 
+    var pinnedLayouts: [Layout] {
+        store.layouts.filter(\.pinned)
+    }
+
+    var unpinnedLayouts: [Layout] {
+        store.layouts.filter { !$0.pinned }
+    }
+
+    var appVersionDescription: String {
+        let shortVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(shortVersion) (\(buildNumber))"
+    }
+
+    var isOverlayPresented: Bool {
+        isCloseAllConfirmationPresented
+            || isAboutPresented
+            || isSaveSheetPresented
+            || renamingLayout != nil
+    }
+
     var activeRestoredLayout: Layout? {
         guard let lastDetectedLayoutID else { return nil }
         return store.layouts.first(where: { $0.id == lastDetectedLayoutID })
@@ -90,6 +112,26 @@ final class LayoutCoordinator: ObservableObject {
 
     func cancelSave() {
         isSaveSheetPresented = false
+    }
+
+    func presentAbout() {
+        isAboutPresented = true
+    }
+
+    func dismissAbout() {
+        isAboutPresented = false
+    }
+
+    func dismissOverlay() {
+        if isCloseAllConfirmationPresented {
+            cancelCloseAllWindows()
+        } else if isAboutPresented {
+            dismissAbout()
+        } else if isSaveSheetPresented {
+            cancelSave()
+        } else if renamingLayout != nil {
+            cancelRename()
+        }
     }
 
     func quickSave() {
@@ -174,6 +216,7 @@ final class LayoutCoordinator: ObservableObject {
                     createdAt: layout.createdAt,
                     updatedAt: .now,
                     pinned: layout.pinned,
+                    pinnedOrder: layout.pinnedOrder,
                     snapshotFileName: layout.snapshotFileName,
                     spacePolicy: layout.spacePolicy,
                     extraWindowsBehaviorDefault: layout.extraWindowsBehaviorDefault,
@@ -255,6 +298,15 @@ final class LayoutCoordinator: ObservableObject {
         do {
             try store.togglePinned(id: layout.id)
             statusMessage = layout.pinned ? L10n.format("Unpinned %@", layout.name) : L10n.format("Pinned %@", layout.name)
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    func movePinnedLayout(from sourceIndex: Int, to destinationIndex: Int) {
+        do {
+            try store.movePinnedLayout(from: sourceIndex, to: destinationIndex)
+            statusMessage = L10n.tr("Updated pinned layouts")
         } catch {
             statusMessage = error.localizedDescription
         }

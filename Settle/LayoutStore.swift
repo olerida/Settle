@@ -42,6 +42,12 @@ final class LayoutStore: ObservableObject {
         var persistedLayout = layout
         let previousSnapshotFileName = layouts.first(where: { $0.id == persistedLayout.id })?.snapshotFileName
 
+        if persistedLayout.pinned && persistedLayout.pinnedOrder == nil {
+            persistedLayout.pinnedOrder = nextPinnedOrder()
+        } else if !persistedLayout.pinned {
+            persistedLayout.pinnedOrder = nil
+        }
+
         if let snapshotPNGData {
             persistedLayout.snapshotFileName = try writeSnapshot(data: snapshotPNGData, layoutID: layout.id)
         }
@@ -77,7 +83,27 @@ final class LayoutStore: ObservableObject {
     func togglePinned(id: UUID) throws {
         guard let index = layouts.firstIndex(where: { $0.id == id }) else { return }
         layouts[index].pinned.toggle()
+        layouts[index].pinnedOrder = layouts[index].pinned ? nextPinnedOrder() : nil
         layouts[index].updatedAt = .now
+        sortLayouts()
+        try persist()
+    }
+
+    func movePinnedLayout(from sourceIndex: Int, to destinationIndex: Int) throws {
+        var pinnedLayouts = layouts.filter(\.pinned).sorted(by: pinnedSort)
+        guard sourceIndex != destinationIndex else { return }
+        guard pinnedLayouts.indices.contains(sourceIndex) else { return }
+
+        let safeDestination = max(0, min(destinationIndex, pinnedLayouts.count))
+        let movedLayout = pinnedLayouts.remove(at: sourceIndex)
+        pinnedLayouts.insert(movedLayout, at: safeDestination > sourceIndex ? safeDestination - 1 : safeDestination)
+
+        for (index, layout) in pinnedLayouts.enumerated() {
+            guard let storedIndex = layouts.firstIndex(where: { $0.id == layout.id }) else { continue }
+            layouts[storedIndex].pinnedOrder = index
+            layouts[storedIndex].updatedAt = .now
+        }
+
         sortLayouts()
         try persist()
     }
@@ -106,6 +132,7 @@ final class LayoutStore: ObservableObject {
             let data = try Data(contentsOf: storageURL)
             let document = try decoder.decode(LayoutDocument.self, from: data)
             layouts = document.layouts
+            normalizePinnedOrders()
             sortLayouts()
         } catch {
             layouts = []
@@ -113,15 +140,8 @@ final class LayoutStore: ObservableObject {
     }
 
     private func sortLayouts() {
-        layouts.sort {
-            if $0.pinned != $1.pinned {
-                return $0.pinned && !$1.pinned
-            }
-            if $0.updatedAt != $1.updatedAt {
-                return $0.updatedAt > $1.updatedAt
-            }
-            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-        }
+        normalizePinnedOrders()
+        layouts.sort(by: layoutSort)
     }
 
     private func persist() throws {
@@ -144,6 +164,48 @@ final class LayoutStore: ObservableObject {
         let snapshotURL = snapshotsDirectoryURL.appendingPathComponent(fileName)
         guard fileManager.fileExists(atPath: snapshotURL.path) else { return }
         try fileManager.removeItem(at: snapshotURL)
+    }
+
+    private func normalizePinnedOrders() {
+        let orderedPinnedLayouts = layouts
+            .filter(\.pinned)
+            .sorted(by: pinnedSort)
+
+        for (index, layout) in orderedPinnedLayouts.enumerated() {
+            guard let storedIndex = layouts.firstIndex(where: { $0.id == layout.id }) else { continue }
+            layouts[storedIndex].pinnedOrder = index
+        }
+
+        for index in layouts.indices where !layouts[index].pinned {
+            layouts[index].pinnedOrder = nil
+        }
+    }
+
+    private func nextPinnedOrder() -> Int {
+        layouts.compactMap(\.pinnedOrder).max().map { $0 + 1 } ?? 0
+    }
+
+    private func pinnedSort(_ lhs: Layout, _ rhs: Layout) -> Bool {
+        if lhs.pinnedOrder != rhs.pinnedOrder {
+            return (lhs.pinnedOrder ?? .max) < (rhs.pinnedOrder ?? .max)
+        }
+        if lhs.updatedAt != rhs.updatedAt {
+            return lhs.updatedAt > rhs.updatedAt
+        }
+        return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+    }
+
+    private func layoutSort(_ lhs: Layout, _ rhs: Layout) -> Bool {
+        if lhs.pinned != rhs.pinned {
+            return lhs.pinned && !rhs.pinned
+        }
+        if lhs.pinned {
+            return pinnedSort(lhs, rhs)
+        }
+        if lhs.updatedAt != rhs.updatedAt {
+            return lhs.updatedAt > rhs.updatedAt
+        }
+        return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
     }
 
     private static func makeStorageURL(fileManager: FileManager) -> URL {

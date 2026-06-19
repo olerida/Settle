@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.0
+
+- Added a native About panel with app version, developer, website, and source links.
+- Added a dedicated pinned layouts section with manual drag-to-reorder support.
+- Improved panel modal behavior so overlays dim the background, close on outside click, and close on Escape without closing the whole Settle window.
+- Fixed the About website link and prevented the initial keyboard focus ring from appearing on the header buttons when opening the menu.
+
 ## v1.2.1
 
 - Fixed the distributed DMG so it now contains the correctly signed `com.olerida.Settle` app bundle.

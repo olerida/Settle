@@ -99,6 +99,10 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
 
         panel.setFrame(panelFrame, display: true)
         panel.makeKeyAndOrderFront(nil)
+        DispatchQueue.main.async { [weak panel] in
+            guard let panel else { return }
+            panel.makeFirstResponder(panel.contentView)
+        }
         NSApp.activate(ignoringOtherApps: true)
         installEventMonitor()
     }
@@ -165,4 +169,13 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
 final class MenuBarPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
+
+    override func cancelOperation(_ sender: Any?) {
+        if AppSession.coordinator.isOverlayPresented {
+            AppSession.coordinator.dismissOverlay()
+            return
+        }
+
+        super.cancelOperation(sender)
+    }
 }

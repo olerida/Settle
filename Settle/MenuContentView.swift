@@ -1,23 +1,43 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct MenuContentView: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
+    @State private var draggedPinnedLayoutID: UUID?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            header
-            permissionBanner
-            actionButtons
-            windowActions
-            inlineEditor
-            layoutsList
-            footer
+        ZStack {
+            VStack(alignment: .leading, spacing: 14) {
+                header
+                permissionBanner
+                actionButtons
+                windowActions
+                layoutsList
+                footer
+            }
+            .frame(width: 430)
+            .frame(minHeight: 520, maxHeight: .infinity, alignment: .top)
+            .padding(14)
+            .background(Color(nsColor: .windowBackgroundColor))
+            .blur(radius: isOverlayPresented ? 1.5 : 0)
+            .disabled(isOverlayPresented)
+
+            if isOverlayPresented {
+                Rectangle()
+                    .fill(Color.black.opacity(0.14))
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        coordinator.dismissOverlay()
+                    }
+
+                overlayPanel
+                    .frame(maxWidth: 372)
+                    .padding(20)
+                    .transition(.scale(scale: 0.96).combined(with: .opacity))
+            }
         }
-        .frame(width: 430)
-        .frame(minHeight: 520, maxHeight: .infinity, alignment: .top)
-        .padding(14)
-        .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
             coordinator.refreshPermissions()
         }
@@ -25,6 +45,8 @@ struct MenuContentView: View {
             coordinator.refreshPermissions()
         }
     }
+
+    private var isOverlayPresented: Bool { coordinator.isOverlayPresented }
 
     private var header: some View {
         HStack {
@@ -36,10 +58,25 @@ struct MenuContentView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button(L10n.tr("Settings")) {
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            HStack(spacing: 6) {
+                Button {
+                    coordinator.presentAbout()
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .buttonStyle(HeaderIconButtonStyle())
+                .accessibilityLabel(L10n.tr("About"))
+                .help(L10n.tr("About"))
+
+                Button {
+                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .buttonStyle(HeaderIconButtonStyle())
+                .accessibilityLabel(L10n.tr("Settings"))
+                .help(L10n.tr("Settings"))
             }
-            .buttonStyle(.borderless)
         }
     }
 
@@ -141,9 +178,12 @@ struct MenuContentView: View {
     }
 
     @ViewBuilder
-    private var inlineEditor: some View {
+    private var overlayPanel: some View {
         if coordinator.isCloseAllConfirmationPresented {
             QuitAllAppsPanel()
+                .environmentObject(coordinator)
+        } else if coordinator.isAboutPresented {
+            AboutSettlePanel()
                 .environmentObject(coordinator)
         } else if coordinator.isSaveSheetPresented {
             SaveLayoutPanel()
@@ -174,17 +214,58 @@ struct MenuContentView: View {
                     .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10))
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(Array(coordinator.layouts.enumerated()), id: \.element.id) { index, layout in
-                            LayoutRow(layout: layout)
-                                .environmentObject(coordinator)
-                            if index < coordinator.layouts.count - 1 {
-                                Divider()
-                                    .padding(.leading, 12)
+                    VStack(alignment: .leading, spacing: 12) {
+                        if !coordinator.pinnedLayouts.isEmpty {
+                            LayoutSectionCard(
+                                title: L10n.tr("Pinned Layouts"),
+                                caption: L10n.tr("Drag the handle to reorder pinned layouts.")
+                            ) {
+                                ForEach(Array(coordinator.pinnedLayouts.enumerated()), id: \.element.id) { index, layout in
+                                    LayoutRow(
+                                        layout: layout,
+                                        sectionStyle: .pinned,
+                                        draggedPinnedLayoutID: $draggedPinnedLayoutID
+                                    )
+                                    .environmentObject(coordinator)
+                                    .onDrop(
+                                        of: [UTType.text],
+                                        delegate: PinnedLayoutDropDelegate(
+                                            targetLayout: layout,
+                                            pinnedLayouts: coordinator.pinnedLayouts,
+                                            draggedPinnedLayoutID: $draggedPinnedLayoutID
+                                        ) { from, to in
+                                            coordinator.movePinnedLayout(from: from, to: to)
+                                        }
+                                    )
+
+                                    if index < coordinator.pinnedLayouts.count - 1 {
+                                        Divider()
+                                            .padding(.leading, 12)
+                                    }
+                                }
+                            }
+                        }
+
+                        LayoutSectionCard(title: L10n.tr("Saved Layouts")) {
+                            if coordinator.unpinnedLayouts.isEmpty {
+                                Text(L10n.tr("No regular layouts."))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(12)
+                            } else {
+                                ForEach(Array(coordinator.unpinnedLayouts.enumerated()), id: \.element.id) { index, layout in
+                                    LayoutRow(layout: layout)
+                                        .environmentObject(coordinator)
+
+                                    if index < coordinator.unpinnedLayouts.count - 1 {
+                                        Divider()
+                                            .padding(.leading, 12)
+                                    }
+                                }
                             }
                         }
                     }
-                    .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
                 }
                 .frame(minHeight: 260, maxHeight: .infinity)
             }
@@ -203,6 +284,48 @@ struct MenuContentView: View {
                 NSApp.terminate(nil)
             }
             .buttonStyle(.borderless)
+        }
+    }
+}
+
+private struct HeaderIconButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.medium))
+            .foregroundStyle(.secondary)
+            .frame(width: 28, height: 28)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.14 : 0.08))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.08))
+            )
+    }
+}
+
+private struct LayoutSectionCard<Content: View>: View {
+    let title: String
+    var caption: String? = nil
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            if let caption {
+                Text(caption)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+
+            VStack(spacing: 0) {
+                content
+            }
+            .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
         }
     }
 }
@@ -230,8 +353,82 @@ private struct QuitAllAppsPanel: View {
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(12)
-        .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
+        .padding(18)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.16))
+        )
+        .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
+    }
+}
+
+private struct AboutSettlePanel: View {
+    @EnvironmentObject private var coordinator: LayoutCoordinator
+
+    private let websiteURL = URL(string: "http://settle.titanolandia.es")!
+    private let sourceCodeURL = URL(string: "https://github.com/olerida/Settle")!
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.tr("About Settle"))
+                        .font(.headline)
+                    Text(L10n.tr("Settle is a menu bar app for saving and restoring macOS window layouts."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 10) {
+                GridRow {
+                    Text(L10n.tr("Version"))
+                        .foregroundStyle(.secondary)
+                    Text(coordinator.appVersionDescription)
+                }
+                GridRow {
+                    Text(L10n.tr("Developer"))
+                        .foregroundStyle(.secondary)
+                    Text("Oscar Lerida")
+                }
+                GridRow {
+                    Text(L10n.tr("Website"))
+                        .foregroundStyle(.secondary)
+                    Link(L10n.tr("Website URL"), destination: websiteURL)
+                }
+                GridRow {
+                    Text(L10n.tr("Source Code"))
+                        .foregroundStyle(.secondary)
+                    Link("github.com/olerida/Settle", destination: sourceCodeURL)
+                }
+            }
+            .font(.subheadline)
+
+            Text(L10n.tr("Built for macOS 14 and later"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack {
+                Spacer()
+                Button(L10n.tr("Close")) {
+                    coordinator.dismissAbout()
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(18)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.16))
+        )
+        .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
     }
 }
 
@@ -260,8 +457,25 @@ private struct ActionChipButtonStyle: ButtonStyle {
 }
 
 private struct LayoutRow: View {
+    enum SectionStyle {
+        case standard
+        case pinned
+    }
+
     @EnvironmentObject private var coordinator: LayoutCoordinator
     let layout: Layout
+    var sectionStyle: SectionStyle = .standard
+    @Binding var draggedPinnedLayoutID: UUID?
+
+    init(
+        layout: Layout,
+        sectionStyle: SectionStyle = .standard,
+        draggedPinnedLayoutID: Binding<UUID?> = .constant(nil)
+    ) {
+        self.layout = layout
+        self.sectionStyle = sectionStyle
+        self._draggedPinnedLayoutID = draggedPinnedLayoutID
+    }
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
@@ -291,6 +505,18 @@ private struct LayoutRow: View {
             }
 
             Spacer(minLength: 8)
+
+            if sectionStyle == .pinned {
+                Image(systemName: "line.3.horizontal")
+                    .font(.body)
+                    .foregroundStyle(.tertiary)
+                    .help(L10n.tr("Drag to reorder"))
+                    .accessibilityLabel(L10n.tr("Reorder pinned layout"))
+                    .onDrag {
+                        draggedPinnedLayoutID = layout.id
+                        return NSItemProvider(object: layout.id.uuidString as NSString)
+                    }
+            }
 
             LayoutSnapshotPreviewButton(layout: layout)
                 .environmentObject(coordinator)
@@ -340,6 +566,35 @@ private struct LayoutRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+}
+
+private struct PinnedLayoutDropDelegate: DropDelegate {
+    let targetLayout: Layout
+    let pinnedLayouts: [Layout]
+    @Binding var draggedPinnedLayoutID: UUID?
+    let moveAction: (Int, Int) -> Void
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedPinnedLayoutID = nil
+        return true
+    }
+
+    func dropEntered(info: DropInfo) {
+        guard
+            let draggedPinnedLayoutID,
+            draggedPinnedLayoutID != targetLayout.id,
+            let fromIndex = pinnedLayouts.firstIndex(where: { $0.id == draggedPinnedLayoutID }),
+            let toIndex = pinnedLayouts.firstIndex(where: { $0.id == targetLayout.id })
+        else {
+            return
+        }
+
+        moveAction(fromIndex, toIndex > fromIndex ? toIndex + 1 : toIndex)
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
     }
 }
 
@@ -413,8 +668,13 @@ private struct SaveLayoutPanel: View {
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(12)
-        .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
+        .padding(18)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.16))
+        )
+        .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
     }
 }
 
@@ -447,7 +707,12 @@ private struct RenameLayoutPanel: View {
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(12)
-        .background(.quaternary.opacity(0.22), in: RoundedRectangle(cornerRadius: 12))
+        .padding(18)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.16))
+        )
+        .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
     }
 }

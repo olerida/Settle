@@ -86,6 +86,32 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: secondSnapshotURL), Data([0x02]))
     }
 
+    @MainActor
+    func testPinnedLayoutsPersistManualOrder() throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storageURL = rootURL.appendingPathComponent("layouts.json")
+        let snapshotsURL = rootURL.appendingPathComponent("Snapshots", isDirectory: true)
+        let store = LayoutStore(storageURL: storageURL, snapshotsDirectoryURL: snapshotsURL)
+
+        let alpha = Layout(name: "Alpha", pinned: true, apps: [])
+        let beta = Layout(name: "Beta", pinned: true, apps: [])
+        let gamma = Layout(name: "Gamma", apps: [])
+
+        try store.save(alpha)
+        try store.save(beta)
+        try store.save(gamma)
+        try store.movePinnedLayout(from: 1, to: 0)
+
+        let pinnedNames = store.listLayouts().filter(\.pinned).map(\.name)
+        XCTAssertEqual(pinnedNames, ["Beta", "Alpha"])
+
+        let reloadedStore = LayoutStore(storageURL: storageURL, snapshotsDirectoryURL: snapshotsURL)
+        let reloadedPinnedNames = reloadedStore.listLayouts().filter(\.pinned).map(\.name)
+        XCTAssertEqual(reloadedPinnedNames, ["Beta", "Alpha"])
+        XCTAssertEqual(reloadedStore.listLayouts().first?.pinnedOrder, 0)
+    }
+
     func testWindowMatcherPrefersExactTitleAndGeometry() {
         let target = WindowSnapshot(
             windowTitleSnapshot: "Project",
