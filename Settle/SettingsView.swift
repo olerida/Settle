@@ -150,6 +150,7 @@ private struct PermissionsSettingsPane: View {
                 Button(L10n.tr("Request Accessibility Access")) {
                     coordinator.requestAccessibilityPermission()
                 }
+                .disabled(coordinator.permissionManager.isTrusted)
             }
 
             Section(L10n.tr("Screen Recording")) {
