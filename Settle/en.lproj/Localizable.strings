@@ -124,3 +124,12 @@
 "Screen Recording" = "Screen Recording";
 "Request Screen Recording Access" = "Request Screen Recording Access";
 "Settle uses screen recording access only to create layout preview thumbnails. It does not record audio." = "Settle uses screen recording access only to create layout preview thumbnails. It does not record audio.";
+"Active layout in the current Space" = "Active layout in the current Space";
+"Recently detected active in a Space" = "Recently detected active in a Space";
+"Not detected as active in any Space" = "Not detected as active in any Space";
+"Go to the Space for this layout" = "Go to the Space for this layout";
+"Switching to %@..." = "Switching to %@...";
+"Opened Space for %@" = "Opened Space for %@";
+"%@ is no longer active" = "%@ is no longer active";
+"%@ is incomplete in this Space" = "%@ is incomplete in this Space";
+"Could not switch to the Space for %@" = "Could not switch to the Space for %@";

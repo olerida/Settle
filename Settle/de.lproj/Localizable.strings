@@ -124,3 +124,12 @@
 "Screen Recording" = "Bildschirmaufnahme";
 "Request Screen Recording Access" = "Zugriff auf Bildschirmaufnahme anfordern";
 "Settle uses screen recording access only to create layout preview thumbnails. It does not record audio." = "Settle verwendet den Zugriff auf die Bildschirmaufnahme ausschließlich, um Vorschaubilder für Layouts zu erstellen. Audio wird nicht aufgezeichnet.";
+"Active layout in the current Space" = "Aktives Layout im aktuellen Space";
+"Recently detected active in a Space" = "Kürzlich als aktiv in einem Space erkannt";
+"Not detected as active in any Space" = "In keinem Space als aktiv erkannt";
+"Go to the Space for this layout" = "Zum Space dieses Layouts wechseln";
+"Switching to %@..." = "Wechsel zu %@ …";
+"Opened Space for %@" = "Space für %@ geöffnet";
+"%@ is no longer active" = "%@ ist nicht mehr aktiv";
+"%@ is incomplete in this Space" = "%@ ist in diesem Space unvollständig";
+"Could not switch to the Space for %@" = "Zum Space für %@ konnte nicht gewechselt werden";

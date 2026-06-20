@@ -1,6 +1,40 @@
 import Foundation
 
 enum LayoutVisibilityMatcher {
+    static func bestCompleteMatch(
+        currentApps: [AppLayoutSnapshot],
+        among layouts: [Layout]
+    ) -> Layout? {
+        layouts
+            .filter { isCompleteMatch(currentApps: currentApps, against: $0) }
+            .max { score(currentApps: currentApps, against: $0) < score(currentApps: currentApps, against: $1) }
+    }
+
+    static func isCompleteMatch(currentApps: [AppLayoutSnapshot], against layout: Layout) -> Bool {
+        let currentAppsByBundle = Dictionary(uniqueKeysWithValues: currentApps.map { ($0.bundleIdentifier, $0) })
+
+        for expectedApp in layout.apps {
+            guard let currentApp = currentAppsByBundle[expectedApp.bundleIdentifier] else { return false }
+            var remainingCandidates = currentApp.windows.map {
+                WindowCandidate(
+                    title: $0.windowTitleSnapshot,
+                    frame: $0.frame.cgRect,
+                    orderIndex: $0.orderIndex,
+                    isMainWindowCandidate: $0.isMainWindowCandidate
+                )
+            }
+
+            for expectedWindow in expectedApp.windows.sorted(by: { $0.orderIndex < $1.orderIndex }) {
+                guard let matchIndex = WindowMatcher.bestMatch(target: expectedWindow, candidates: remainingCandidates) else {
+                    return false
+                }
+                remainingCandidates.remove(at: matchIndex)
+            }
+        }
+
+        return !layout.apps.isEmpty
+    }
+
     static func bestMatch(
         currentApps: [AppLayoutSnapshot],
         among layouts: [Layout],

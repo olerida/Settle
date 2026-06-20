@@ -28,6 +28,36 @@ struct WindowManager {
         case minimize
     }
 
+    enum LayoutNavigationResult {
+        case requested
+        case noRemainingWindows
+        case failed
+    }
+
+    struct LayoutNavigationTarget: Equatable {
+        fileprivate let bundleIdentifier: String
+        fileprivate let processIdentifier: pid_t
+        fileprivate let element: AXUIElement
+
+        static func == (lhs: LayoutNavigationTarget, rhs: LayoutNavigationTarget) -> Bool {
+            lhs.processIdentifier == rhs.processIdentifier
+                && lhs.bundleIdentifier == rhs.bundleIdentifier
+                && CFEqual(lhs.element, rhs.element)
+        }
+    }
+
+    struct CurrentSpaceInspection {
+        let matchedLayout: Layout?
+        let navigationTargets: [LayoutNavigationTarget]
+        fileprivate let visibleWindows: [LayoutNavigationTarget]
+
+        func containsAny(_ targets: [LayoutNavigationTarget]) -> Bool {
+            targets.contains { target in
+                visibleWindows.contains(target)
+            }
+        }
+    }
+
     private struct VisibleDesktopCapture {
         let appSnapshots: [AppLayoutSnapshot]
         let previewWindows: [PreviewWindowCapture]
@@ -48,6 +78,13 @@ struct WindowManager {
         let title: String
     }
 
+    private struct VisibleAXWindow {
+        let bundleIdentifier: String
+        let processIdentifier: pid_t
+        let element: AXUIElement
+        let candidate: WindowCandidate
+    }
+
     func captureCurrentLayout(name: String) throws -> CapturedLayoutResult {
         let capture = try captureVisibleDesktop()
         return CapturedLayoutResult(
@@ -58,6 +95,73 @@ struct WindowManager {
 
     func captureVisibleAppSnapshots() throws -> [AppLayoutSnapshot] {
         try captureVisibleDesktop().appSnapshots
+    }
+
+    func inspectCurrentSpace(among layouts: [Layout]) throws -> CurrentSpaceInspection {
+        let capture = try captureVisibleDesktop()
+        let visibleAXWindows = visibleAXWindows(from: capture)
+        let visibleTargets = visibleAXWindows.map {
+            LayoutNavigationTarget(
+                bundleIdentifier: $0.bundleIdentifier,
+                processIdentifier: $0.processIdentifier,
+                element: $0.element
+            )
+        }
+        guard
+            let matchedLayout = LayoutVisibilityMatcher.bestCompleteMatch(
+                currentApps: capture.appSnapshots,
+                among: layouts
+            )
+        else {
+            return CurrentSpaceInspection(
+                matchedLayout: nil,
+                navigationTargets: [],
+                visibleWindows: visibleTargets
+            )
+        }
+
+        let navigationTargets = navigationTargets(for: matchedLayout, visibleWindows: visibleAXWindows)
+        let expectedWindowCount = matchedLayout.apps.reduce(0) { $0 + $1.windows.count }
+        guard navigationTargets.count == expectedWindowCount else {
+            return CurrentSpaceInspection(
+                matchedLayout: nil,
+                navigationTargets: [],
+                visibleWindows: visibleTargets
+            )
+        }
+
+        return CurrentSpaceInspection(
+            matchedLayout: matchedLayout,
+            navigationTargets: navigationTargets,
+            visibleWindows: visibleTargets
+        )
+    }
+
+    func navigate(to targets: [LayoutNavigationTarget]) -> LayoutNavigationResult {
+        guard AXIsProcessTrusted() else { return .failed }
+        var foundRemainingWindow = false
+
+        for target in targets {
+            guard
+                let app = NSRunningApplication(processIdentifier: target.processIdentifier),
+                !app.isTerminated,
+                app.bundleIdentifier == target.bundleIdentifier,
+                axFrameValue(target.element) != nil,
+                axBoolValue(target.element, attribute: kAXMinimizedAttribute) != true
+            else {
+                continue
+            }
+            foundRemainingWindow = true
+
+            let activated = app.activate()
+            let raised = AXUIElementPerformAction(target.element, kAXRaiseAction as CFString) == .success
+            let focused = setFocused(true, for: target.element)
+            if activated || raised || focused {
+                return .requested
+            }
+        }
+
+        return foundRemainingWindow ? .failed : .noRemainingWindows
     }
 
     private func captureVisibleDesktop() throws -> VisibleDesktopCapture {
@@ -147,6 +251,74 @@ struct WindowManager {
             previewWindows: previewWindows,
             visibleWindowsByPID: grouped
         )
+    }
+
+    private func visibleAXWindows(from capture: VisibleDesktopCapture) -> [VisibleAXWindow] {
+        var result: [VisibleAXWindow] = []
+
+        for (pid, records) in capture.visibleWindowsByPID {
+            guard
+                let app = NSRunningApplication(processIdentifier: pid),
+                let bundleIdentifier = app.bundleIdentifier
+            else {
+                continue
+            }
+
+            var unmatchedWindows = axWindows(for: pid)
+            for (orderIndex, record) in records.sorted(by: { $0.offset < $1.offset }).enumerated() {
+                guard let matchIndex = bestAXWindowMatchIndex(for: record, in: unmatchedWindows) else { continue }
+                let element = unmatchedWindows.remove(at: matchIndex)
+                guard let candidate = windowCandidate(from: element, orderIndex: orderIndex) else { continue }
+                result.append(
+                    VisibleAXWindow(
+                        bundleIdentifier: bundleIdentifier,
+                        processIdentifier: pid,
+                        element: element,
+                        candidate: candidate
+                    )
+                )
+            }
+        }
+
+        return result
+    }
+
+    private func navigationTargets(
+        for layout: Layout,
+        visibleWindows: [VisibleAXWindow]
+    ) -> [LayoutNavigationTarget] {
+        var remainingByBundle = Dictionary(grouping: visibleWindows, by: \.bundleIdentifier)
+        var targets: [LayoutNavigationTarget] = []
+
+        for appSnapshot in layout.apps {
+            guard var remainingWindows = remainingByBundle[appSnapshot.bundleIdentifier] else { continue }
+            let expectedWindows = appSnapshot.windows.sorted {
+                if $0.isMainWindowCandidate != $1.isMainWindowCandidate {
+                    return $0.isMainWindowCandidate
+                }
+                return $0.orderIndex < $1.orderIndex
+            }
+
+            for expectedWindow in expectedWindows {
+                guard let matchIndex = WindowMatcher.bestMatch(
+                    target: expectedWindow,
+                    candidates: remainingWindows.map(\.candidate)
+                ) else {
+                    continue
+                }
+                let match = remainingWindows.remove(at: matchIndex)
+                targets.append(
+                    LayoutNavigationTarget(
+                        bundleIdentifier: match.bundleIdentifier,
+                        processIdentifier: match.processIdentifier,
+                        element: match.element
+                    )
+                )
+            }
+            remainingByBundle[appSnapshot.bundleIdentifier] = remainingWindows
+        }
+
+        return targets
     }
 
     func closeAllWindowsAcrossAllSpaces(excludingBundleIdentifiers: Set<String> = []) async throws -> Int {
@@ -668,6 +840,15 @@ struct WindowManager {
         }
 
         return AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, value) == .success
+    }
+
+    private func setFocused(_ focused: Bool, for window: AXUIElement) -> Bool {
+        guard let value = (focused ? kCFBooleanTrue : kCFBooleanFalse) else { return false }
+        return AXUIElementSetAttributeValue(
+            window,
+            kAXFocusedAttribute as CFString,
+            value
+        ) == .success
     }
 
     private func close(window: AXUIElement, pid: pid_t) -> Bool {

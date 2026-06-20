@@ -22,6 +22,7 @@ final class LayoutCoordinator: ObservableObject {
     private let hudController: LayoutHUDController
     private var cancellables = Set<AnyCancellable>()
     private var restoredLayoutIDs = Set<UUID>()
+    private var layoutNavigationMemory = LayoutNavigationMemory<WindowManager.LayoutNavigationTarget>()
     private var lastDetectedLayoutID: UUID? {
         didSet {
             guard lastDetectedLayoutID != oldValue else { return }
@@ -93,6 +94,10 @@ final class LayoutCoordinator: ObservableObject {
     var activeRestoredLayout: Layout? {
         guard let lastDetectedLayoutID else { return nil }
         return store.layouts.first(where: { $0.id == lastDetectedLayoutID })
+    }
+
+    func isLayoutRememberedActive(_ layout: Layout) -> Bool {
+        layoutNavigationMemory.contains(layoutID: layout.id)
     }
 
     func snapshotURL(for layout: Layout) -> URL? {
@@ -191,6 +196,7 @@ final class LayoutCoordinator: ObservableObject {
                     excludingBundleIdentifiers: Set([Bundle.main.bundleIdentifier].compactMap { $0 })
                 )
                 restoredLayoutIDs.removeAll()
+                clearRememberedLayouts()
                 lastDetectedLayoutID = nil
 
                 statusMessage = closedWindows > 0
@@ -260,6 +266,11 @@ final class LayoutCoordinator: ObservableObject {
                     previewWindows: captured.previewWindows
                 )
                 try store.save(updatedLayout, snapshotPNGData: snapshotPNGData)
+                forgetRememberedLayout(layout.id)
+                restoredLayoutIDs.remove(layout.id)
+                if lastDetectedLayoutID == layout.id {
+                    lastDetectedLayoutID = nil
+                }
                 statusMessage = L10n.format("Updated %@", layout.name)
                 presentHUD(for: updatedLayout)
             } catch {
@@ -288,9 +299,53 @@ final class LayoutCoordinator: ObservableObject {
             let restoreDidMeaningfullyRun = !report.restoredWindows.isEmpty || !report.launchedApps.isEmpty || report.failures.isEmpty
             if restoreDidMeaningfullyRun {
                 restoredLayoutIDs.insert(layout.id)
-                lastDetectedLayoutID = layout.id
-                presentHUD(for: layout)
+                try? await Task.sleep(for: .milliseconds(150))
+                await handleActiveSpaceChange()
             }
+        }
+    }
+
+    func navigateToRememberedLayout(_ layout: Layout) {
+        guard layoutNavigationMemory.contains(layoutID: layout.id) else { return }
+
+        statusMessage = L10n.format("Switching to %@...", layout.name)
+        attemptNavigation(to: layout)
+    }
+
+    private func attemptNavigation(to layout: Layout) {
+        let targets = layoutNavigationMemory.targets(for: layout.id)
+        guard !targets.isEmpty else {
+            statusMessage = L10n.format("%@ is no longer active", layout.name)
+            return
+        }
+
+        switch windowManager.navigate(to: targets) {
+        case .requested:
+            Task {
+                try? await Task.sleep(for: .milliseconds(900))
+                await handleActiveSpaceChange()
+                if lastDetectedLayoutID == layout.id {
+                    statusMessage = L10n.format("Opened Space for %@", layout.name)
+                } else if !layoutNavigationMemory.contains(layoutID: layout.id) {
+                    statusMessage = L10n.format("%@ is no longer active", layout.name)
+                } else if !layoutNavigationMemory.contains(layoutID: layout.id, targetGroup: targets) {
+                    statusMessage = L10n.format("%@ is incomplete in this Space", layout.name)
+                } else {
+                    statusMessage = L10n.format("Could not switch to the Space for %@", layout.name)
+                }
+            }
+        case .noRemainingWindows:
+            forgetRememberedTargets(targets, for: layout.id)
+            if lastDetectedLayoutID == layout.id {
+                lastDetectedLayoutID = nil
+            }
+            if layoutNavigationMemory.contains(layoutID: layout.id) {
+                attemptNavigation(to: layout)
+            } else {
+                statusMessage = L10n.format("%@ is no longer active", layout.name)
+            }
+        case .failed:
+            statusMessage = L10n.format("Could not switch to the Space for %@", layout.name)
         }
     }
 
@@ -299,6 +354,7 @@ final class LayoutCoordinator: ObservableObject {
             try store.deleteLayout(id: layout.id)
             settings.clearDefaultLayout(ifMatches: layout.id)
             restoredLayoutIDs.remove(layout.id)
+            forgetRememberedLayout(layout.id)
             if lastDetectedLayoutID == layout.id {
                 lastDetectedLayoutID = nil
             }
@@ -366,14 +422,29 @@ final class LayoutCoordinator: ObservableObject {
         guard permissionManager.isTrusted else { return }
 
         let restoredLayouts = store.layouts.filter { restoredLayoutIDs.contains($0.id) }
-        guard !restoredLayouts.isEmpty else { return }
+        guard !restoredLayouts.isEmpty else {
+            lastDetectedLayoutID = nil
+            return
+        }
 
         do {
-            let currentApps = try windowManager.captureVisibleAppSnapshots()
-            guard let matchedLayout = LayoutVisibilityMatcher.bestMatch(currentApps: currentApps, among: restoredLayouts) else {
+            let inspection = try windowManager.inspectCurrentSpace(among: restoredLayouts)
+            let matchedLayoutID = inspection.matchedLayout?.id
+
+            for rememberedLayoutID in layoutNavigationMemory.rememberedLayoutIDs where rememberedLayoutID != matchedLayoutID {
+                for targetGroup in layoutNavigationMemory.targetGroups(for: rememberedLayoutID) {
+                    if inspection.containsAny(targetGroup) {
+                        forgetRememberedTargets(targetGroup, for: rememberedLayoutID)
+                    }
+                }
+            }
+
+            guard let matchedLayout = inspection.matchedLayout else {
                 lastDetectedLayoutID = nil
                 return
             }
+
+            rememberLayout(matchedLayout.id, targets: inspection.navigationTargets)
 
             guard matchedLayout.id != lastDetectedLayoutID || shouldRedisplayHUD(for: matchedLayout.id) else {
                 return
@@ -384,6 +455,35 @@ final class LayoutCoordinator: ObservableObject {
         } catch {
             lastDetectedLayoutID = nil
         }
+    }
+
+    private func rememberLayout(
+        _ layoutID: UUID,
+        targets: [WindowManager.LayoutNavigationTarget]
+    ) {
+        objectWillChange.send()
+        layoutNavigationMemory.remember(layoutID: layoutID, targets: targets)
+    }
+
+    private func forgetRememberedLayout(_ layoutID: UUID) {
+        guard layoutNavigationMemory.contains(layoutID: layoutID) else { return }
+        objectWillChange.send()
+        layoutNavigationMemory.forget(layoutID: layoutID)
+    }
+
+    private func forgetRememberedTargets(
+        _ targets: [WindowManager.LayoutNavigationTarget],
+        for layoutID: UUID
+    ) {
+        guard layoutNavigationMemory.contains(layoutID: layoutID, targetGroup: targets) else { return }
+        objectWillChange.send()
+        layoutNavigationMemory.forget(layoutID: layoutID, targetGroup: targets)
+    }
+
+    private func clearRememberedLayouts() {
+        guard !layoutNavigationMemory.rememberedLayoutIDs.isEmpty else { return }
+        objectWillChange.send()
+        layoutNavigationMemory.removeAll()
     }
 
     private func presentHUD(for layout: Layout) {

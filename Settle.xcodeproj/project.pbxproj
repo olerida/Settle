@@ -31,6 +31,7 @@
 		A00000000000000000000115 /* SettleLoginHelperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021B /* SettleLoginHelperApp.swift */; };
 		A00000000000000000000116 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020A /* Assets.xcassets */; };
 		A00000000000000000000117 /* SettleLoginHelper.app in Embed Login Items */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021C /* SettleLoginHelper.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A00000000000000000000118 /* LayoutNavigationMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021D /* LayoutNavigationMemory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		A0000000000000000000021A /* LoginRestoreSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRestoreSignal.swift; sourceTree = "<group>"; };
 		A0000000000000000000021B /* SettleLoginHelperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettleLoginHelperApp.swift; sourceTree = "<group>"; };
 		A0000000000000000000021C /* SettleLoginHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SettleLoginHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000021D /* LayoutNavigationMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutNavigationMemory.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +152,7 @@
 				A00000000000000000000218 /* AppSettings.swift */,
 				A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */,
 				A0000000000000000000021A /* LoginRestoreSignal.swift */,
+				A0000000000000000000021D /* LayoutNavigationMemory.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
 				A00000000000000000000212 /* Localizable.strings */,
 			);
@@ -328,6 +331,7 @@
 				A00000000000000000000111 /* AppSettings.swift in Sources */,
 				A00000000000000000000112 /* ScreenRecordingPermissionManager.swift in Sources */,
 				A00000000000000000000113 /* LoginRestoreSignal.swift in Sources */,
+				A00000000000000000000118 /* LayoutNavigationMemory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

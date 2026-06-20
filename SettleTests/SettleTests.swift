@@ -417,6 +417,121 @@ final class SettleTests: XCTestCase {
         XCTAssertNil(LayoutVisibilityMatcher.bestMatch(currentApps: currentApps, among: [restored]))
     }
 
+    func testCompleteLayoutMatchRejectsMissingSavedWindow() {
+        let savedWindows = [
+            WindowSnapshot(
+                windowTitleSnapshot: "A",
+                frame: WindowFrame(rect: CGRect(x: 40, y: 60, width: 800, height: 600)),
+                isMinimized: false,
+                isMainWindowCandidate: true,
+                orderIndex: 0,
+                stackingIndex: 0
+            ),
+            WindowSnapshot(
+                windowTitleSnapshot: "B",
+                frame: WindowFrame(rect: CGRect(x: 880, y: 60, width: 800, height: 600)),
+                isMinimized: false,
+                isMainWindowCandidate: false,
+                orderIndex: 1,
+                stackingIndex: 1
+            )
+        ]
+        let layout = Layout(
+            name: "Two Windows",
+            apps: [
+                AppLayoutSnapshot(
+                    bundleIdentifier: "com.example.Editor",
+                    appDisplayName: "Editor",
+                    windows: savedWindows
+                )
+            ]
+        )
+        let currentApps = [
+            AppLayoutSnapshot(
+                bundleIdentifier: "com.example.Editor",
+                appDisplayName: "Editor",
+                windows: [savedWindows[1]]
+            )
+        ]
+
+        XCTAssertFalse(LayoutVisibilityMatcher.isCompleteMatch(currentApps: currentApps, against: layout))
+        XCTAssertNil(LayoutVisibilityMatcher.bestCompleteMatch(currentApps: currentApps, among: [layout]))
+    }
+
+    func testCompleteLayoutMatchAllowsUnrelatedVisibleWindows() {
+        let expectedApp = AppLayoutSnapshot(
+            bundleIdentifier: "com.example.Editor",
+            appDisplayName: "Editor",
+            windows: [
+                WindowSnapshot(
+                    windowTitleSnapshot: "Project",
+                    frame: WindowFrame(rect: CGRect(x: 40, y: 60, width: 800, height: 600)),
+                    isMinimized: false,
+                    isMainWindowCandidate: true,
+                    orderIndex: 0,
+                    stackingIndex: 0
+                )
+            ]
+        )
+        let layout = Layout(name: "Work", apps: [expectedApp])
+        let unrelatedApp = AppLayoutSnapshot(
+            bundleIdentifier: "com.example.Chat",
+            appDisplayName: "Chat",
+            windows: [
+                WindowSnapshot(
+                    windowTitleSnapshot: "Messages",
+                    frame: WindowFrame(rect: CGRect(x: 900, y: 80, width: 600, height: 500)),
+                    isMinimized: false,
+                    isMainWindowCandidate: true,
+                    orderIndex: 0,
+                    stackingIndex: 1
+                )
+            ]
+        )
+
+        XCTAssertTrue(
+            LayoutVisibilityMatcher.isCompleteMatch(
+                currentApps: [expectedApp, unrelatedApp],
+                against: layout
+            )
+        )
+    }
+
+    func testLayoutNavigationMemoryKeepsMostRecentTargets() {
+        let layoutID = UUID()
+        var memory = LayoutNavigationMemory<String>()
+
+        XCTAssertTrue(memory.rememberedLayoutIDs.isEmpty)
+        memory.remember(layoutID: layoutID, targets: ["Space 1 window"])
+        memory.remember(layoutID: layoutID, targets: ["Space 2 window"])
+
+        XCTAssertTrue(memory.contains(layoutID: layoutID))
+        XCTAssertEqual(memory.targetGroups(for: layoutID), [["Space 1 window"], ["Space 2 window"]])
+        XCTAssertEqual(memory.targets(for: layoutID), ["Space 2 window"])
+
+        memory.remember(layoutID: layoutID, targets: ["Space 1 window"])
+        XCTAssertEqual(memory.targets(for: layoutID), ["Space 1 window"])
+
+        memory.forget(layoutID: layoutID, targetGroup: ["Space 1 window"])
+        XCTAssertEqual(memory.targets(for: layoutID), ["Space 2 window"])
+    }
+
+    func testLayoutNavigationMemoryInvalidatesRemovedLayouts() {
+        let retainedLayoutID = UUID()
+        let removedLayoutID = UUID()
+        var memory = LayoutNavigationMemory<Int>()
+        memory.remember(layoutID: retainedLayoutID, targets: [1])
+        memory.remember(layoutID: removedLayoutID, targets: [2])
+
+        memory.retainLayouts(withIDs: [retainedLayoutID])
+
+        XCTAssertEqual(memory.rememberedLayoutIDs, [retainedLayoutID])
+        XCTAssertFalse(memory.contains(layoutID: removedLayoutID))
+
+        memory.removeAll()
+        XCTAssertTrue(memory.rememberedLayoutIDs.isEmpty)
+    }
+
     func testUnmatchedVisibleWindowIndicesDetectExtraAppWindows() {
         let layout = Layout(
             name: "Work",

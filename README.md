@@ -21,6 +21,8 @@ Switch between work, coding, meetings, and study setups in seconds. Settle reope
 - Optional launch at login using the macOS login item service
 - Optional automatic restore of an explicitly selected default layout at macOS login
 - Active layout highlighting that follows the current Space
+- Session-scoped indicators for layouts recently detected in other Spaces
+- Best-effort navigation to a remembered layout Space by clicking its row
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list
@@ -114,6 +116,7 @@ See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 ## Development notes
 
 - The app persists layouts locally as versioned JSON.
+- Cross-Space indicators are session-scoped and best-effort because macOS does not expose stable Space identifiers through public APIs.
 - Releases are published as signed DMG assets on GitHub.
 - The Homebrew cask is maintained separately in `~/Documents/homebrew-tap`.
 - Backlog work is tracked in GitHub Issues, not in repository TODO files.

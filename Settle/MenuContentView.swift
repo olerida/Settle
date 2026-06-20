@@ -550,36 +550,61 @@ private struct LayoutRow: View {
 
     var body: some View {
         let isActive = coordinator.activeRestoredLayout?.id == layout.id
+        let isRememberedActive = coordinator.isLayoutRememberedActive(layout)
 
         HStack(alignment: .center, spacing: 10) {
-            Circle()
-                .fill(isActive ? Color.accentColor : Color.secondary.opacity(0.35))
-                .frame(width: 8, height: 8)
-                .accessibilityHidden(!isActive)
-                .accessibilityLabel(L10n.tr("Active layout"))
+            Button {
+                coordinator.navigateToRememberedLayout(layout)
+            } label: {
+                HStack(alignment: .center, spacing: 10) {
+                    Circle()
+                        .fill(isRememberedActive ? Color.accentColor : Color.secondary.opacity(0.35))
+                        .frame(width: 8, height: 8)
+                        .accessibilityLabel(
+                            L10n.tr(
+                                isActive
+                                    ? "Active layout in the current Space"
+                                    : isRememberedActive
+                                        ? "Recently detected active in a Space"
+                                        : "Not detected as active in any Space"
+                            )
+                        )
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(layout.name)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                    if layout.pinned {
-                        Image(systemName: "pin.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text(layout.name)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            if layout.pinned {
+                                Image(systemName: "pin.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        HStack(spacing: 10) {
+                            Label(L10n.format("%d apps", layout.apps.count), systemImage: "square.stack.3d.up")
+                            Label(layout.updatedAt.settleRowTimestamp, systemImage: "clock")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     }
-                }
 
-                HStack(spacing: 10) {
-                    Label(L10n.format("%d apps", layout.apps.count), systemImage: "square.stack.3d.up")
-                    Label(layout.updatedAt.settleRowTimestamp, systemImage: "clock")
+                    Spacer(minLength: 8)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .contentShape(Rectangle())
             }
-
-            Spacer(minLength: 8)
+            .buttonStyle(.plain)
+            .disabled(!isRememberedActive)
+            .opacity(1)
+            .help(
+                L10n.tr(
+                    isRememberedActive
+                        ? "Go to the Space for this layout"
+                        : "Not detected as active in any Space"
+                )
+            )
 
             if sectionStyle == .pinned {
                 Image(systemName: "line.3.horizontal")
