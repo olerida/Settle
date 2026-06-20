@@ -39,6 +39,7 @@ Switch between work, coding, meetings, and study setups in seconds. Settle reope
 
 - macOS `14.0+`
 - Accessibility permission enabled for Settle
+- Screen Recording permission is optional and used only for layout preview thumbnails
 - Apple Silicon is the primary target, with universal macOS builds available in releases
 
 ## Install
@@ -66,6 +67,8 @@ Settle needs macOS Accessibility permission to:
 Automatic layout restore also requires Accessibility permission. If access is unavailable when Settle starts, the restore is skipped without changing the selected default layout.
 
 Settle does not use Accessibility to read document contents, passwords, browser page contents, or keystrokes.
+
+Screen Recording access is used only to capture layout preview thumbnails. Settle does not capture system audio.
 
 If you enable Accessibility and the app still shows the warning, quit and reopen Settle.
 

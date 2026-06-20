@@ -121,3 +121,6 @@
 "Save a layout before choosing an automatic restore." = "Save a layout before choosing an automatic restore.";
 "Startup" = "Startup";
 "Unavailable" = "Unavailable";
+"Screen Recording" = "Screen Recording";
+"Request Screen Recording Access" = "Request Screen Recording Access";
+"Settle uses screen recording access only to create layout preview thumbnails. It does not record audio." = "Settle uses screen recording access only to create layout preview thumbnails. It does not record audio.";

@@ -4,6 +4,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
+    @StateObject private var screenRecordingPermissionManager = ScreenRecordingPermissionManager()
 
     var body: some View {
         TabView {
@@ -15,7 +16,9 @@ struct SettingsView: View {
                 Label(L10n.tr("General"), systemImage: "gearshape")
             }
 
-            PermissionsSettingsPane()
+            PermissionsSettingsPane(
+                screenRecordingPermissionManager: screenRecordingPermissionManager
+            )
                 .environmentObject(coordinator)
                 .tabItem {
                     Label(L10n.tr("Permissions"), systemImage: "hand.raised")
@@ -36,6 +39,7 @@ struct SettingsView: View {
             availableLayoutIDs: Set(coordinator.layouts.map(\.id))
         )
         coordinator.refreshPermissions()
+        screenRecordingPermissionManager.refresh()
     }
 }
 
@@ -129,6 +133,7 @@ private struct GeneralSettingsPane: View {
 
 private struct PermissionsSettingsPane: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
+    @ObservedObject var screenRecordingPermissionManager: ScreenRecordingPermissionManager
 
     var body: some View {
         Form {
@@ -145,6 +150,22 @@ private struct PermissionsSettingsPane: View {
                 Button(L10n.tr("Request Accessibility Access")) {
                     coordinator.requestAccessibilityPermission()
                 }
+            }
+
+            Section(L10n.tr("Screen Recording")) {
+                LabeledContent(
+                    L10n.tr("Status"),
+                    value: screenRecordingPermissionManager.isGranted
+                        ? L10n.tr("Granted")
+                        : L10n.tr("Not Granted")
+                )
+                Text(L10n.tr("Settle uses screen recording access only to create layout preview thumbnails. It does not record audio."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(L10n.tr("Request Screen Recording Access")) {
+                    screenRecordingPermissionManager.requestIfNeeded()
+                }
+                .disabled(screenRecordingPermissionManager.isGranted)
             }
 
             Section(L10n.tr("Notes")) {

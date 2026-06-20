@@ -121,3 +121,6 @@
 "Save a layout before choosing an automatic restore." = "Guarda un layout antes de elegir una restauración automática.";
 "Startup" = "Inicio";
 "Unavailable" = "No disponible";
+"Screen Recording" = "Grabación de pantalla";
+"Request Screen Recording Access" = "Solicitar acceso a grabación de pantalla";
+"Settle uses screen recording access only to create layout preview thumbnails. It does not record audio." = "Settle usa el acceso a grabación de pantalla únicamente para crear miniaturas de vista previa de los layouts. No graba audio.";

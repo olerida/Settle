@@ -25,6 +25,7 @@
 		A0000000000000000000010F /* LayoutHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000216 /* LayoutHUDController.swift */; };
 		A00000000000000000000110 /* MenuBarPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000217 /* MenuBarPanelController.swift */; };
 		A00000000000000000000111 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000218 /* AppSettings.swift */; };
+		A00000000000000000000112 /* ScreenRecordingPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		A00000000000000000000216 /* LayoutHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutHUDController.swift; sourceTree = "<group>"; };
 		A00000000000000000000217 /* MenuBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPanelController.swift; sourceTree = "<group>"; };
 		A00000000000000000000218 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenRecordingPermissionManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 				A00000000000000000000216 /* LayoutHUDController.swift */,
 				A00000000000000000000217 /* MenuBarPanelController.swift */,
 				A00000000000000000000218 /* AppSettings.swift */,
+				A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
 				A00000000000000000000212 /* Localizable.strings */,
 			);
@@ -245,6 +248,7 @@
 				A0000000000000000000010F /* LayoutHUDController.swift in Sources */,
 				A00000000000000000000110 /* MenuBarPanelController.swift in Sources */,
 				A00000000000000000000111 /* AppSettings.swift in Sources */,
+				A00000000000000000000112 /* ScreenRecordingPermissionManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
