@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added a native Settings window with dedicated General and Permissions sections.
+- Added a launch-at-login preference synchronized with the macOS login item service.
+- Added optional automatic restoration of an explicitly selected default layout when Settle starts.
 - Fixed the Close All confirmation so transient focus changes no longer hide the panel or leave a stale modal for the next opening.
 
 ## v1.4.0

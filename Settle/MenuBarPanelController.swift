@@ -27,6 +27,9 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
     func applicationDidFinishLaunching(_ notification: Notification) {
         configureStatusItem()
         configurePanel()
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+            coordinator.restoreDefaultLayoutIfNeeded()
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

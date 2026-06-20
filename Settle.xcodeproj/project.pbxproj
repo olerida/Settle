@@ -24,6 +24,7 @@
 		A0000000000000000000010E /* LayoutVisibilityMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000215 /* LayoutVisibilityMatcher.swift */; };
 		A0000000000000000000010F /* LayoutHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000216 /* LayoutHUDController.swift */; };
 		A00000000000000000000110 /* MenuBarPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000217 /* MenuBarPanelController.swift */; };
+		A00000000000000000000111 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000218 /* AppSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		A00000000000000000000215 /* LayoutVisibilityMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutVisibilityMatcher.swift; sourceTree = "<group>"; };
 		A00000000000000000000216 /* LayoutHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutHUDController.swift; sourceTree = "<group>"; };
 		A00000000000000000000217 /* MenuBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPanelController.swift; sourceTree = "<group>"; };
+		A00000000000000000000218 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				A00000000000000000000215 /* LayoutVisibilityMatcher.swift */,
 				A00000000000000000000216 /* LayoutHUDController.swift */,
 				A00000000000000000000217 /* MenuBarPanelController.swift */,
+				A00000000000000000000218 /* AppSettings.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
 				A00000000000000000000212 /* Localizable.strings */,
 			);
@@ -241,6 +244,7 @@
 				A0000000000000000000010E /* LayoutVisibilityMatcher.swift in Sources */,
 				A0000000000000000000010F /* LayoutHUDController.swift in Sources */,
 				A00000000000000000000110 /* MenuBarPanelController.swift in Sources */,
+				A00000000000000000000111 /* AppSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

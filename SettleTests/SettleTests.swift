@@ -520,4 +520,95 @@ final class SettleTests: XCTestCase {
 
         XCTAssertTrue(unmatched.isEmpty)
     }
+
+    @MainActor
+    func testAppSettingsPersistsDefaultLayoutSelection() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let layoutID = UUID()
+
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        settings.setDefaultLayoutID(layoutID)
+
+        let reloadedSettings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(reloadedSettings.defaultLayoutID, layoutID)
+    }
+
+    @MainActor
+    func testAppSettingsClearsMissingDefaultLayout() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+
+        settings.setDefaultLayoutID(UUID())
+        settings.reconcileDefaultLayout(availableLayoutIDs: [])
+
+        XCTAssertNil(settings.defaultLayoutID)
+        XCTAssertNil(defaults.string(forKey: "defaultLayoutID"))
+    }
+
+    @MainActor
+    func testAppSettingsSynchronizesLaunchAtLoginState() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let loginItemService = FakeLoginItemService(state: .notRegistered)
+        let settings = AppSettings(defaults: defaults, loginItemService: loginItemService)
+
+        settings.setLaunchAtLoginEnabled(true)
+        XCTAssertEqual(loginItemService.registerCallCount, 1)
+        XCTAssertEqual(settings.launchAtLoginState, .enabled)
+        XCTAssertTrue(settings.isLaunchAtLoginRequested)
+
+        settings.setLaunchAtLoginEnabled(false)
+        XCTAssertEqual(loginItemService.unregisterCallCount, 1)
+        XCTAssertEqual(settings.launchAtLoginState, .notRegistered)
+        XCTAssertFalse(settings.isLaunchAtLoginRequested)
+    }
+
+    @MainActor
+    func testAppSettingsTreatsPendingLoginItemApprovalAsRequested() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let loginItemService = FakeLoginItemService(state: .requiresApproval)
+        let settings = AppSettings(defaults: defaults, loginItemService: loginItemService)
+
+        XCTAssertTrue(settings.isLaunchAtLoginRequested)
+
+        settings.setLaunchAtLoginEnabled(true)
+        XCTAssertEqual(loginItemService.registerCallCount, 0)
+        XCTAssertEqual(settings.launchAtLoginState, .requiresApproval)
+    }
+}
+
+private final class FakeLoginItemService: LoginItemServicing {
+    var state: LaunchAtLoginState
+    private(set) var registerCallCount = 0
+    private(set) var unregisterCallCount = 0
+
+    init(state: LaunchAtLoginState) {
+        self.state = state
+    }
+
+    func register() throws {
+        registerCallCount += 1
+        state = .enabled
+    }
+
+    func unregister() throws {
+        unregisterCallCount += 1
+        state = .notRegistered
+    }
 }

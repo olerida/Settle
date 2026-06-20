@@ -9,7 +9,6 @@ struct SettleApp: App {
         Settings {
             SettingsView()
                 .environmentObject(AppSession.coordinator)
-                .frame(width: 420, height: 320)
         }
     }
 }

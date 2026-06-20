@@ -15,6 +15,7 @@ final class LayoutCoordinator: ObservableObject {
 
     let permissionManager: AccessibilityPermissionManager
     let store: LayoutStore
+    let settings: AppSettings
 
     private let windowManager: WindowManager
     private let appLauncher: AppLauncher
@@ -30,20 +31,24 @@ final class LayoutCoordinator: ObservableObject {
     private var lastPresentedLayoutID: UUID?
     private var lastPresentedAt: Date = .distantPast
     private var activeSpaceTask: Task<Void, Never>?
+    private var didAttemptDefaultLayoutRestore = false
 
     init(
         permissionManager: AccessibilityPermissionManager = AccessibilityPermissionManager(),
         store: LayoutStore = LayoutStore(),
+        settings: AppSettings = AppSettings(),
         windowManager: WindowManager = WindowManager(),
         appLauncher: AppLauncher = AppLauncher(),
         hudController: LayoutHUDController = LayoutHUDController()
     ) {
         self.permissionManager = permissionManager
         self.store = store
+        self.settings = settings
         self.windowManager = windowManager
         self.appLauncher = appLauncher
         self.hudController = hudController
         self.saveName = Self.defaultLayoutName()
+        settings.reconcileDefaultLayout(availableLayoutIDs: Set(store.layouts.map(\.id)))
 
         store.objectWillChange
             .receive(on: RunLoop.main)
@@ -107,6 +112,36 @@ final class LayoutCoordinator: ObservableObject {
 
     func refreshActiveLayoutForCurrentSpace() {
         scheduleActiveSpaceDetection()
+    }
+
+    func restoreDefaultLayoutIfNeeded() {
+        guard !didAttemptDefaultLayoutRestore else { return }
+        didAttemptDefaultLayoutRestore = true
+
+        settings.reconcileDefaultLayout(availableLayoutIDs: Set(store.layouts.map(\.id)))
+        guard
+            let defaultLayoutID = settings.defaultLayoutID,
+            let layout = store.layouts.first(where: { $0.id == defaultLayoutID })
+        else {
+            return
+        }
+
+        permissionManager.refresh()
+        guard permissionManager.isTrusted else {
+            statusMessage = L10n.tr("Automatic restore skipped because Accessibility access is missing.")
+            return
+        }
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(800))
+            guard
+                settings.defaultLayoutID == layout.id,
+                store.layouts.contains(where: { $0.id == layout.id })
+            else {
+                return
+            }
+            restore(layout)
+        }
     }
 
     func prepareSave() {
@@ -262,6 +297,7 @@ final class LayoutCoordinator: ObservableObject {
     func delete(_ layout: Layout) {
         do {
             try store.deleteLayout(id: layout.id)
+            settings.clearDefaultLayout(ifMatches: layout.id)
             restoredLayoutIDs.remove(layout.id)
             if lastDetectedLayoutID == layout.id {
                 lastDetectedLayoutID = nil

@@ -17,6 +17,9 @@ Switch between work, coding, meetings, and study setups in seconds. Settle reope
 - Automatic panel height that fits saved layouts up to 75% of the active screen
 - Save named layouts for the current desktop
 - Restore layouts by reopening apps and repositioning windows
+- Native Settings for launch behavior, permissions, and future preferences
+- Optional launch at login using the macOS login item service
+- Optional automatic restore of an explicitly selected default layout when Settle starts
 - Active layout highlighting that follows the current Space
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
@@ -59,6 +62,8 @@ Settle needs macOS Accessibility permission to:
 - read visible window titles
 - detect app windows
 - move and resize windows during restore
+
+Automatic layout restore also requires Accessibility permission. If access is unavailable when Settle starts, the restore is skipped without changing the selected default layout.
 
 Settle does not use Accessibility to read document contents, passwords, browser page contents, or keystrokes.
 
