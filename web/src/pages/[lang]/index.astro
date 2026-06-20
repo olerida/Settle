@@ -19,8 +19,10 @@ const githubUrl = 'https://github.com/olerida/Settle';
       <span>Settle</span>
     </a>
     <nav class="nav-links">
-      <a href="#features">{t.navFeatures}</a>
-      <a href="#privacy">{t.navPrivacy}</a>
+      <a class="nav-features" href="#features">{t.navFeatures}</a>
+      <a href="#demo">{t.navDemo}</a>
+      <a class="nav-privacy" href="#privacy">{t.navPrivacy}</a>
+      <a href="#install">{t.navInstall}</a>
       <a class="download-link" href="#download">{t.navDownload}</a>
     </nav>
   </header>
@@ -62,25 +64,14 @@ const githubUrl = 'https://github.com/olerida/Settle';
       </div>
     </section>
 
-    <section class="install-section" aria-labelledby="install-title">
-      <div class="install-copy">
-        <p class="eyebrow">macOS</p>
-        <h2 id="install-title">{t.installTitle}</h2>
-        <p>{t.installBody}</p>
-        <small>{t.installNote}</small>
+    <section id="demo" class="demo-section" aria-labelledby="demo-title">
+      <div class="demo-copy">
+        <p class="eyebrow">Settle</p>
+        <h2 id="demo-title">{t.demoTitle}</h2>
+        <p>{t.demoBody}</p>
       </div>
-      <div class="install-methods">
-        <div>
-          <span>{t.directInstallLabel}</span>
-          <a href={downloadUrl}>{t.primaryCta}</a>
-        </div>
-        <div>
-          <span>{t.homebrewInstallLabel}</span>
-          <code>brew install --cask olerida/tap/settle</code>
-        </div>
-      </div>
-      <video class="install-video" controls playsinline preload="metadata" poster="/settle-preview.png" aria-label={t.installVideoLabel}>
-        <source src="/install.mp4" type="video/mp4" />
+      <video class="demo-video" controls playsinline preload="metadata" poster="/demo-poster.jpg" aria-label={t.demoVideoLabel}>
+        <source src="/Demo Settle.mov" type="video/quicktime" />
       </video>
     </section>
 
@@ -154,6 +145,28 @@ const githubUrl = 'https://github.com/olerida/Settle';
         <li>{t.detailTwo}</li>
         <li>{t.privacyBody}</li>
       </ul>
+    </section>
+
+    <section id="install" class="install-section" aria-labelledby="install-title">
+      <div class="install-copy">
+        <p class="eyebrow">macOS</p>
+        <h2 id="install-title">{t.installTitle}</h2>
+        <p>{t.installBody}</p>
+        <small>{t.installNote}</small>
+      </div>
+      <div class="install-methods">
+        <div>
+          <span>{t.directInstallLabel}</span>
+          <a href={downloadUrl}>{t.primaryCta}</a>
+        </div>
+        <div>
+          <span>{t.homebrewInstallLabel}</span>
+          <code>brew install --cask olerida/tap/settle</code>
+        </div>
+      </div>
+      <video class="install-video" controls playsinline preload="metadata" poster="/settle-preview.png" aria-label={t.installVideoLabel}>
+        <source src="/install.mp4" type="video/mp4" />
+      </video>
     </section>
 
     <section id="download" class="final-cta">

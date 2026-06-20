@@ -6,7 +6,9 @@ type Copy = {
   metaTitle: string
   metaDescription: string
   navFeatures: string
+  navDemo: string
   navPrivacy: string
+  navInstall: string
   navDownload: string
   heroEyebrow: string
   heroTitle: string
@@ -23,6 +25,9 @@ type Copy = {
   visualFourApps: string
   visualSixApps: string
   screenshotAlt: string
+  demoTitle: string
+  demoBody: string
+  demoVideoLabel: string
   supportTitle: string
   supportBody: string
   supportOneTitle: string
@@ -75,12 +80,14 @@ export const copy: Record<Language, Copy> = {
     metaDescription:
       "Settle is a lightweight macOS menu bar app that saves and restores window layouts on the current desktop.",
     navFeatures: "Features",
+    navDemo: "Demo",
     navPrivacy: "Privacy",
+    navInstall: "Install",
     navDownload: "Download",
     heroEyebrow: "Menu bar app for macOS",
     heroTitle: "Put every window back where it belongs.",
     heroBody:
-      "Settle saves the size and position of your visible windows, then restores that layout when your desk needs to feel familiar again.",
+      "Switch between work, coding, meeting, and study setups in seconds. Settle reopens your apps and restores every window’s size and position while leaving unrelated windows untouched.",
     primaryCta: "Download for macOS",
     secondaryCta: "View source",
     visualTitle: "Current desktop",
@@ -93,6 +100,10 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 apps",
     visualSixApps: "6 apps",
     screenshotAlt: "Settle menu showing saved window layouts",
+    demoTitle: "See Settle in action.",
+    demoBody:
+      "Save a workspace, switch context, and restore every app and window to its place.",
+    demoVideoLabel: "Video demonstration of Settle restoring a window layout",
     supportTitle: "Built for the way macOS already works.",
     supportBody:
       "Settle stays in the menu bar, uses native permissions, and keeps the current desktop as the boundary.",
@@ -158,12 +169,14 @@ export const copy: Record<Language, Copy> = {
     metaDescription:
       "Settle es una app ligera de barra de menús para macOS que guarda y restaura layouts de ventanas del escritorio actual.",
     navFeatures: "Funciones",
+    navDemo: "Demo",
     navPrivacy: "Privacidad",
+    navInstall: "Instalación",
     navDownload: "Descargar",
     heroEyebrow: "App de barra de menús para macOS",
     heroTitle: "Devuelve cada ventana a su sitio.",
     heroBody:
-      "Settle guarda el tamaño y la posición de tus ventanas visibles y restaura ese layout cuando necesitas recuperar tu mesa de trabajo.",
+      "Cambia en segundos entre configuraciones de trabajo, programación, reuniones y estudio. Settle vuelve a abrir tus apps y restaura el tamaño y la posición de cada ventana sin alterar las ventanas ajenas al layout.",
     primaryCta: "Descargar para macOS",
     secondaryCta: "Ver código",
     visualTitle: "Escritorio actual",
@@ -176,6 +189,10 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 apps",
     visualSixApps: "6 apps",
     screenshotAlt: "Menú de Settle mostrando layouts de ventanas guardados",
+    demoTitle: "Mira Settle en acción.",
+    demoBody:
+      "Guarda un espacio de trabajo, cambia de contexto y devuelve cada app y ventana a su sitio.",
+    demoVideoLabel: "Vídeo de demostración de Settle restaurando un layout de ventanas",
     supportTitle: "Pensada para cómo macOS ya funciona.",
     supportBody:
       "Settle vive en la barra de menús, usa permisos nativos y toma el escritorio actual como límite.",
@@ -241,12 +258,14 @@ export const copy: Record<Language, Copy> = {
     metaDescription:
       "Settle és una app lleugera de barra de menús per a macOS que desa i restaura layouts de finestres de l’escriptori actual.",
     navFeatures: "Funcions",
+    navDemo: "Demo",
     navPrivacy: "Privacitat",
+    navInstall: "Instal·lació",
     navDownload: "Descarrega",
     heroEyebrow: "App de barra de menús per a macOS",
     heroTitle: "Torna cada finestra al seu lloc.",
     heroBody:
-      "Settle desa la mida i la posició de les finestres visibles i restaura aquest layout quan necessites recuperar l’espai de treball.",
+      "Canvia en segons entre configuracions de feina, programació, reunions i estudi. Settle torna a obrir les apps i restaura la mida i la posició de cada finestra sense alterar les finestres alienes al layout.",
     primaryCta: "Descarrega per a macOS",
     secondaryCta: "Veure codi",
     visualTitle: "Escriptori actual",
@@ -259,6 +278,10 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 apps",
     visualSixApps: "6 apps",
     screenshotAlt: "Menú de Settle amb layouts de finestres desats",
+    demoTitle: "Mira Settle en acció.",
+    demoBody:
+      "Desa un espai de treball, canvia de context i torna cada app i finestra al seu lloc.",
+    demoVideoLabel: "Vídeo de demostració de Settle restaurant un layout de finestres",
     supportTitle: "Feta per a la manera com macOS ja funciona.",
     supportBody:
       "Settle viu a la barra de menús, usa permisos natius i pren l’escriptori actual com a límit.",
@@ -324,12 +347,14 @@ export const copy: Record<Language, Copy> = {
     metaDescription:
       "Settle est une app légère de barre des menus pour macOS qui enregistre et restaure les agencements de fenêtres du bureau actuel.",
     navFeatures: "Fonctions",
+    navDemo: "Démo",
     navPrivacy: "Confidentialité",
+    navInstall: "Installation",
     navDownload: "Télécharger",
     heroEyebrow: "App de barre des menus pour macOS",
     heroTitle: "Remettez chaque fenêtre à sa place.",
     heroBody:
-      "Settle enregistre la taille et la position de vos fenêtres visibles, puis restaure cet agencement quand votre bureau doit redevenir familier.",
+      "Passez en quelques secondes d’une configuration de travail, de programmation, de réunion ou d’étude à une autre. Settle rouvre vos apps et restaure la taille et la position de chaque fenêtre sans modifier les fenêtres hors de l’agencement.",
     primaryCta: "Télécharger pour macOS",
     secondaryCta: "Voir le code",
     visualTitle: "Bureau actuel",
@@ -343,6 +368,10 @@ export const copy: Record<Language, Copy> = {
     visualSixApps: "6 apps",
     screenshotAlt:
       "Menu Settle affichant des agencements de fenêtres enregistrés",
+    demoTitle: "Découvrez Settle en action.",
+    demoBody:
+      "Enregistrez un espace de travail, changez de contexte et remettez chaque app et fenêtre à sa place.",
+    demoVideoLabel: "Vidéo de démonstration de Settle restaurant un agencement de fenêtres",
     supportTitle: "Pensée pour la façon dont macOS fonctionne déjà.",
     supportBody:
       "Settle reste dans la barre des menus, utilise les autorisations natives et limite son action au bureau actuel.",
@@ -408,12 +437,14 @@ export const copy: Record<Language, Copy> = {
     metaDescription:
       "Settle ist eine leichte Menüleisten-App für macOS, die Fensterlayouts des aktuellen Schreibtischs speichert und wiederherstellt.",
     navFeatures: "Funktionen",
+    navDemo: "Demo",
     navPrivacy: "Datenschutz",
+    navInstall: "Installation",
     navDownload: "Download",
     heroEyebrow: "Menüleisten-App für macOS",
     heroTitle: "Jedes Fenster zurück an seinen Platz.",
     heroBody:
-      "Settle speichert Größe und Position deiner sichtbaren Fenster und stellt dieses Layout wieder her, wenn dein Schreibtisch vertraut wirken soll.",
+      "Wechsle in Sekunden zwischen Arbeits-, Programmier-, Meeting- und Lernumgebungen. Settle öffnet deine Apps erneut und stellt Größe und Position jedes Fensters wieder her, ohne andere Fenster zu verändern.",
     primaryCta: "Für macOS laden",
     secondaryCta: "Quellcode",
     visualTitle: "Aktueller Schreibtisch",
@@ -426,6 +457,10 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 Apps",
     visualSixApps: "6 Apps",
     screenshotAlt: "Settle-Menü mit gespeicherten Fensterlayouts",
+    demoTitle: "Settle in Aktion.",
+    demoBody:
+      "Speichere einen Arbeitsbereich, wechsle den Kontext und bringe jede App und jedes Fenster zurück an seinen Platz.",
+    demoVideoLabel: "Videodemonstration von Settle beim Wiederherstellen eines Fensterlayouts",
     supportTitle: "Gemacht für die Art, wie macOS bereits funktioniert.",
     supportBody:
       "Settle bleibt in der Menüleiste, nutzt native Berechtigungen und behandelt den aktuellen Schreibtisch als Grenze.",
