@@ -126,12 +126,25 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
 
     private func closePanel() {
         preferredResizeTask?.cancel()
+        if coordinator.isOverlayPresented {
+            coordinator.dismissOverlay()
+        }
         panel.orderOut(nil)
         removeEventMonitor()
     }
 
     func windowDidResignKey(_ notification: Notification) {
-        closePanel()
+        guard let panel, notification.object as? NSWindow === panel else { return }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.panel.isVisible, !self.panel.isKeyWindow else { return }
+
+            if self.coordinator.isOverlayPresented, NSApp.isActive {
+                self.panel.makeKeyAndOrderFront(nil)
+            } else {
+                self.closePanel()
+            }
+        }
     }
 
     func windowWillStartLiveResize(_ notification: Notification) {

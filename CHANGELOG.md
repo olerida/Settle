@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed the Close All confirmation so transient focus changes no longer hide the panel or leave a stale modal for the next opening.
+
 ## v1.4.0
 
 - Reworked the menu panel into a unified action bar, removed Quick Save, and kept the destructive Close All action at the far right.
