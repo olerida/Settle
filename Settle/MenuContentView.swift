@@ -3,6 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct MenuContentView: View {
+    @Environment(\.openSettings) private var openSettings
     @EnvironmentObject private var coordinator: LayoutCoordinator
     @State private var draggedPinnedLayoutID: UUID?
     var onPreferredHeightChange: ((CGFloat) -> Void)?
@@ -92,7 +93,7 @@ struct MenuContentView: View {
                 .help(L10n.tr("About"))
 
                 Button {
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                    openSettings()
                 } label: {
                     Image(systemName: "gearshape")
                 }
