@@ -117,7 +117,7 @@
 "Open Login Items Settings" = "Ouvrir les réglages des éléments d’ouverture";
 "Permissions" = "Autorisations";
 "Requires Approval" = "Autorisation requise";
-"Restore the selected layout whenever Settle starts." = "Restaure le layout sélectionné à chaque démarrage de Settle.";
+"Restore the selected layout when Settle starts automatically at login." = "Restaure la disposition sélectionnée lorsque Settle démarre automatiquement à l’ouverture de session.";
 "Save a layout before choosing an automatic restore." = "Enregistrez un layout avant de choisir une restauration automatique.";
 "Startup" = "Démarrage";
 "Unavailable" = "Indisponible";

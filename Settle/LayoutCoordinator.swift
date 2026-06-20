@@ -114,7 +114,7 @@ final class LayoutCoordinator: ObservableObject {
         scheduleActiveSpaceDetection()
     }
 
-    func restoreDefaultLayoutIfNeeded() {
+    func restoreDefaultLayoutAfterLogin() {
         guard !didAttemptDefaultLayoutRestore else { return }
         didAttemptDefaultLayoutRestore = true
 

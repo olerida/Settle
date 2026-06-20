@@ -26,6 +26,11 @@
 		A00000000000000000000110 /* MenuBarPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000217 /* MenuBarPanelController.swift */; };
 		A00000000000000000000111 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000218 /* AppSettings.swift */; };
 		A00000000000000000000112 /* ScreenRecordingPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */; };
+		A00000000000000000000113 /* LoginRestoreSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021A /* LoginRestoreSignal.swift */; };
+		A00000000000000000000114 /* LoginRestoreSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021A /* LoginRestoreSignal.swift */; };
+		A00000000000000000000115 /* SettleLoginHelperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021B /* SettleLoginHelperApp.swift */; };
+		A00000000000000000000116 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020A /* Assets.xcassets */; };
+		A00000000000000000000117 /* SettleLoginHelper.app in Embed Login Items */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021C /* SettleLoginHelper.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,7 +41,28 @@
 			remoteGlobalIDString = A00000000000000000000010;
 			remoteInfo = Settle;
 		};
+		A00000000000000000000301 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000075;
+			remoteInfo = SettleLoginHelper;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A00000000000000000000078 /* Embed Login Items */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LoginItems;
+			dstSubfolderSpec = 1;
+			files = (
+				A00000000000000000000117 /* SettleLoginHelper.app in Embed Login Items */,
+			);
+			name = "Embed Login Items";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		A00000000000000000000200 /* SettleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettleApp.swift; sourceTree = "<group>"; };
@@ -64,6 +90,9 @@
 		A00000000000000000000217 /* MenuBarPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPanelController.swift; sourceTree = "<group>"; };
 		A00000000000000000000218 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenRecordingPermissionManager.swift; sourceTree = "<group>"; };
+		A0000000000000000000021A /* LoginRestoreSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRestoreSignal.swift; sourceTree = "<group>"; };
+		A0000000000000000000021B /* SettleLoginHelperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettleLoginHelperApp.swift; sourceTree = "<group>"; };
+		A0000000000000000000021C /* SettleLoginHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SettleLoginHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +110,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A00000000000000000000022 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -88,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000003 /* Settle */,
+				A00000000000000000000006 /* SettleLoginHelper */,
 				A00000000000000000000004 /* SettleTests */,
 				A00000000000000000000005 /* Products */,
 			);
@@ -112,10 +149,19 @@
 				A00000000000000000000217 /* MenuBarPanelController.swift */,
 				A00000000000000000000218 /* AppSettings.swift */,
 				A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */,
+				A0000000000000000000021A /* LoginRestoreSignal.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
 				A00000000000000000000212 /* Localizable.strings */,
 			);
 			path = Settle;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000006 /* SettleLoginHelper */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000021B /* SettleLoginHelperApp.swift */,
+			);
+			path = SettleLoginHelper;
 			sourceTree = "<group>";
 		};
 		A00000000000000000000004 /* SettleTests */ = {
@@ -130,6 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				A0000000000000000000020B /* Settle.app */,
+				A0000000000000000000021C /* SettleLoginHelper.app */,
 				A0000000000000000000020D /* SettleTests.xctest */,
 			);
 			name = Products;
@@ -145,14 +192,33 @@
 				A00000000000000000000070 /* Sources */,
 				A00000000000000000000020 /* Frameworks */,
 				A00000000000000000000071 /* Resources */,
+				A00000000000000000000078 /* Embed Login Items */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A00000000000000000000079 /* PBXTargetDependency */,
+			);
+			name = Settle;
+			productName = Settle;
+			productReference = A0000000000000000000020B /* Settle.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00000000000000000000075 /* SettleLoginHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000043 /* Build configuration list for PBXNativeTarget "SettleLoginHelper" */;
+			buildPhases = (
+				A00000000000000000000076 /* Sources */,
+				A00000000000000000000022 /* Frameworks */,
+				A00000000000000000000077 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = Settle;
-			productName = Settle;
-			productReference = A0000000000000000000020B /* Settle.app */;
+			name = SettleLoginHelper;
+			productName = SettleLoginHelper;
+			productReference = A0000000000000000000021C /* SettleLoginHelper.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A00000000000000000000072 /* SettleTests */ = {
@@ -187,6 +253,9 @@
 					A00000000000000000000010 = {
 						CreatedOnToolsVersion = 26.0;
 					};
+					A00000000000000000000075 = {
+						CreatedOnToolsVersion = 26.0;
+					};
 					A00000000000000000000072 = {
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = A00000000000000000000010;
@@ -211,6 +280,7 @@
 			projectRoot = "";
 			targets = (
 				A00000000000000000000010 /* Settle */,
+				A00000000000000000000075 /* SettleLoginHelper */,
 				A00000000000000000000072 /* SettleTests */,
 			);
 		};
@@ -223,6 +293,14 @@
 			files = (
 				A0000000000000000000010A /* Assets.xcassets in Resources */,
 				A0000000000000000000010D /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000077 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000116 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +327,16 @@
 				A00000000000000000000110 /* MenuBarPanelController.swift in Sources */,
 				A00000000000000000000111 /* AppSettings.swift in Sources */,
 				A00000000000000000000112 /* ScreenRecordingPermissionManager.swift in Sources */,
+				A00000000000000000000113 /* LoginRestoreSignal.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000076 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000114 /* LoginRestoreSignal.swift in Sources */,
+				A00000000000000000000115 /* SettleLoginHelperApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +355,11 @@
 			isa = PBXTargetDependency;
 			target = A00000000000000000000010 /* Settle */;
 			targetProxy = A00000000000000000000300 /* PBXContainerItemProxy */;
+		};
+		A00000000000000000000079 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00000000000000000000075 /* SettleLoginHelper */;
+			targetProxy = A00000000000000000000301 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -381,6 +474,52 @@
 			};
 			name = Release;
 		};
+		A00000000000000000000056 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = V8L35RAQCL;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Settle;
+				INFOPLIST_KEY_LSUIElement = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle.LoginHelper;
+				PRODUCT_NAME = SettleLoginHelper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A00000000000000000000057 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = V8L35RAQCL;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Settle;
+				INFOPLIST_KEY_LSUIElement = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle.LoginHelper;
+				PRODUCT_NAME = SettleLoginHelper;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
 		A00000000000000000000054 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -414,6 +553,15 @@
 			buildConfigurations = (
 				A00000000000000000000052 /* Debug */,
 				A00000000000000000000053 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000043 /* Build configuration list for PBXNativeTarget "SettleLoginHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000056 /* Debug */,
+				A00000000000000000000057 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

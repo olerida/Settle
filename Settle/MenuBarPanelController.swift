@@ -13,6 +13,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
     private static let maximumScreenHeightRatio: CGFloat = 0.75
 
     private let coordinator = AppSession.coordinator
+    private let loginRestoreSignal = LoginRestoreSignal()
     private var statusItem: NSStatusItem!
     private var panel: MenuBarPanel!
     private var hostingView: NSHostingView<AnyView>!
@@ -23,12 +24,25 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
     private var hasManualHeightOverride = false
     private var preferredPanelHeight: CGFloat = 620
     private var preferredResizeTask: Task<Void, Never>?
+    private var loginRestoreObserver: NSObjectProtocol?
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        loginRestoreObserver = DistributedNotificationCenter.default().addObserver(
+            forName: LoginRestoreSignal.notificationName,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.consumeLoginRestoreRequest()
+            }
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         configureStatusItem()
         configurePanel()
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
-            coordinator.restoreDefaultLayoutIfNeeded()
+            consumeLoginRestoreRequest()
         }
     }
 
@@ -36,6 +50,14 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         if let eventMonitor {
             NSEvent.removeMonitor(eventMonitor)
         }
+        if let loginRestoreObserver {
+            DistributedNotificationCenter.default().removeObserver(loginRestoreObserver)
+        }
+    }
+
+    private func consumeLoginRestoreRequest() {
+        guard loginRestoreSignal.consumeLoginRestoreRequest() else { return }
+        coordinator.restoreDefaultLayoutAfterLogin()
     }
 
     @objc

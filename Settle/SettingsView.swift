@@ -99,7 +99,7 @@ private struct GeneralSettingsPane: View {
                 Text(
                     layouts.isEmpty
                         ? L10n.tr("Save a layout before choosing an automatic restore.")
-                        : L10n.tr("Restore the selected layout whenever Settle starts.")
+                        : L10n.tr("Restore the selected layout when Settle starts automatically at login.")
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)

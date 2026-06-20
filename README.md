@@ -19,7 +19,7 @@ Switch between work, coding, meetings, and study setups in seconds. Settle reope
 - Restore layouts by reopening apps and repositioning windows
 - Native Settings for launch behavior, permissions, and future preferences
 - Optional launch at login using the macOS login item service
-- Optional automatic restore of an explicitly selected default layout when Settle starts
+- Optional automatic restore of an explicitly selected default layout at macOS login
 - Active layout highlighting that follows the current Space
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
@@ -64,7 +64,7 @@ Settle needs macOS Accessibility permission to:
 - detect app windows
 - move and resize windows during restore
 
-Automatic layout restore also requires Accessibility permission. If access is unavailable when Settle starts, the restore is skipped without changing the selected default layout.
+Automatic layout restore also requires Accessibility permission. A signed embedded login helper starts Settle at login and requests the restore once; opening Settle manually never restores the default layout. If access is unavailable during login restore, the restore is skipped without changing the selected default layout.
 
 Settle does not use Accessibility to read document contents, passwords, browser page contents, or keystrokes.
 

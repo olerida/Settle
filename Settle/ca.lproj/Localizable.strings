@@ -117,7 +117,7 @@
 "Open Login Items Settings" = "Obrir els ajustos dels ítems d’inici";
 "Permissions" = "Permisos";
 "Requires Approval" = "Requereix aprovació";
-"Restore the selected layout whenever Settle starts." = "Restaura el layout seleccionat cada vegada que s’inicia Settle.";
+"Restore the selected layout when Settle starts automatically at login." = "Restaura el layout seleccionat quan Settle s’inicia automàticament en començar la sessió.";
 "Save a layout before choosing an automatic restore." = "Desa un layout abans de triar una restauració automàtica.";
 "Startup" = "Inici";
 "Unavailable" = "No disponible";

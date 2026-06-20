@@ -591,6 +591,71 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(loginItemService.registerCallCount, 0)
         XCTAssertEqual(settings.launchAtLoginState, .requiresApproval)
     }
+
+    func testLoginRestoreSignalSuppressesImmediateRegistrationLaunchOnce() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let signal = LoginRestoreSignal(defaults: defaults)
+        let registeredAt = Date(timeIntervalSince1970: 1_000)
+
+        signal.prepareForRegistration(at: registeredAt)
+
+        XCTAssertTrue(
+            signal.consumeRegistrationSuppression(at: registeredAt.addingTimeInterval(10))
+        )
+        XCTAssertFalse(
+            signal.consumeRegistrationSuppression(at: registeredAt.addingTimeInterval(10))
+        )
+        XCTAssertFalse(signal.consumeLoginRestoreRequest())
+    }
+
+    func testLoginRestoreSignalDoesNotSuppressLoginAfterRegistrationApprovalDelay() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let signal = LoginRestoreSignal(defaults: defaults)
+        let registeredAt = Date(timeIntervalSince1970: 1_000)
+
+        signal.prepareForRegistration(at: registeredAt)
+
+        XCTAssertFalse(
+            signal.consumeRegistrationSuppression(
+                at: registeredAt.addingTimeInterval(61),
+                maximumAge: 60
+            )
+        )
+    }
+
+    func testLoginRestoreSignalConsumesFreshRequestOnce() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let signal = LoginRestoreSignal(defaults: defaults)
+        let requestedAt = Date(timeIntervalSince1970: 1_000)
+
+        signal.requestLoginRestore(at: requestedAt)
+
+        XCTAssertTrue(signal.consumeLoginRestoreRequest(at: requestedAt.addingTimeInterval(30)))
+        XCTAssertFalse(signal.consumeLoginRestoreRequest(at: requestedAt.addingTimeInterval(30)))
+    }
+
+    func testLoginRestoreSignalRejectsExpiredRequest() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let signal = LoginRestoreSignal(defaults: defaults)
+        let requestedAt = Date(timeIntervalSince1970: 1_000)
+
+        signal.requestLoginRestore(at: requestedAt)
+
+        XCTAssertFalse(
+            signal.consumeLoginRestoreRequest(
+                at: requestedAt.addingTimeInterval(301),
+                maximumAge: 300
+            )
+        )
+    }
 }
 
 private final class FakeLoginItemService: LoginItemServicing {

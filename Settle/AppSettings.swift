@@ -16,8 +16,17 @@ protocol LoginItemServicing {
 }
 
 struct SystemLoginItemService: LoginItemServicing {
+    private let service: SMAppService
+    private let signal: LoginRestoreSignal
+
+    init(signal: LoginRestoreSignal = LoginRestoreSignal()) {
+        self.service = SMAppService.loginItem(identifier: LoginRestoreSignal.helperBundleIdentifier)
+        self.signal = signal
+        migrateLegacyMainAppRegistrationIfNeeded()
+    }
+
     var state: LaunchAtLoginState {
-        switch SMAppService.mainApp.status {
+        switch service.status {
         case .notRegistered:
             return .notRegistered
         case .enabled:
@@ -32,11 +41,34 @@ struct SystemLoginItemService: LoginItemServicing {
     }
 
     func register() throws {
-        try SMAppService.mainApp.register()
+        signal.prepareForRegistration()
+        do {
+            try service.register()
+        } catch {
+            signal.cancelRegistrationPreparation()
+            throw error
+        }
     }
 
     func unregister() throws {
-        try SMAppService.mainApp.unregister()
+        try service.unregister()
+        signal.cancelRegistrationPreparation()
+    }
+
+    private func migrateLegacyMainAppRegistrationIfNeeded() {
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+        let legacyStatus = SMAppService.mainApp.status
+        guard legacyStatus == .enabled || legacyStatus == .requiresApproval else { return }
+
+        do {
+            try SMAppService.mainApp.unregister()
+            guard service.status == .notRegistered else { return }
+            signal.prepareForRegistration()
+            try service.register()
+        } catch {
+            signal.cancelRegistrationPreparation()
+            try? SMAppService.mainApp.register()
+        }
     }
 }
 

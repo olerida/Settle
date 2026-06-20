@@ -117,7 +117,7 @@
 "Open Login Items Settings" = "Open Login Items Settings";
 "Permissions" = "Permissions";
 "Requires Approval" = "Requires Approval";
-"Restore the selected layout whenever Settle starts." = "Restore the selected layout whenever Settle starts.";
+"Restore the selected layout when Settle starts automatically at login." = "Restore the selected layout when Settle starts automatically at login.";
 "Save a layout before choosing an automatic restore." = "Save a layout before choosing an automatic restore.";
 "Startup" = "Startup";
 "Unavailable" = "Unavailable";

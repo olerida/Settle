@@ -4,8 +4,8 @@
 
 - Added a native Settings window with dedicated General and Permissions sections.
 - Added Screen Recording permission status and access controls for layout preview thumbnails.
-- Added a launch-at-login preference synchronized with the macOS login item service.
-- Added optional automatic restoration of an explicitly selected default layout when Settle starts.
+- Added a launch-at-login preference backed by a signed embedded login helper using the same Settle app icon.
+- Added optional automatic restoration of an explicitly selected default layout only when Settle is opened at macOS login, not when it is launched manually.
 - Fixed the Close All confirmation so transient focus changes no longer hide the panel or leave a stale modal for the next opening.
 
 ## v1.4.0
