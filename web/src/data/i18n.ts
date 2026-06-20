@@ -85,7 +85,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Install",
     navDownload: "Download",
     heroEyebrow: "Menu bar app for macOS",
-    heroTitle: "Put every window back where it belongs.",
+    heroTitle: "Your Mac windows, right where you left them.",
     heroBody:
       "Switch between work, coding, meeting, and study setups in seconds. Settle reopens your apps and restores every window’s size and position while leaving unrelated windows untouched.",
     primaryCta: "Download for macOS",
@@ -174,7 +174,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Instalación",
     navDownload: "Descargar",
     heroEyebrow: "App de barra de menús para macOS",
-    heroTitle: "Devuelve cada ventana a su sitio.",
+    heroTitle: "Tus ventanas del Mac, justo donde las dejaste.",
     heroBody:
       "Cambia en segundos entre configuraciones de trabajo, programación, reuniones y estudio. Settle vuelve a abrir tus apps y restaura el tamaño y la posición de cada ventana sin alterar las ventanas ajenas al layout.",
     primaryCta: "Descargar para macOS",
@@ -263,7 +263,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Instal·lació",
     navDownload: "Descarrega",
     heroEyebrow: "App de barra de menús per a macOS",
-    heroTitle: "Torna cada finestra al seu lloc.",
+    heroTitle: "Les finestres del Mac, just on les vas deixar.",
     heroBody:
       "Canvia en segons entre configuracions de feina, programació, reunions i estudi. Settle torna a obrir les apps i restaura la mida i la posició de cada finestra sense alterar les finestres alienes al layout.",
     primaryCta: "Descarrega per a macOS",
@@ -352,7 +352,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Installation",
     navDownload: "Télécharger",
     heroEyebrow: "App de barre des menus pour macOS",
-    heroTitle: "Remettez chaque fenêtre à sa place.",
+    heroTitle: "Les fenêtres de votre Mac, exactement là où vous les avez laissées.",
     heroBody:
       "Passez en quelques secondes d’une configuration de travail, de programmation, de réunion ou d’étude à une autre. Settle rouvre vos apps et restaure la taille et la position de chaque fenêtre sans modifier les fenêtres hors de l’agencement.",
     primaryCta: "Télécharger pour macOS",
@@ -442,7 +442,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Installation",
     navDownload: "Download",
     heroEyebrow: "Menüleisten-App für macOS",
-    heroTitle: "Jedes Fenster zurück an seinen Platz.",
+    heroTitle: "Deine Mac-Fenster, genau dort, wo du sie gelassen hast.",
     heroBody:
       "Wechsle in Sekunden zwischen Arbeits-, Programmier-, Meeting- und Lernumgebungen. Settle öffnet deine Apps erneut und stellt Größe und Position jedes Fensters wieder her, ohne andere Fenster zu verändern.",
     primaryCta: "Für macOS laden",

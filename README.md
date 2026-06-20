@@ -1,12 +1,12 @@
 # Settle
 
+**Your Mac windows, right where you left them.**
+
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-007AFF?logo=apple&logoColor=white)](#requirements)
 [![Swift](https://img.shields.io/badge/Swift-native-F05138?logo=swift&logoColor=white)](Settle)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2EA44F)](LICENSE)
 
-Save and restore macOS window layouts directly from the menu bar.
-
-Switch between work, coding, meetings, and study setups in seconds. Settle reopens apps, restores each window's size and position, and leaves unrelated windows alone unless you choose otherwise.
+Switch between work, coding, meeting, and study setups in seconds. Settle reopens your apps and restores every window's size and position while leaving unrelated windows untouched.
 
 ![Settle menu preview](web/public/settle-preview.png)
 
