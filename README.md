@@ -13,8 +13,6 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 ## Highlights
 
 - Native macOS app built with `SwiftUI` and `AppKit`
-- Menu bar workflow with a resizable panel UI
-- Automatic panel height that fits saved layouts up to 75% of the active screen
 - Save named layouts for the current desktop
 - Restore layouts by reopening apps and repositioning windows
 - Native Settings for launch behavior, permissions, and future preferences
