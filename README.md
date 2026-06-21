@@ -16,7 +16,10 @@ Switch between work, coding, meetings, and study setups in seconds. Settle reope
 - Menu bar workflow with a resizable panel UI
 - Automatic panel height that fits saved layouts up to 75% of the active screen
 - Save named layouts for the current desktop
-- Restore layouts by reopening apps and repositioning windows
+- Keep newly saved or updated layouts active immediately in their current Space
+- Restore layouts without taking matching app windows away from other Spaces
+- Restore front-to-back layering consistently using native macOS application window groups
+- Best-effort creation of missing app windows in the current Space through the app's standard Command-N action
 - Native Settings for launch behavior, permissions, and future preferences
 - Optional launch at login using the macOS login item service
 - Optional automatic restore of an explicitly selected default layout at macOS login
@@ -117,6 +120,7 @@ See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 
 - The app persists layouts locally as versioned JSON.
 - Cross-Space indicators are session-scoped and best-effort because macOS does not expose stable Space identifiers through public APIs.
+- Layout restore treats visible windows as authoritative for the current Space; if an app cannot create a missing local window, Settle leaves its other-Space windows untouched and reports the unresolved app by name.
 - Releases are published as signed DMG assets on GitHub.
 - The Homebrew cask is maintained separately in `~/Documents/homebrew-tap`.
 - Backlog work is tracked in GitHub Issues, not in repository TODO files.

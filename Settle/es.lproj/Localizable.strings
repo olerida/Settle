@@ -85,7 +85,7 @@
 "Window layouts for the current desktop" = "Layouts de ventanas para el escritorio actual";
 "%d apps" = "%d apps";
 "Deleted %@" = "Eliminado %@";
-"Restored with %d unresolved windows" = "Restaurado con %d ventanas sin resolver";
+"Unresolved apps: %@" = "Apps sin resolver: %@";
 "About" = "Acerca de";
 "About Settle" = "Acerca de Settle";
 "Built for macOS 14 and later" = "Preparada para macOS 14 y posteriores";

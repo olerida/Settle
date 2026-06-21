@@ -11,6 +11,7 @@ final class LayoutCoordinator: ObservableObject {
     @Published var renamingLayout: Layout?
     @Published var isCloseAllConfirmationPresented = false
     @Published var isAboutPresented = false
+    @Published var previewedLayoutID: UUID?
     @Published var latestReport: RestoreReport?
 
     let permissionManager: AccessibilityPermissionManager
@@ -89,6 +90,10 @@ final class LayoutCoordinator: ObservableObject {
             || isAboutPresented
             || isSaveSheetPresented
             || renamingLayout != nil
+    }
+
+    var isSnapshotPreviewPresented: Bool {
+        previewedLayoutID != nil
     }
 
     var activeRestoredLayout: Layout? {
@@ -178,6 +183,18 @@ final class LayoutCoordinator: ObservableObject {
         }
     }
 
+    func setSnapshotPreview(_ layoutID: UUID, isPresented: Bool) {
+        if isPresented {
+            previewedLayoutID = layoutID
+        } else if previewedLayoutID == layoutID {
+            previewedLayoutID = nil
+        }
+    }
+
+    func dismissSnapshotPreview() {
+        previewedLayoutID = nil
+    }
+
     func askToCloseAllWindows() {
         isCloseAllConfirmationPresented = true
     }
@@ -236,6 +253,7 @@ final class LayoutCoordinator: ObservableObject {
             statusMessage = L10n.format("Saved %d apps", captured.layout.apps.count)
             isSaveSheetPresented = false
             presentHUD(for: captured.layout)
+            registerCapturedLayoutAsActive(captured.layout)
         } catch {
             statusMessage = error.localizedDescription
             if !permissionManager.isTrusted {
@@ -267,12 +285,9 @@ final class LayoutCoordinator: ObservableObject {
                 )
                 try store.save(updatedLayout, snapshotPNGData: snapshotPNGData)
                 forgetRememberedLayout(layout.id)
-                restoredLayoutIDs.remove(layout.id)
-                if lastDetectedLayoutID == layout.id {
-                    lastDetectedLayoutID = nil
-                }
                 statusMessage = L10n.format("Updated %@", layout.name)
                 presentHUD(for: updatedLayout)
+                registerCapturedLayoutAsActive(updatedLayout)
             } catch {
                 statusMessage = error.localizedDescription
                 if !permissionManager.isTrusted {
@@ -291,7 +306,7 @@ final class LayoutCoordinator: ObservableObject {
             if !report.failures.isEmpty {
                 statusMessage = report.failures.first?.message ?? L10n.tr("Restore failed")
             } else if !report.unreconciledWindows.isEmpty {
-                statusMessage = L10n.format("Restored with %d unresolved windows", report.unreconciledWindows.count)
+                statusMessage = L10n.format("Unresolved apps: %@", report.unreconciledApps.joined(separator: ", "))
             } else {
                 statusMessage = L10n.tr("Done")
             }
@@ -463,6 +478,20 @@ final class LayoutCoordinator: ObservableObject {
     ) {
         objectWillChange.send()
         layoutNavigationMemory.remember(layoutID: layoutID, targets: targets)
+    }
+
+    private func registerCapturedLayoutAsActive(_ layout: Layout) {
+        restoredLayoutIDs.insert(layout.id)
+        lastDetectedLayoutID = layout.id
+
+        guard
+            let inspection = try? windowManager.inspectCurrentSpace(among: [layout]),
+            inspection.matchedLayout?.id == layout.id,
+            !inspection.navigationTargets.isEmpty
+        else {
+            return
+        }
+        rememberLayout(layout.id, targets: inspection.navigationTargets)
     }
 
     private func forgetRememberedLayout(_ layoutID: UUID) {

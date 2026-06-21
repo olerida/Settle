@@ -151,6 +151,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
 
     private func closePanel() {
         preferredResizeTask?.cancel()
+        coordinator.dismissSnapshotPreview()
         if coordinator.isOverlayPresented {
             coordinator.dismissOverlay()
         }
@@ -164,7 +165,9 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         DispatchQueue.main.async { [weak self] in
             guard let self, self.panel.isVisible, !self.panel.isKeyWindow else { return }
 
-            if self.coordinator.isOverlayPresented, NSApp.isActive {
+            if self.coordinator.isSnapshotPreviewPresented, NSApp.isActive {
+                return
+            } else if self.coordinator.isOverlayPresented, NSApp.isActive {
                 self.panel.makeKeyAndOrderFront(nil)
             } else {
                 self.closePanel()
@@ -281,6 +284,10 @@ final class MenuBarPanel: NSPanel {
     override var canBecomeMain: Bool { true }
 
     override func cancelOperation(_ sender: Any?) {
+        if AppSession.coordinator.isSnapshotPreviewPresented {
+            AppSession.coordinator.dismissSnapshotPreview()
+            return
+        }
         if AppSession.coordinator.isOverlayPresented {
             AppSession.coordinator.dismissOverlay()
             return

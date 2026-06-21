@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import CoreGraphics
+import Darwin
 import Foundation
 
 enum WindowManagerError: LocalizedError {
@@ -18,6 +19,19 @@ enum WindowManagerError: LocalizedError {
 }
 
 struct WindowManager {
+    private typealias AXWindowIDResolver = @convention(c) (AXUIElement, UnsafeMutablePointer<CGWindowID>) -> AXError
+
+    private static let axWindowIDResolver: AXWindowIDResolver? = {
+        let frameworkPath = "/System/Library/Frameworks/ApplicationServices.framework/Frameworks/HIServices.framework/HIServices"
+        guard
+            let handle = dlopen(frameworkPath, RTLD_LAZY),
+            let symbol = dlsym(handle, "_AXUIElementGetWindow")
+        else {
+            return nil
+        }
+        return unsafeBitCast(symbol, to: AXWindowIDResolver.self)
+    }()
+
     struct CapturedLayoutResult {
         let layout: Layout
         let previewWindows: [PreviewWindowCapture]
@@ -169,41 +183,7 @@ struct WindowManager {
             throw WindowManagerError.accessibilityPermissionMissing
         }
 
-        let visibleWindows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
-            as? [[String: Any]] ?? []
-
-        let currentPID = ProcessInfo.processInfo.processIdentifier
-        let filtered = visibleWindows.enumerated().compactMap { offset, windowInfo -> VisibleWindowRecord? in
-            guard
-                let pid = windowInfo[kCGWindowOwnerPID as String] as? pid_t,
-                pid != currentPID,
-                let windowID = windowInfo[kCGWindowNumber as String] as? CGWindowID,
-                let boundsDict = windowInfo[kCGWindowBounds as String] as? [String: CGFloat]
-            else {
-                return nil
-            }
-
-            let layer = windowInfo[kCGWindowLayer as String] as? Int ?? 0
-            if layer != 0 { return nil }
-
-            let frame = CGRect(
-                x: boundsDict["X"] ?? 0,
-                y: boundsDict["Y"] ?? 0,
-                width: boundsDict["Width"] ?? 0,
-                height: boundsDict["Height"] ?? 0
-            )
-
-            guard frame.width > 80, frame.height > 60 else { return nil }
-            let title = windowInfo[kCGWindowName as String] as? String ?? ""
-            return VisibleWindowRecord(
-                offset: offset,
-                windowID: windowID,
-                pid: pid,
-                frame: frame,
-                title: title
-            )
-        }
-
+        let filtered = currentSpaceVisibleWindowRecords()
         let grouped = Dictionary(grouping: filtered, by: \.pid)
         var previewWindows: [PreviewWindowCapture] = []
 
@@ -251,6 +231,45 @@ struct WindowManager {
             previewWindows: previewWindows,
             visibleWindowsByPID: grouped
         )
+    }
+
+    private func currentSpaceVisibleWindowRecords() -> [VisibleWindowRecord] {
+        let visibleWindows = CGWindowListCopyWindowInfo(
+            [.optionOnScreenOnly, .excludeDesktopElements],
+            kCGNullWindowID
+        ) as? [[String: Any]] ?? []
+        let currentPID = ProcessInfo.processInfo.processIdentifier
+
+        return visibleWindows.enumerated().compactMap { offset, windowInfo -> VisibleWindowRecord? in
+            guard
+                let pid = windowInfo[kCGWindowOwnerPID as String] as? pid_t,
+                pid != currentPID,
+                let windowID = windowInfo[kCGWindowNumber as String] as? CGWindowID,
+                let boundsDict = windowInfo[kCGWindowBounds as String] as? [String: CGFloat]
+            else {
+                return nil
+            }
+
+            let layer = windowInfo[kCGWindowLayer as String] as? Int ?? 0
+            if layer != 0 { return nil }
+
+            let frame = CGRect(
+                x: boundsDict["X"] ?? 0,
+                y: boundsDict["Y"] ?? 0,
+                width: boundsDict["Width"] ?? 0,
+                height: boundsDict["Height"] ?? 0
+            )
+
+            guard frame.width > 80, frame.height > 60 else { return nil }
+            let title = windowInfo[kCGWindowName as String] as? String ?? ""
+            return VisibleWindowRecord(
+                offset: offset,
+                windowID: windowID,
+                pid: pid,
+                frame: frame,
+                title: title
+            )
+        }
     }
 
     private func visibleAXWindows(from capture: VisibleDesktopCapture) -> [VisibleAXWindow] {
@@ -567,26 +586,31 @@ struct WindowManager {
                     try await Task.sleep(for: .milliseconds(900))
                 }
 
-                var unmatchedWindows = axWindows(for: runningApp.processIdentifier)
+                var unmatchedWindows = currentSpaceAXWindows(for: runningApp)
                 if unmatchedWindows.isEmpty {
                     try await Task.sleep(for: .milliseconds(600))
-                    unmatchedWindows = axWindows(for: runningApp.processIdentifier)
+                    unmatchedWindows = currentSpaceAXWindows(for: runningApp)
                 }
 
                 var currentSpaceWindowRequests = 0
                 var reopenAttempted = false
+                var usedWindows: [AXUIElement] = []
 
                 for targetWindow in appSnapshot.windows.sorted(by: { $0.orderIndex < $1.orderIndex }) {
                     var windowCandidates = candidates(for: unmatchedWindows)
 
-                    while WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) == nil, currentSpaceWindowRequests < 2 {
+                    while
+                        WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) == nil,
+                        currentSpaceWindowRequests < appSnapshot.windows.count
+                    {
                         try await appLauncher.requestWindowInCurrentSpace(
                             bundleIdentifier: appSnapshot.bundleIdentifier,
                             runningApp: runningApp
                         )
                         currentSpaceWindowRequests += 1
                         try await Task.sleep(for: .milliseconds(900))
-                        unmatchedWindows = axWindows(for: runningApp.processIdentifier)
+                        unmatchedWindows = currentSpaceAXWindows(for: runningApp)
+                            .filter { candidate in !usedWindows.contains(where: { CFEqual($0, candidate) }) }
                         windowCandidates = candidates(for: unmatchedWindows)
                     }
 
@@ -594,17 +618,22 @@ struct WindowManager {
                         try await appLauncher.reopen(bundleIdentifier: appSnapshot.bundleIdentifier)
                         reopenAttempted = true
                         try await Task.sleep(for: .milliseconds(900))
-                        unmatchedWindows = axWindows(for: runningApp.processIdentifier)
+                        unmatchedWindows = currentSpaceAXWindows(for: runningApp)
+                            .filter { candidate in !usedWindows.contains(where: { CFEqual($0, candidate) }) }
                         windowCandidates = candidates(for: unmatchedWindows)
                     }
 
                     guard let matchIndex = WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) else {
-                        report.unreconciledWindows.append(label(for: appSnapshot, window: targetWindow))
+                        report.recordUnreconciledWindow(
+                            label(for: appSnapshot, window: targetWindow),
+                            appName: appSnapshot.appDisplayName
+                        )
                         continue
                     }
 
                     let axIndex = windowCandidates[matchIndex].0
                     let element = unmatchedWindows.remove(at: axIndex)
+                    usedWindows.append(element)
                     apply(window: element, target: targetWindow)
                     matchedWindows.append((targetWindow, element))
                     report.restoredWindows.append(label(for: appSnapshot, window: targetWindow))
@@ -619,6 +648,36 @@ struct WindowManager {
         await raiseWindowsToSavedOrder(matchedWindows)
 
         return report
+    }
+
+    private func currentSpaceAXWindows(for app: NSRunningApplication) -> [AXUIElement] {
+        guard let bundleIdentifier = app.bundleIdentifier else { return [] }
+        let records = currentSpaceVisibleWindowRecords()
+            .filter { $0.pid == app.processIdentifier }
+            .sorted { $0.offset < $1.offset }
+        guard shouldCaptureApp(bundleIdentifier: bundleIdentifier, appName: app.localizedName ?? "") else {
+            return []
+        }
+
+        return Self.consumeVisibleMatches(
+            records: records,
+            candidates: axWindows(for: app.processIdentifier),
+            matchIndex: bestAXWindowMatchIndex
+        )
+    }
+
+    static func consumeVisibleMatches<Record, Candidate>(
+        records: [Record],
+        candidates: [Candidate],
+        matchIndex: (Record, [Candidate]) -> Int?
+    ) -> [Candidate] {
+        var remainingCandidates = candidates
+        return records.compactMap { record in
+            guard let index = matchIndex(record, remainingCandidates), remainingCandidates.indices.contains(index) else {
+                return nil
+            }
+            return remainingCandidates.remove(at: index)
+        }
     }
 
     private func candidates(for windows: [AXUIElement]) -> [(Int, WindowCandidate)] {
@@ -666,14 +725,61 @@ struct WindowManager {
     }
 
     private func raiseWindowsToSavedOrder(_ matches: [(WindowSnapshot, AXUIElement)]) async {
-        for match in Self.matchesInRaiseOrder(matches) {
-            AXUIElementPerformAction(match.1, kAXRaiseAction as CFString)
-            try? await Task.sleep(for: .milliseconds(35))
+        let ownedMatches = matches.enumerated().compactMap { index, match -> (Int, pid_t)? in
+            guard let processIdentifier = processIdentifier(for: match.1) else { return nil }
+            return (index, processIdentifier)
+        }
+        let entries = ownedMatches.map { matchIndex, processIdentifier in
+            (
+                stackingIndex: matches[matchIndex].0.stackingIndex,
+                processIdentifier: processIdentifier
+            )
+        }
+        let orderedOwnedIndices = Self.appGroupedRaiseIndices(entries: entries)
+        var activeProcessIdentifier: pid_t?
+
+        for ownedIndex in orderedOwnedIndices {
+            let matchIndex = ownedMatches[ownedIndex].0
+            let processIdentifier = ownedMatches[ownedIndex].1
+            if processIdentifier != activeProcessIdentifier {
+                _ = NSRunningApplication(processIdentifier: processIdentifier)?.activate()
+                activeProcessIdentifier = processIdentifier
+            }
+            AXUIElementPerformAction(matches[matchIndex].1, kAXRaiseAction as CFString)
+        }
+
+        if let frontmostIndex = matches.indices.min(by: {
+            matches[$0].0.stackingIndex < matches[$1].0.stackingIndex
+        }) {
+            _ = setFocused(true, for: matches[frontmostIndex].1)
         }
     }
 
     static func matchesInRaiseOrder(_ matches: [(WindowSnapshot, AXUIElement)]) -> [(WindowSnapshot, AXUIElement)] {
         matches.sorted(by: { $0.0.stackingIndex > $1.0.stackingIndex })
+    }
+
+    static func appGroupedRaiseIndices(
+        entries: [(stackingIndex: Int, processIdentifier: pid_t)]
+    ) -> [Int] {
+        let indicesByProcess = Dictionary(grouping: entries.indices) { entries[$0].processIdentifier }
+        return indicesByProcess.values
+            .sorted { lhs, rhs in
+                let lhsFrontmost = lhs.map { entries[$0].stackingIndex }.min() ?? .max
+                let rhsFrontmost = rhs.map { entries[$0].stackingIndex }.min() ?? .max
+                return lhsFrontmost > rhsFrontmost
+            }
+            .flatMap { indices in
+                indices.sorted { entries[$0].stackingIndex > entries[$1].stackingIndex }
+            }
+    }
+
+    private func processIdentifier(for element: AXUIElement) -> pid_t? {
+        var processIdentifier: pid_t = 0
+        guard AXUIElementGetPid(element, &processIdentifier) == .success, processIdentifier != 0 else {
+            return nil
+        }
+        return processIdentifier
     }
 
     private static func extraVisibleWindowsByBundle(
@@ -800,38 +906,59 @@ struct WindowManager {
     }
 
     private func bestAXWindowMatchIndex(for record: VisibleWindowRecord, in windows: [AXUIElement]) -> Int? {
-        let candidates = windows.enumerated().compactMap { index, element -> (Int, WindowCandidate)? in
-            guard let frame = axFrameValue(element), frame.width > 40, frame.height > 40 else {
-                return nil
-            }
-
-            return (
-                index,
-                WindowCandidate(
-                    title: axStringValue(element, attribute: kAXTitleAttribute),
-                    frame: frame,
-                    orderIndex: index,
-                    isMainWindowCandidate: (axBoolValue(element, attribute: kAXMainAttribute) ?? false) || index == 0
-                )
+        let windowIDs = windows.map(axWindowID)
+        if windowIDs.contains(where: { $0 != nil }) {
+            return Self.exactWindowMatchIndex(
+                visibleWindowID: record.windowID,
+                candidateWindowIDs: windowIDs
             )
         }
 
-        guard !candidates.isEmpty else { return nil }
-
-        let target = WindowSnapshot(
-            windowTitleSnapshot: record.title,
-            frame: WindowFrame(rect: record.frame),
-            isMinimized: false,
-            isMainWindowCandidate: record.offset == 0,
-            orderIndex: record.offset,
-            stackingIndex: record.offset
-        )
-
-        guard let candidateIndex = WindowMatcher.bestMatch(target: target, candidates: candidates.map { $0.1 }) else {
+        let candidates = windows.enumerated().compactMap { index, element -> (Int, WindowCandidate)? in
+            guard let candidate = windowCandidate(from: element, orderIndex: index) else { return nil }
+            return (index, candidate)
+        }
+        guard let matchIndex = Self.unambiguousVisualMatchIndex(
+            visibleTitle: record.title,
+            visibleFrame: record.frame,
+            candidates: candidates.map(\.1)
+        ) else {
             return nil
         }
+        return candidates[matchIndex].0
+    }
 
-        return candidates[candidateIndex].0
+    static func exactWindowMatchIndex(
+        visibleWindowID: CGWindowID,
+        candidateWindowIDs: [CGWindowID?]
+    ) -> Int? {
+        candidateWindowIDs.firstIndex { $0 == visibleWindowID }
+    }
+
+    private func axWindowID(_ element: AXUIElement) -> CGWindowID? {
+        guard let resolver = Self.axWindowIDResolver else { return nil }
+        var windowID: CGWindowID = 0
+        guard resolver(element, &windowID) == .success, windowID != 0 else { return nil }
+        return windowID
+    }
+
+    static func unambiguousVisualMatchIndex(
+        visibleTitle: String,
+        visibleFrame: CGRect,
+        candidates: [WindowCandidate]
+    ) -> Int? {
+        let matchingIndices = candidates.indices.filter { index in
+            let candidate = candidates[index]
+            let titlesMatch = visibleTitle.isEmpty
+                || candidate.title.isEmpty
+                || visibleTitle.localizedCaseInsensitiveCompare(candidate.title) == .orderedSame
+            let framesMatch = abs(visibleFrame.minX - candidate.frame.minX) <= 4
+                && abs(visibleFrame.minY - candidate.frame.minY) <= 4
+                && abs(visibleFrame.width - candidate.frame.width) <= 4
+                && abs(visibleFrame.height - candidate.frame.height) <= 4
+            return titlesMatch && framesMatch
+        }
+        return matchingIndices.count == 1 ? matchingIndices[0] : nil
     }
 
     private func setMinimized(_ minimized: Bool, for window: AXUIElement) -> Bool {

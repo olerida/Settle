@@ -183,5 +183,13 @@ struct RestoreReport {
     var launchedApps: [String] = []
     var restoredWindows: [String] = []
     var unreconciledWindows: [String] = []
+    var unreconciledApps: [String] = []
     var failures: [RestoreFailure] = []
+
+    mutating func recordUnreconciledWindow(_ windowLabel: String, appName: String) {
+        unreconciledWindows.append(windowLabel)
+        if !unreconciledApps.contains(appName) {
+            unreconciledApps.append(appName)
+        }
+    }
 }

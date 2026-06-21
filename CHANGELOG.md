@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Changed layout restoration to reuse only windows visible in the current Space, preserving matching app windows in other Spaces.
+- Added best-effort creation of missing app windows through each app's accessible Command-N action, with a non-activating fallback.
+- Changed incomplete restore feedback to identify unresolved apps by name.
+- Changed save and update flows so the captured layout immediately remains active in its current Space.
+- Improved layer restoration by ordering application groups and each app's windows back to front in a single pass without retry animations.
+- Fixed snapshot previews closing the Settle panel on focus changes and remaining unexpectedly open the next time the panel appeared.
 - Added a native Settings window with dedicated General and Permissions sections.
 - Added Screen Recording permission status and access controls for layout preview thumbnails.
 - Added a launch-at-login preference backed by a signed embedded login helper using the same Settle app icon.

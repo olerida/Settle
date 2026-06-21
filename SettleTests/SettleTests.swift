@@ -5,6 +5,125 @@ import XCTest
 
 final class SettleTests: XCTestCase {
     @MainActor
+    func testSnapshotPreviewStateIsSharedAndDismissible() {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let defaultsName = "SettleTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: defaultsName)!
+        let coordinator = LayoutCoordinator(
+            store: LayoutStore(
+                storageURL: rootURL.appendingPathComponent("layouts.json"),
+                snapshotsDirectoryURL: rootURL.appendingPathComponent("Snapshots", isDirectory: true)
+            ),
+            settings: AppSettings(defaults: defaults, loginItemService: FakeLoginItemService(state: .notRegistered))
+        )
+        let layoutID = UUID()
+
+        coordinator.setSnapshotPreview(layoutID, isPresented: true)
+        XCTAssertTrue(coordinator.isSnapshotPreviewPresented)
+        XCTAssertEqual(coordinator.previewedLayoutID, layoutID)
+
+        coordinator.dismissSnapshotPreview()
+        XCTAssertFalse(coordinator.isSnapshotPreviewPresented)
+        XCTAssertNil(coordinator.previewedLayoutID)
+        defaults.removePersistentDomain(forName: defaultsName)
+    }
+
+    func testAppGroupedRaiseOrderRestoresAppsAndTheirWindowsBackToFront() {
+        let indices = WindowManager.appGroupedRaiseIndices(entries: [
+            (stackingIndex: 0, processIdentifier: 10),
+            (stackingIndex: 1, processIdentifier: 20),
+            (stackingIndex: 2, processIdentifier: 10),
+            (stackingIndex: 3, processIdentifier: 20)
+        ])
+
+        XCTAssertEqual(indices, [3, 1, 2, 0])
+    }
+
+    func testExactWindowMatchUsesCurrentVisibleWindowIdentity() {
+        XCTAssertEqual(
+            WindowManager.exactWindowMatchIndex(
+                visibleWindowID: 42,
+                candidateWindowIDs: [7, nil, 42, 99]
+            ),
+            2
+        )
+        XCTAssertNil(
+            WindowManager.exactWindowMatchIndex(
+                visibleWindowID: 8,
+                candidateWindowIDs: [7, 42]
+            )
+        )
+    }
+
+    func testNewWindowShortcutRequiresEnabledCommandNWithoutExtraModifiers() {
+        XCTAssertTrue(AppLauncher.isNewWindowShortcut(character: "N", modifiers: 0, enabled: true))
+        XCTAssertFalse(AppLauncher.isNewWindowShortcut(character: "N", modifiers: 1, enabled: true))
+        XCTAssertFalse(AppLauncher.isNewWindowShortcut(character: "T", modifiers: 0, enabled: true))
+        XCTAssertFalse(AppLauncher.isNewWindowShortcut(character: "N", modifiers: 0, enabled: false))
+    }
+
+    func testRestoreReportKeepsUniqueUnresolvedAppNames() {
+        var report = RestoreReport()
+        report.recordUnreconciledWindow("Safari - First", appName: "Safari")
+        report.recordUnreconciledWindow("Safari - Second", appName: "Safari")
+        report.recordUnreconciledWindow("Terminal - shell", appName: "Terminal")
+
+        XCTAssertEqual(report.unreconciledWindows.count, 3)
+        XCTAssertEqual(report.unreconciledApps, ["Safari", "Terminal"])
+    }
+
+    func testVisualWindowMatchRequiresOneUnambiguousCandidate() {
+        let frame = CGRect(x: 10, y: 20, width: 800, height: 600)
+        let matching = WindowCandidate(title: "Project", frame: frame, orderIndex: 0, isMainWindowCandidate: true)
+        let other = WindowCandidate(
+            title: "Other",
+            frame: CGRect(x: 100, y: 200, width: 500, height: 400),
+            orderIndex: 1,
+            isMainWindowCandidate: false
+        )
+
+        XCTAssertEqual(
+            WindowManager.unambiguousVisualMatchIndex(
+                visibleTitle: "Project",
+                visibleFrame: frame,
+                candidates: [other, matching]
+            ),
+            1
+        )
+        XCTAssertNil(
+            WindowManager.unambiguousVisualMatchIndex(
+                visibleTitle: "Project",
+                visibleFrame: frame,
+                candidates: [matching, matching]
+            )
+        )
+    }
+
+    func testVisibleWindowMatchingExcludesCandidatesWithoutCurrentSpaceRecords() {
+        let matched = WindowManager.consumeVisibleMatches(
+            records: ["Current A", "Current B"],
+            candidates: ["Other Space", "Current B", "Current A"]
+        ) { record, candidates in
+            candidates.firstIndex(of: record)
+        }
+
+        XCTAssertEqual(matched, ["Current A", "Current B"])
+        XCTAssertFalse(matched.contains("Other Space"))
+    }
+
+    func testVisibleWindowMatchingDoesNotReuseOneCandidateTwice() {
+        let matched = WindowManager.consumeVisibleMatches(
+            records: ["Window", "Window"],
+            candidates: ["Window"]
+        ) { record, candidates in
+            candidates.firstIndex(of: record)
+        }
+
+        XCTAssertEqual(matched, ["Window"])
+    }
+
+    @MainActor
     func testLayoutStorePersistsAndDeletesSnapshotFile() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

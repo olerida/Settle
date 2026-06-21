@@ -710,14 +710,12 @@ private struct LayoutSnapshotPreviewButton: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
     let layout: Layout
 
-    @State private var isPreviewPresented = false
-
     var body: some View {
         let snapshotURL = coordinator.snapshotURL(for: layout)
 
         Button {
             guard snapshotURL != nil else { return }
-            isPreviewPresented.toggle()
+            previewPresentation.wrappedValue.toggle()
         } label: {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.body)
@@ -728,7 +726,7 @@ private struct LayoutSnapshotPreviewButton: View {
         .disabled(snapshotURL == nil)
         .accessibilityLabel(L10n.tr("Show snapshot preview"))
         .help(L10n.tr("Show snapshot preview"))
-        .popover(isPresented: $isPreviewPresented, arrowEdge: .trailing) {
+        .popover(isPresented: previewPresentation, arrowEdge: .trailing) {
             if let snapshotURL, let image = snapshotImage(at: snapshotURL) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(layout.name)
@@ -743,6 +741,13 @@ private struct LayoutSnapshotPreviewButton: View {
                 .padding(12)
             }
         }
+    }
+
+    private var previewPresentation: Binding<Bool> {
+        Binding(
+            get: { coordinator.previewedLayoutID == layout.id },
+            set: { coordinator.setSnapshotPreview(layout.id, isPresented: $0) }
+        )
     }
 
     private func snapshotImage(at url: URL) -> NSImage? {
