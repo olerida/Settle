@@ -85,7 +85,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Install",
     navDownload: "Download",
     heroEyebrow: "Menu bar app for macOS",
-    heroTitle: "Put every window back where it belongs.",
+    heroTitle: "Your Mac windows, right where you left them.",
     heroBody:
       "Switch between work, coding, meeting, and study setups in seconds. Settle reopens your apps and restores every window’s size and position while leaving unrelated windows untouched.",
     primaryCta: "Download for macOS",
@@ -139,7 +139,7 @@ export const copy: Record<Language, Copy> = {
     downloadMeta:
       "Version 1.4.0 · universal DMG for Apple silicon and Intel · about 1.2 MB",
     trustLine:
-      "Settle uses native macOS permissions, keeps layouts on your Mac, and makes the code available for review.",
+      "Native macOS permissions. Layouts stay on your Mac.",
     midCtaTitle: "Ready when your desktop drifts.",
     requirementsTitle: "Requirements",
     requirementMinimum: "macOS 14.0 or later",
@@ -174,7 +174,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Instalación",
     navDownload: "Descargar",
     heroEyebrow: "App de barra de menús para macOS",
-    heroTitle: "Devuelve cada ventana a su sitio.",
+    heroTitle: "Tus ventanas del Mac, justo donde las dejaste.",
     heroBody:
       "Cambia en segundos entre configuraciones de trabajo, programación, reuniones y estudio. Settle vuelve a abrir tus apps y restaura el tamaño y la posición de cada ventana sin alterar las ventanas ajenas al layout.",
     primaryCta: "Descargar para macOS",
@@ -228,7 +228,7 @@ export const copy: Record<Language, Copy> = {
     downloadMeta:
       "Versión 1.4.0 · DMG universal para Apple silicon e Intel · alrededor de 1,2 MB",
     trustLine:
-      "Settle usa permisos nativos de macOS, guarda los layouts en tu Mac y mantiene el código disponible para revisión.",
+      "Permisos nativos de macOS. Los layouts se quedan en tu Mac.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
     requirementsTitle: "Requisitos",
     requirementMinimum: "macOS 14.0 o posterior",
@@ -263,7 +263,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Instal·lació",
     navDownload: "Descarrega",
     heroEyebrow: "App de barra de menús per a macOS",
-    heroTitle: "Torna cada finestra al seu lloc.",
+    heroTitle: "Les finestres del Mac, just on les vas deixar.",
     heroBody:
       "Canvia en segons entre configuracions de feina, programació, reunions i estudi. Settle torna a obrir les apps i restaura la mida i la posició de cada finestra sense alterar les finestres alienes al layout.",
     primaryCta: "Descarrega per a macOS",
@@ -317,7 +317,7 @@ export const copy: Record<Language, Copy> = {
     downloadMeta:
       "Versió 1.4.0 · DMG universal per a Apple silicon i Intel · prop d’1,2 MB",
     trustLine:
-      "Settle usa permisos natius de macOS, desa els layouts al Mac i manté el codi disponible per revisar-lo.",
+      "Permisos natius de macOS. Els layouts es queden al Mac.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
     requirementsTitle: "Requisits",
     requirementMinimum: "macOS 14.0 o posterior",
@@ -352,7 +352,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Installation",
     navDownload: "Télécharger",
     heroEyebrow: "App de barre des menus pour macOS",
-    heroTitle: "Remettez chaque fenêtre à sa place.",
+    heroTitle: "Les fenêtres de votre Mac, exactement là où vous les avez laissées.",
     heroBody:
       "Passez en quelques secondes d’une configuration de travail, de programmation, de réunion ou d’étude à une autre. Settle rouvre vos apps et restaure la taille et la position de chaque fenêtre sans modifier les fenêtres hors de l’agencement.",
     primaryCta: "Télécharger pour macOS",
@@ -407,7 +407,7 @@ export const copy: Record<Language, Copy> = {
     downloadMeta:
       "Version 1.4.0 · DMG universel Apple silicon et Intel · environ 1,2 Mo",
     trustLine:
-      "Settle utilise les permissions natives de macOS, garde les agencements sur votre Mac et rend le code disponible à la vérification.",
+      "Autorisations natives de macOS. Les agencements restent sur votre Mac.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
     requirementsTitle: "Prérequis",
     requirementMinimum: "macOS 14.0 ou plus récent",
@@ -442,7 +442,7 @@ export const copy: Record<Language, Copy> = {
     navInstall: "Installation",
     navDownload: "Download",
     heroEyebrow: "Menüleisten-App für macOS",
-    heroTitle: "Jedes Fenster zurück an seinen Platz.",
+    heroTitle: "Deine Mac-Fenster, genau dort, wo du sie gelassen hast.",
     heroBody:
       "Wechsle in Sekunden zwischen Arbeits-, Programmier-, Meeting- und Lernumgebungen. Settle öffnet deine Apps erneut und stellt Größe und Position jedes Fensters wieder her, ohne andere Fenster zu verändern.",
     primaryCta: "Für macOS laden",
@@ -496,7 +496,7 @@ export const copy: Record<Language, Copy> = {
     downloadMeta:
       "Version 1.4.0 · universelles DMG für Apple Silicon und Intel · etwa 1,2 MB",
     trustLine:
-      "Settle nutzt native macOS-Berechtigungen, speichert Layouts auf deinem Mac und stellt den Code zur Prüfung bereit.",
+      "Native macOS-Berechtigungen. Layouts bleiben auf deinem Mac.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",
     requirementsTitle: "Voraussetzungen",
     requirementMinimum: "macOS 14.0 oder neuer",
