@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.5.0
 
 - Changed layout restoration to reuse only windows visible in the current Space, preserving matching app windows in other Spaces.
 - Added best-effort creation of missing app windows through each app's accessible Command-N action, with a non-activating fallback.
