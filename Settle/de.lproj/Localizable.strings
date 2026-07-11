@@ -6,6 +6,8 @@
 "Cancel" = "Abbrechen";
 "Close All" = "Alle schließen";
 "Close All Windows" = "Alle Fenster schließen";
+"Close Layout" = "Layout schließen";
+"Close every window from this layout in the current Space" = "Alle Fenster dieses Layouts im aktuellen Space schließen";
 "Close Every Window" = "Alle Fenster schließen";
 "Close Others" = "Andere schließen";
 "Close every standard window across every app and Space" = "Alle Standardfenster in allen Apps und auf allen Schreibtischen schließen";
@@ -16,6 +18,8 @@
 "Closing apps..." = "Apps werden beendet...";
 "Closing other windows..." = "Andere Fenster werden geschlossen...";
 "Closing windows..." = "Fenster werden geschlossen...";
+"Closing %@..." = "%@ wird geschlossen …";
+"Closed layout %@" = "Layout %@ geschlossen";
 "Current Space does not match a restored layout." = "Der aktuelle Schreibtisch entspricht keinem wiederhergestellten Layout.";
 "Capturing windows..." = "Fenster werden erfasst...";
 "Current desktop only" = "Nur aktueller Schreibtisch";
@@ -86,6 +90,7 @@
 "%d apps" = "%d Apps";
 "Deleted %@" = "%@ gelöscht";
 "Unresolved apps: %@" = "Nicht aufgelöste Apps: %@";
+"Missing apps: %@" = "Nicht installierte Apps: %@";
 "About" = "Über";
 "About Settle" = "Über Settle";
 "Built for macOS 14 and later" = "Für macOS 14 und neuer entwickelt";
@@ -133,3 +138,16 @@
 "%@ is no longer active" = "%@ ist nicht mehr aktiv";
 "%@ is incomplete in this Space" = "%@ ist in diesem Space unvollständig";
 "Could not switch to the Space for %@" = "Zum Space für %@ konnte nicht gewechselt werden";
+"Automation permission was not granted." = "Die Automatisierungsberechtigung wurde nicht erteilt.";
+"Browser Automation" = "Browserautomatisierung";
+"Browser tabs could not be saved: %@" = "Browser-Tabs konnten nicht gespeichert werden: %@";
+"Requested when needed" = "Wird bei Bedarf angefordert";
+"Save browser tabs" = "Browser-Tabs speichern";
+"Saves normal Safari and Chrome tab URLs. macOS will ask for Automation permission." = "Speichert URLs normaler Safari- und Chrome-Tabs. macOS fordert eine Automatisierungsberechtigung an.";
+"Settle stores normal tab URLs only; private tabs are not included." = "Settle speichert nur URLs normaler Tabs; private Tabs werden nicht einbezogen.";
+"Update" = "Aktualisieren";
+"Update Layout" = "Layout aktualisieren";
+"When you opt in to saving browser tabs, macOS asks for permission to control Safari or Chrome. Settle stores normal tab URLs only; private tabs are not included." = "Wenn du das Speichern von Browser-Tabs aktivierst, fordert macOS die Berechtigung zur Steuerung von Safari oder Chrome an. Settle speichert nur URLs normaler Tabs; private Tabs werden nicht einbezogen.";
+"Browser Automation access is denied. Enable Settle for Safari or Chrome in System Settings." = "Der Zugriff auf die Browserautomatisierung wurde verweigert. Aktiviere Settle für Safari oder Chrome in den Systemeinstellungen.";
+"Managed by macOS" = "Von macOS verwaltet";
+"Open Automation Settings" = "Automatisierungseinstellungen öffnen";

@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
@@ -25,6 +26,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
     private var preferredPanelHeight: CGFloat = 620
     private var preferredResizeTask: Task<Void, Never>?
     private var loginRestoreObserver: NSObjectProtocol?
+    private var restorePanelStateCancellable: AnyCancellable?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         loginRestoreObserver = DistributedNotificationCenter.default().addObserver(
@@ -53,6 +55,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         if let loginRestoreObserver {
             DistributedNotificationCenter.default().removeObserver(loginRestoreObserver)
         }
+        restorePanelStateCancellable?.cancel()
     }
 
     private func consumeLoginRestoreRequest() {
@@ -114,6 +117,21 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         ])
 
         panel.contentView = container
+        restorePanelStateCancellable = coordinator.$restorePanelState
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] state in
+                guard let self, self.panel.isVisible else { return }
+                switch state {
+                case .completedSuccessfully:
+                    self.closePanel()
+                case .completedWithIncidents:
+                    self.panel.makeKeyAndOrderFront(nil)
+                    NSApp.activate(ignoringOtherApps: true)
+                case .idle, .restoring:
+                    break
+                }
+            }
     }
 
     private func showPanel() {
@@ -165,7 +183,10 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         DispatchQueue.main.async { [weak self] in
             guard let self, self.panel.isVisible, !self.panel.isKeyWindow else { return }
 
-            if self.coordinator.isSnapshotPreviewPresented, NSApp.isActive {
+            if self.coordinator.restorePanelState == .restoring
+                || self.coordinator.restorePanelState == .completedWithIncidents {
+                return
+            } else if self.coordinator.isSnapshotPreviewPresented, NSApp.isActive {
                 return
             } else if self.coordinator.isOverlayPresented, NSApp.isActive {
                 self.panel.makeKeyAndOrderFront(nil)

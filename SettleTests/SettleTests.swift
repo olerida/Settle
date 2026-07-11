@@ -5,6 +5,26 @@ import XCTest
 
 final class SettleTests: XCTestCase {
     @MainActor
+    func testSuggestedLayoutNameUsesVisibleAppNames() {
+        XCTAssertEqual(
+            LayoutCoordinator.suggestedLayoutName(for: ["Safari", "Notes"], fallback: "Fallback"),
+            "Safari · Notes"
+        )
+        XCTAssertEqual(
+            LayoutCoordinator.suggestedLayoutName(for: ["Safari", "Notes", "Finder", "Mail"], fallback: "Fallback"),
+            "Safari · Notes +2"
+        )
+        XCTAssertEqual(
+            LayoutCoordinator.suggestedLayoutName(for: ["Safari", " safari ", ""], fallback: "Fallback"),
+            "Safari"
+        )
+        XCTAssertEqual(
+            LayoutCoordinator.suggestedLayoutName(for: [], fallback: "Fallback"),
+            "Fallback"
+        )
+    }
+
+    @MainActor
     func testSnapshotPreviewStateIsSharedAndDismissible() {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -63,6 +83,53 @@ final class SettleTests: XCTestCase {
         XCTAssertFalse(AppLauncher.isNewWindowShortcut(character: "N", modifiers: 0, enabled: false))
     }
 
+    func testBrowserRestoreStrategyRecognizesSafariAndChromeChannels() {
+        XCTAssertEqual(AppLauncher.BrowserRestoreStrategy.forBundleIdentifier("com.apple.Safari"), .safari)
+        XCTAssertEqual(AppLauncher.BrowserRestoreStrategy.forBundleIdentifier("com.google.Chrome"), .chrome)
+        XCTAssertEqual(AppLauncher.BrowserRestoreStrategy.forBundleIdentifier("com.google.Chrome.beta"), .chrome)
+        XCTAssertNil(AppLauncher.BrowserRestoreStrategy.forBundleIdentifier("com.apple.TextEdit"))
+    }
+
+    func testBrowserTabCaptureParsesSafariOutput() {
+        let windows = BrowserTabManager.parseCapturedWindows(
+            "1\thttps://example.com/one\n1\thttps://example.com/two\n2\thttps://openai.com/\n"
+        )
+
+        XCTAssertEqual(windows.count, 2)
+        XCTAssertEqual(windows[0].tabs.map(\.url), ["https://example.com/one", "https://example.com/two"])
+        XCTAssertEqual(windows[1].tabs.map(\.url), ["https://openai.com/"])
+    }
+
+    func testBrowserNewWindowMenuItemRequiresTheWindowCommand() {
+        XCTAssertTrue(
+            AppLauncher.isBrowserNewWindowMenuItem(
+                title: "Nueva ventana",
+                character: "n",
+                modifiers: 0,
+                enabled: true,
+                strategy: .safari
+            )
+        )
+        XCTAssertTrue(
+            AppLauncher.isBrowserNewWindowMenuItem(
+                title: "Neues Fenster",
+                character: "N",
+                modifiers: 0,
+                enabled: true,
+                strategy: .chrome
+            )
+        )
+        XCTAssertFalse(
+            AppLauncher.isBrowserNewWindowMenuItem(
+                title: "New Tab",
+                character: "N",
+                modifiers: 0,
+                enabled: true,
+                strategy: .chrome
+            )
+        )
+    }
+
     func testRestoreReportKeepsUniqueUnresolvedAppNames() {
         var report = RestoreReport()
         report.recordUnreconciledWindow("Safari - First", appName: "Safari")
@@ -71,6 +138,30 @@ final class SettleTests: XCTestCase {
 
         XCTAssertEqual(report.unreconciledWindows.count, 3)
         XCTAssertEqual(report.unreconciledApps, ["Safari", "Terminal"])
+    }
+
+    func testRestoreReportKeepsUniqueMissingAppNames() {
+        var report = RestoreReport()
+        report.recordMissingApp("Safari")
+        report.recordMissingApp("Safari")
+        report.recordMissingApp("Notes")
+
+        XCTAssertEqual(report.missingApps, ["Safari", "Notes"])
+    }
+
+    func testRestoreReportCompletionRequiresNoIncidents() {
+        var report = RestoreReport()
+        XCTAssertTrue(report.completedSuccessfully)
+
+        report.recordMissingApp("Safari")
+        XCTAssertFalse(report.completedSuccessfully)
+
+        report = RestoreReport()
+        report.recordUnreconciledWindow("Notes - Draft", appName: "Notes")
+        XCTAssertFalse(report.completedSuccessfully)
+
+        report = RestoreReport(failures: [RestoreFailure(appName: "Safari", message: "Failed")])
+        XCTAssertFalse(report.completedSuccessfully)
     }
 
     func testVisualWindowMatchRequiresOneUnambiguousCandidate() {
@@ -275,6 +366,7 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(decoded.layouts.first?.name, "Work")
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.windowTitleSnapshot, "Notes")
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 0)
+        XCTAssertFalse(decoded.layouts.first?.restoresBrowserTabs ?? true)
     }
 
     func testLegacyWindowSnapshotDecodesWithoutStackingIndex() throws {
@@ -318,6 +410,7 @@ final class SettleTests: XCTestCase {
         let decoded = try decoder.decode(LayoutDocument.self, from: json)
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.orderIndex, 3)
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 3)
+        XCTAssertFalse(decoded.layouts.first?.restoresBrowserTabs ?? true)
     }
 
     func testLayoutCanPersistSnapshotReference() throws {

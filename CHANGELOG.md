@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.6.0
+
+- Added Safari and Chrome-specific missing-window recovery that targets their actual New Window menu action before using the generic fallback.
+- Added an opt-in per-layout browser-tab capture and restore for Safari and Chrome.
+- Fixed Browser Automation authorization by signing Settle with the required Apple Events entitlement.
+- Fixed Safari tab capture using a literal `tab` string instead of a real separator.
+- Fixed browser URLs not being reapplied when the saved window already existed.
+- Added contextual layout-name suggestions based on the apps visible in the current desktop when saving a layout.
+- Added explicit missing-app feedback during layout restoration while continuing with available apps.
+- Kept the menu panel open after incomplete restores so the result remains visible, closing it only after full success.
+- Added an active-layout action that closes its windows in the current Space and clears its active state.
+
 ## v1.5.0
 
 - Changed layout restoration to reuse only windows visible in the current Space, preserving matching app windows in other Spaces.

@@ -2,10 +2,21 @@ import AppKit
 import Combine
 import Foundation
 
+enum RestorePanelState: Equatable {
+    case idle
+    case restoring
+    case completedSuccessfully
+    case completedWithIncidents
+}
+
 @MainActor
 final class LayoutCoordinator: ObservableObject {
     @Published var statusMessage = L10n.tr("Ready")
     @Published var saveName = ""
+    @Published var shouldSaveBrowserTabs = false
+    @Published private(set) var canSaveBrowserTabs = false
+    @Published private(set) var saveErrorMessage: String?
+    @Published private(set) var isBrowserAutomationDenied = false
     @Published var renameName = ""
     @Published var isSaveSheetPresented = false
     @Published var renamingLayout: Layout?
@@ -13,6 +24,7 @@ final class LayoutCoordinator: ObservableObject {
     @Published var isAboutPresented = false
     @Published var previewedLayoutID: UUID?
     @Published var latestReport: RestoreReport?
+    @Published private(set) var restorePanelState: RestorePanelState = .idle
 
     let permissionManager: AccessibilityPermissionManager
     let store: LayoutStore
@@ -34,6 +46,7 @@ final class LayoutCoordinator: ObservableObject {
     private var lastPresentedAt: Date = .distantPast
     private var activeSpaceTask: Task<Void, Never>?
     private var didAttemptDefaultLayoutRestore = false
+    private var layoutBeingUpdated: Layout?
 
     init(
         permissionManager: AccessibilityPermissionManager = AccessibilityPermissionManager(),
@@ -155,12 +168,32 @@ final class LayoutCoordinator: ObservableObject {
     }
 
     func prepareSave() {
-        saveName = Self.defaultLayoutName()
+        saveErrorMessage = nil
+        isBrowserAutomationDenied = false
+        let fallback = Self.defaultLayoutName()
+        do {
+            let apps = try windowManager.captureVisibleAppSnapshots()
+            canSaveBrowserTabs = apps.contains { BrowserTabManager.supports(bundleIdentifier: $0.bundleIdentifier) }
+            shouldSaveBrowserTabs = false
+            layoutBeingUpdated = nil
+            saveName = Self.suggestedLayoutName(
+                for: apps.map(\.appDisplayName),
+                fallback: fallback
+            )
+        } catch {
+            saveName = fallback
+            canSaveBrowserTabs = false
+            shouldSaveBrowserTabs = false
+            layoutBeingUpdated = nil
+        }
         isSaveSheetPresented = true
     }
 
     func cancelSave() {
         isSaveSheetPresented = false
+        layoutBeingUpdated = nil
+        saveErrorMessage = nil
+        isBrowserAutomationDenied = false
     }
 
     func presentAbout() {
@@ -238,78 +271,98 @@ final class LayoutCoordinator: ObservableObject {
 
     func saveCurrentLayout(named name: String) async {
         do {
+            saveErrorMessage = nil
+            isBrowserAutomationDenied = false
             let normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !normalized.isEmpty else {
                 statusMessage = L10n.tr("Name required")
                 return
             }
             statusMessage = L10n.tr("Capturing windows...")
-            let captured = try windowManager.captureCurrentLayout(name: normalized)
+            let captured = try windowManager.captureCurrentLayout(name: normalized, includingBrowserTabs: shouldSaveBrowserTabs)
+            let layout = makeSavedLayout(from: captured.layout, name: normalized)
             let snapshotPNGData = windowManager.captureDesktopSnapshotPNGData(
-                for: captured.layout,
+                for: layout,
                 previewWindows: captured.previewWindows
             )
-            try store.save(captured.layout, snapshotPNGData: snapshotPNGData)
-            statusMessage = L10n.format("Saved %d apps", captured.layout.apps.count)
+            try store.save(layout, snapshotPNGData: snapshotPNGData)
+            statusMessage = L10n.format("Saved %d apps", layout.apps.count)
             isSaveSheetPresented = false
-            presentHUD(for: captured.layout)
-            registerCapturedLayoutAsActive(captured.layout)
+            layoutBeingUpdated = nil
+            presentHUD(for: layout)
+            registerCapturedLayoutAsActive(layout)
         } catch {
             statusMessage = error.localizedDescription
+            saveErrorMessage = error.localizedDescription
+            if case BrowserTabManagerError.automationPermissionDenied = error {
+                isBrowserAutomationDenied = true
+            }
             if !permissionManager.isTrusted {
                 permissionManager.refresh()
             }
         }
     }
 
-    func overwrite(_ layout: Layout) {
-        Task {
-            do {
-                statusMessage = L10n.tr("Updated layout...")
-                let captured = try windowManager.captureCurrentLayout(name: layout.name)
-                let updatedLayout = Layout(
-                    id: layout.id,
-                    name: layout.name,
-                    createdAt: layout.createdAt,
-                    updatedAt: .now,
-                    pinned: layout.pinned,
-                    pinnedOrder: layout.pinnedOrder,
-                    snapshotFileName: layout.snapshotFileName,
-                    spacePolicy: layout.spacePolicy,
-                    extraWindowsBehaviorDefault: layout.extraWindowsBehaviorDefault,
-                    apps: captured.layout.apps
-                )
-                let snapshotPNGData = windowManager.captureDesktopSnapshotPNGData(
-                    for: updatedLayout,
-                    previewWindows: captured.previewWindows
-                )
-                try store.save(updatedLayout, snapshotPNGData: snapshotPNGData)
-                forgetRememberedLayout(layout.id)
-                statusMessage = L10n.format("Updated %@", layout.name)
-                presentHUD(for: updatedLayout)
-                registerCapturedLayoutAsActive(updatedLayout)
-            } catch {
-                statusMessage = error.localizedDescription
-                if !permissionManager.isTrusted {
-                    permissionManager.refresh()
-                }
+    func prepareOverwrite(_ layout: Layout) {
+        do {
+            saveErrorMessage = nil
+            isBrowserAutomationDenied = false
+            canSaveBrowserTabs = try windowManager.captureVisibleAppSnapshots().contains {
+                BrowserTabManager.supports(bundleIdentifier: $0.bundleIdentifier)
             }
+            shouldSaveBrowserTabs = layout.restoresBrowserTabs && canSaveBrowserTabs
+            saveName = layout.name
+            layoutBeingUpdated = layout
+            isSaveSheetPresented = true
+        } catch {
+            statusMessage = error.localizedDescription
         }
     }
 
+    func openBrowserAutomationSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    var savePanelTitle: String { L10n.tr(layoutBeingUpdated == nil ? "Save Current Layout" : "Update Layout") }
+    var savePanelActionTitle: String { L10n.tr(layoutBeingUpdated == nil ? "Save" : "Update") }
+
+    private func makeSavedLayout(from captured: Layout, name: String) -> Layout {
+        guard let existing = layoutBeingUpdated else { return captured }
+        return Layout(
+            id: existing.id,
+            name: name,
+            createdAt: existing.createdAt,
+            updatedAt: .now,
+            pinned: existing.pinned,
+            pinnedOrder: existing.pinnedOrder,
+            snapshotFileName: existing.snapshotFileName,
+            spacePolicy: existing.spacePolicy,
+            extraWindowsBehaviorDefault: existing.extraWindowsBehaviorDefault,
+            restoresBrowserTabs: captured.restoresBrowserTabs,
+            apps: captured.apps
+        )
+    }
+
     func restore(_ layout: Layout) {
+        restorePanelState = .restoring
         Task {
             statusMessage = L10n.tr("Launching apps...")
             let report = await windowManager.restoreLayout(layout, appLauncher: appLauncher)
             latestReport = report
 
-            if !report.failures.isEmpty {
+            if !report.missingApps.isEmpty {
+                statusMessage = L10n.format("Missing apps: %@", report.missingApps.joined(separator: ", "))
+            } else if !report.failures.isEmpty {
                 statusMessage = report.failures.first?.message ?? L10n.tr("Restore failed")
             } else if !report.unreconciledWindows.isEmpty {
                 statusMessage = L10n.format("Unresolved apps: %@", report.unreconciledApps.joined(separator: ", "))
             } else {
                 statusMessage = L10n.tr("Done")
             }
+            restorePanelState = report.completedSuccessfully
+                ? .completedSuccessfully
+                : .completedWithIncidents
 
             let restoreDidMeaningfullyRun = !report.restoredWindows.isEmpty || !report.launchedApps.isEmpty || report.failures.isEmpty
             if restoreDidMeaningfullyRun {
@@ -379,6 +432,33 @@ final class LayoutCoordinator: ObservableObject {
         }
     }
 
+    func closeActiveLayout(_ layout: Layout) {
+        guard lastDetectedLayoutID == layout.id else {
+            statusMessage = L10n.format("%@ is no longer active", layout.name)
+            return
+        }
+
+        Task {
+            statusMessage = L10n.format("Closing %@...", layout.name)
+            do {
+                let closedWindows = try await windowManager.closeLayoutWindowsInCurrentSpace(layout)
+                restoredLayoutIDs.remove(layout.id)
+                forgetRememberedLayout(layout.id)
+                lastDetectedLayoutID = nil
+                latestReport = nil
+                restorePanelState = .idle
+                statusMessage = closedWindows > 0
+                    ? L10n.format("Closed layout %@", layout.name)
+                    : L10n.format("%@ is no longer active", layout.name)
+            } catch {
+                statusMessage = error.localizedDescription
+                if !permissionManager.isTrusted {
+                    permissionManager.refresh()
+                }
+            }
+        }
+    }
+
     func beginRename(_ layout: Layout) {
         renamingLayout = layout
         renameName = layout.name
@@ -422,6 +502,26 @@ final class LayoutCoordinator: ObservableObject {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: .now)
+    }
+
+    static func suggestedLayoutName(for appNames: [String], fallback: String) -> String {
+        var names: [String] = []
+        for appName in appNames {
+            let normalized = appName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !normalized.isEmpty, !names.contains(where: { $0.caseInsensitiveCompare(normalized) == .orderedSame }) else {
+                continue
+            }
+            names.append(normalized)
+        }
+
+        switch names.count {
+        case 0:
+            return fallback
+        case 1...3:
+            return names.joined(separator: " · ")
+        default:
+            return "\(names[0]) · \(names[1]) +\(names.count - 2)"
+        }
     }
 
     private func scheduleActiveSpaceDetection() {

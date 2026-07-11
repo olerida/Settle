@@ -88,18 +88,29 @@ struct AppLayoutSnapshot: Codable, Hashable, Identifiable {
     var bundleIdentifier: String
     var appDisplayName: String
     var windows: [WindowSnapshot]
+    var browserWindows: [BrowserWindowTabs]?
 
     init(
         id: UUID = UUID(),
         bundleIdentifier: String,
         appDisplayName: String,
-        windows: [WindowSnapshot]
+        windows: [WindowSnapshot],
+        browserWindows: [BrowserWindowTabs]? = nil
     ) {
         self.id = id
         self.bundleIdentifier = bundleIdentifier
         self.appDisplayName = appDisplayName
         self.windows = windows
+        self.browserWindows = browserWindows
     }
+}
+
+struct BrowserTab: Codable, Hashable {
+    var url: String
+}
+
+struct BrowserWindowTabs: Codable, Hashable {
+    var tabs: [BrowserTab]
 }
 
 struct Layout: Codable, Hashable, Identifiable {
@@ -112,6 +123,7 @@ struct Layout: Codable, Hashable, Identifiable {
     var snapshotFileName: String?
     var spacePolicy: SpacePolicy
     var extraWindowsBehaviorDefault: ExtraWindowsBehavior
+    var restoresBrowserTabs: Bool
     var apps: [AppLayoutSnapshot]
 
     init(
@@ -124,6 +136,7 @@ struct Layout: Codable, Hashable, Identifiable {
         snapshotFileName: String? = nil,
         spacePolicy: SpacePolicy = .currentSpaceOnly,
         extraWindowsBehaviorDefault: ExtraWindowsBehavior = .leaveUntouched,
+        restoresBrowserTabs: Bool = false,
         apps: [AppLayoutSnapshot]
     ) {
         self.id = id
@@ -135,6 +148,7 @@ struct Layout: Codable, Hashable, Identifiable {
         self.snapshotFileName = snapshotFileName
         self.spacePolicy = spacePolicy
         self.extraWindowsBehaviorDefault = extraWindowsBehaviorDefault
+        self.restoresBrowserTabs = restoresBrowserTabs
         self.apps = apps
     }
 
@@ -148,6 +162,7 @@ struct Layout: Codable, Hashable, Identifiable {
         case snapshotFileName
         case spacePolicy
         case extraWindowsBehaviorDefault
+        case restoresBrowserTabs
         case apps
     }
 
@@ -162,6 +177,7 @@ struct Layout: Codable, Hashable, Identifiable {
         snapshotFileName = try container.decodeIfPresent(String.self, forKey: .snapshotFileName)
         spacePolicy = try container.decode(SpacePolicy.self, forKey: .spacePolicy)
         extraWindowsBehaviorDefault = try container.decode(ExtraWindowsBehavior.self, forKey: .extraWindowsBehaviorDefault)
+        restoresBrowserTabs = try container.decodeIfPresent(Bool.self, forKey: .restoresBrowserTabs) ?? false
         apps = try container.decode([AppLayoutSnapshot].self, forKey: .apps)
     }
 }
@@ -184,12 +200,22 @@ struct RestoreReport {
     var restoredWindows: [String] = []
     var unreconciledWindows: [String] = []
     var unreconciledApps: [String] = []
+    var missingApps: [String] = []
     var failures: [RestoreFailure] = []
+
+    var completedSuccessfully: Bool {
+        missingApps.isEmpty && unreconciledWindows.isEmpty && failures.isEmpty
+    }
 
     mutating func recordUnreconciledWindow(_ windowLabel: String, appName: String) {
         unreconciledWindows.append(windowLabel)
         if !unreconciledApps.contains(appName) {
             unreconciledApps.append(appName)
         }
+    }
+
+    mutating func recordMissingApp(_ appName: String) {
+        guard !missingApps.contains(appName) else { return }
+        missingApps.append(appName)
     }
 }

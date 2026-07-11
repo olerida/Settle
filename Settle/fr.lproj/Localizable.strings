@@ -6,6 +6,8 @@
 "Cancel" = "Annuler";
 "Close All" = "Tout fermer";
 "Close All Windows" = "Fermer toutes les fenêtres";
+"Close Layout" = "Fermer la disposition";
+"Close every window from this layout in the current Space" = "Fermer toutes les fenêtres de cette disposition dans l’espace actuel";
 "Close Every Window" = "Fermer toutes les fenêtres";
 "Close Others" = "Fermer les autres";
 "Close every standard window across every app and Space" = "Fermer toutes les fenêtres standard de toutes les apps et de tous les espaces";
@@ -16,6 +18,8 @@
 "Closing apps..." = "Fermeture des apps...";
 "Closing other windows..." = "Fermeture des autres fenêtres...";
 "Closing windows..." = "Fermeture des fenêtres...";
+"Closing %@..." = "Fermeture de %@…";
+"Closed layout %@" = "Disposition %@ fermée";
 "Current Space does not match a restored layout." = "L’espace actuel ne correspond pas à un layout restauré.";
 "Capturing windows..." = "Capture des fenêtres...";
 "Current desktop only" = "Bureau actuel uniquement";
@@ -86,6 +90,7 @@
 "%d apps" = "%d apps";
 "Deleted %@" = "%@ supprimé";
 "Unresolved apps: %@" = "Apps non résolues : %@";
+"Missing apps: %@" = "Apps non installées : %@";
 "About" = "À propos";
 "About Settle" = "À propos de Settle";
 "Built for macOS 14 and later" = "Conçue pour macOS 14 et versions ultérieures";
@@ -133,3 +138,16 @@
 "%@ is no longer active" = "%@ n’est plus active";
 "%@ is incomplete in this Space" = "%@ est incomplète dans cet espace";
 "Could not switch to the Space for %@" = "Impossible d’accéder à l’espace de %@";
+"Automation permission was not granted." = "L’autorisation d’automatisation n’a pas été accordée.";
+"Browser Automation" = "Automatisation du navigateur";
+"Browser tabs could not be saved: %@" = "Impossible d’enregistrer les onglets du navigateur : %@";
+"Requested when needed" = "Demandée au besoin";
+"Save browser tabs" = "Enregistrer les onglets du navigateur";
+"Saves normal Safari and Chrome tab URLs. macOS will ask for Automation permission." = "Enregistre les URL des onglets normaux de Safari et Chrome. macOS demandera une autorisation d’automatisation.";
+"Settle stores normal tab URLs only; private tabs are not included." = "Settle enregistre uniquement les URL des onglets normaux ; les onglets privés ne sont pas inclus.";
+"Update" = "Mettre à jour";
+"Update Layout" = "Mettre à jour la disposition";
+"When you opt in to saving browser tabs, macOS asks for permission to control Safari or Chrome. Settle stores normal tab URLs only; private tabs are not included." = "Lorsque vous choisissez d’enregistrer les onglets, macOS demande l’autorisation de contrôler Safari ou Chrome. Settle enregistre uniquement les URL des onglets normaux ; les onglets privés ne sont pas inclus.";
+"Browser Automation access is denied. Enable Settle for Safari or Chrome in System Settings." = "L’accès à l’automatisation du navigateur est refusé. Activez Settle pour Safari ou Chrome dans Réglages Système.";
+"Managed by macOS" = "Géré par macOS";
+"Open Automation Settings" = "Ouvrir les réglages d’automatisation";

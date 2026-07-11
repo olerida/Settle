@@ -137,7 +137,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle for macOS",
     languageLabel: "Languages",
     downloadMeta:
-      "Version 1.4.0 · universal DMG for Apple silicon and Intel · about 1.2 MB",
+      "Version 1.6.0 · universal DMG for Apple silicon and Intel · about 1.2 MB",
     trustLine:
       "Native macOS permissions. Layouts stay on your Mac.",
     midCtaTitle: "Ready when your desktop drifts.",
@@ -226,7 +226,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle para macOS",
     languageLabel: "Idiomas",
     downloadMeta:
-      "Versión 1.4.0 · DMG universal para Apple silicon e Intel · alrededor de 1,2 MB",
+      "Versión 1.6.0 · DMG universal para Apple silicon e Intel · alrededor de 1,2 MB",
     trustLine:
       "Permisos nativos de macOS. Los layouts se quedan en tu Mac.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
@@ -315,7 +315,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle per a macOS",
     languageLabel: "Idiomes",
     downloadMeta:
-      "Versió 1.4.0 · DMG universal per a Apple silicon i Intel · prop d’1,2 MB",
+      "Versió 1.6.0 · DMG universal per a Apple silicon i Intel · prop d’1,2 MB",
     trustLine:
       "Permisos natius de macOS. Els layouts es queden al Mac.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
@@ -405,7 +405,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle pour macOS",
     languageLabel: "Langues",
     downloadMeta:
-      "Version 1.4.0 · DMG universel Apple silicon et Intel · environ 1,2 Mo",
+      "Version 1.6.0 · DMG universel Apple silicon et Intel · environ 1,2 Mo",
     trustLine:
       "Autorisations natives de macOS. Les agencements restent sur votre Mac.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
@@ -494,7 +494,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle für macOS",
     languageLabel: "Sprachen",
     downloadMeta:
-      "Version 1.4.0 · universelles DMG für Apple Silicon und Intel · etwa 1,2 MB",
+      "Version 1.6.0 · universelles DMG für Apple Silicon und Intel · etwa 1,2 MB",
     trustLine:
       "Native macOS-Berechtigungen. Layouts bleiben auf deinem Mac.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",

@@ -6,6 +6,8 @@
 "Cancel" = "Cancel";
 "Close All" = "Close All";
 "Close All Windows" = "Close All Windows";
+"Close Layout" = "Close Layout";
+"Close every window from this layout in the current Space" = "Close every window from this layout in the current Space";
 "Close Every Window" = "Close Every Window";
 "Close Others" = "Close Others";
 "Close every standard window across every app and Space" = "Close every standard window across every app and Space";
@@ -16,6 +18,8 @@
 "Closing apps..." = "Closing apps...";
 "Closing other windows..." = "Closing other windows...";
 "Closing windows..." = "Closing windows...";
+"Closing %@..." = "Closing %@...";
+"Closed layout %@" = "Closed layout %@";
 "Current Space does not match a restored layout." = "Current Space does not match a restored layout.";
 "Capturing windows..." = "Capturing windows...";
 "Current desktop only" = "Current desktop only";
@@ -86,6 +90,7 @@
 "%d apps" = "%d apps";
 "Deleted %@" = "Deleted %@";
 "Unresolved apps: %@" = "Unresolved apps: %@";
+"Missing apps: %@" = "Missing apps: %@";
 "About" = "About";
 "About Settle" = "About Settle";
 "Built for macOS 14 and later" = "Built for macOS 14 and later";
@@ -133,3 +138,16 @@
 "%@ is no longer active" = "%@ is no longer active";
 "%@ is incomplete in this Space" = "%@ is incomplete in this Space";
 "Could not switch to the Space for %@" = "Could not switch to the Space for %@";
+"Automation permission was not granted." = "Automation permission was not granted.";
+"Browser Automation" = "Browser Automation";
+"Browser tabs could not be saved: %@" = "Browser tabs could not be saved: %@";
+"Requested when needed" = "Requested when needed";
+"Save browser tabs" = "Save browser tabs";
+"Saves normal Safari and Chrome tab URLs. macOS will ask for Automation permission." = "Saves normal Safari and Chrome tab URLs. macOS will ask for Automation permission.";
+"Settle stores normal tab URLs only; private tabs are not included." = "Settle stores normal tab URLs only; private tabs are not included.";
+"Update" = "Update";
+"Update Layout" = "Update Layout";
+"When you opt in to saving browser tabs, macOS asks for permission to control Safari or Chrome. Settle stores normal tab URLs only; private tabs are not included." = "When you opt in to saving browser tabs, macOS asks for permission to control Safari or Chrome. Settle stores normal tab URLs only; private tabs are not included.";
+"Browser Automation access is denied. Enable Settle for Safari or Chrome in System Settings." = "Browser Automation access is denied. Enable Settle for Safari or Chrome in System Settings.";
+"Managed by macOS" = "Managed by macOS";
+"Open Automation Settings" = "Open Automation Settings";

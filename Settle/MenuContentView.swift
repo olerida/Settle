@@ -635,7 +635,7 @@ private struct LayoutRow: View {
             .help(L10n.tr("Restore layout"))
 
             Button {
-                coordinator.overwrite(layout)
+                coordinator.prepareOverwrite(layout)
             } label: {
                 Image(systemName: "square.and.arrow.down.fill")
                     .font(.body)
@@ -647,6 +647,13 @@ private struct LayoutRow: View {
             .help(L10n.tr("Update layout with current windows"))
 
             Menu {
+                if isActive {
+                    Button(L10n.tr("Close Layout"), role: .destructive) {
+                        coordinator.closeActiveLayout(layout)
+                    }
+                    .help(L10n.tr("Close every window from this layout in the current Space"))
+                    Divider()
+                }
                 Button(L10n.tr(layout.pinned ? "Unpin" : "Pin")) {
                     coordinator.togglePinned(layout)
                 }
@@ -764,16 +771,32 @@ private struct SaveLayoutPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.tr("Save Current Layout"))
+            Text(coordinator.savePanelTitle)
                 .font(.headline)
             TextField(L10n.tr("Layout name"), text: $coordinator.saveName)
                 .textFieldStyle(.roundedBorder)
+            if coordinator.canSaveBrowserTabs {
+                Toggle(L10n.tr("Save browser tabs"), isOn: $coordinator.shouldSaveBrowserTabs)
+                Text(L10n.tr("Saves normal Safari and Chrome tab URLs. macOS will ask for Automation permission."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if let saveErrorMessage = coordinator.saveErrorMessage {
+                Text(saveErrorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                if coordinator.isBrowserAutomationDenied {
+                    Button(L10n.tr("Open Automation Settings")) {
+                        coordinator.openBrowserAutomationSettings()
+                    }
+                }
+            }
             HStack {
                 Spacer()
                 Button(L10n.tr("Cancel")) {
                     coordinator.cancelSave()
                 }
-                Button(L10n.tr("Save")) {
+                Button(coordinator.savePanelActionTitle) {
                     Task {
                         await coordinator.saveCurrentLayout(named: coordinator.saveName)
                     }

@@ -13,11 +13,15 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 ## Highlights
 
 - Native macOS app built with `SwiftUI` and `AppKit`
-- Save named layouts for the current desktop
+- Save named layouts for the current desktop, with app-based name suggestions
 - Keep newly saved or updated layouts active immediately in their current Space
 - Restore layouts without taking matching app windows away from other Spaces
 - Restore front-to-back layering consistently using native macOS application window groups
-- Best-effort creation of missing app windows in the current Space through the app's standard Command-N action
+- Smarter Safari and Chrome recovery: targets their New Window command before using the standard fallback for other apps
+- Optionally save and reopen normal Safari and Chrome tab URLs per layout (requires macOS Automation permission)
+- Clear feedback when an app saved in a layout is no longer installed
+- Keep the menu panel open when a layout cannot be fully restored
+- Close every window belonging to the active layout directly from its row menu
 - Native Settings for launch behavior, permissions, and future preferences
 - Optional launch at login using the macOS login item service
 - Optional automatic restore of an explicitly selected default layout at macOS login
@@ -110,7 +114,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.5.0`
+Current documented release: `v1.6.0`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 

@@ -99,10 +99,11 @@ struct WindowManager {
         let candidate: WindowCandidate
     }
 
-    func captureCurrentLayout(name: String) throws -> CapturedLayoutResult {
+    func captureCurrentLayout(name: String, includingBrowserTabs: Bool = false) throws -> CapturedLayoutResult {
         let capture = try captureVisibleDesktop()
+        let apps = includingBrowserTabs ? try captureBrowserTabs(in: capture.appSnapshots) : capture.appSnapshots
         return CapturedLayoutResult(
-            layout: Layout(name: name, apps: capture.appSnapshots),
+            layout: Layout(name: name, restoresBrowserTabs: includingBrowserTabs, apps: apps),
             previewWindows: capture.previewWindows
         )
     }
@@ -411,6 +412,33 @@ struct WindowManager {
         return affectedCount
     }
 
+    func closeLayoutWindowsInCurrentSpace(_ layout: Layout) async throws -> Int {
+        guard AXIsProcessTrusted() else {
+            throw WindowManagerError.accessibilityPermissionMissing
+        }
+
+        let capture = try captureVisibleDesktop()
+        guard LayoutVisibilityMatcher.bestCompleteMatch(
+            currentApps: capture.appSnapshots,
+            among: [layout]
+        )?.id == layout.id else {
+            return 0
+        }
+
+        let targets = navigationTargets(for: layout, visibleWindows: visibleAXWindows(from: capture))
+        let expectedWindowCount = layout.apps.reduce(0) { $0 + $1.windows.count }
+        guard targets.count == expectedWindowCount else { return 0 }
+
+        var closedCount = 0
+        for target in targets.reversed() {
+            if close(window: target.element, pid: target.processIdentifier) {
+                closedCount += 1
+                try? await Task.sleep(for: .milliseconds(35))
+            }
+        }
+        return closedCount
+    }
+
     func captureDesktopSnapshotPNGData(
         for layout: Layout,
         previewWindows: [PreviewWindowCapture],
@@ -592,6 +620,29 @@ struct WindowManager {
                     unmatchedWindows = currentSpaceAXWindows(for: runningApp)
                 }
 
+                if layout.restoresBrowserTabs,
+                   let browserWindows = appSnapshot.browserWindows,
+                   !browserWindows.isEmpty {
+                    let tabManager = BrowserTabManager()
+                    let existingWindowCount = min(unmatchedWindows.count, browserWindows.count)
+                    if existingWindowCount > 0 {
+                        try tabManager.restoreExistingWindows(
+                            Array(browserWindows.prefix(existingWindowCount)),
+                            bundleIdentifier: appSnapshot.bundleIdentifier
+                        )
+                        try await Task.sleep(for: .milliseconds(600))
+                    }
+                    let missingWindowCount = max(0, appSnapshot.windows.count - unmatchedWindows.count)
+                    if missingWindowCount > 0 {
+                        try tabManager.restoreWindows(
+                            Array(browserWindows.dropFirst(existingWindowCount).prefix(missingWindowCount)),
+                            bundleIdentifier: appSnapshot.bundleIdentifier
+                        )
+                        try await Task.sleep(for: .milliseconds(900))
+                        unmatchedWindows = currentSpaceAXWindows(for: runningApp)
+                    }
+                }
+
                 var currentSpaceWindowRequests = 0
                 var reopenAttempted = false
                 var usedWindows: [AXUIElement] = []
@@ -638,6 +689,8 @@ struct WindowManager {
                     matchedWindows.append((targetWindow, element))
                     report.restoredWindows.append(label(for: appSnapshot, window: targetWindow))
                 }
+            } catch AppLauncherError.appNotInstalled {
+                report.recordMissingApp(appSnapshot.appDisplayName)
             } catch {
                 report.failures.append(
                     RestoreFailure(appName: appSnapshot.appDisplayName, message: error.localizedDescription)
@@ -664,6 +717,16 @@ struct WindowManager {
             candidates: axWindows(for: app.processIdentifier),
             matchIndex: bestAXWindowMatchIndex
         )
+    }
+
+    private func captureBrowserTabs(in apps: [AppLayoutSnapshot]) throws -> [AppLayoutSnapshot] {
+        let tabManager = BrowserTabManager()
+        return try apps.map { app in
+            guard BrowserTabManager.supports(bundleIdentifier: app.bundleIdentifier) else { return app }
+            var capturedApp = app
+            capturedApp.browserWindows = try tabManager.captureWindows(bundleIdentifier: app.bundleIdentifier)
+            return capturedApp
+        }
     }
 
     static func consumeVisibleMatches<Record, Candidate>(

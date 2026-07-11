@@ -169,6 +169,19 @@ private struct PermissionsSettingsPane: View {
                 .disabled(screenRecordingPermissionManager.isGranted)
             }
 
+            Section(L10n.tr("Browser Automation")) {
+                LabeledContent(
+                    L10n.tr("Status"),
+                    value: L10n.tr("Managed by macOS")
+                )
+                Text(L10n.tr("When you opt in to saving browser tabs, macOS asks for permission to control Safari or Chrome. Settle stores normal tab URLs only; private tabs are not included."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(L10n.tr("Open Automation Settings")) {
+                    coordinator.openBrowserAutomationSettings()
+                }
+            }
+
             Section(L10n.tr("Notes")) {
                 Text(L10n.tr("Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows."))
                     .font(.caption)
