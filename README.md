@@ -31,6 +31,7 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list
+- Internal overlays remain visible through transient macOS focus changes
 - Contextual actions for restored layouts:
   - quit all apps
   - close non-layout windows
@@ -114,7 +115,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.6.0`
+Current documented release: `v1.6.1`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 

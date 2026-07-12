@@ -94,6 +94,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         panel.titlebarAppearsTransparent = true
         panel.isMovableByWindowBackground = false
         panel.level = .statusBar
+        panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         updatePanelSizeLimits(for: NSScreen.main)
 
@@ -183,13 +184,18 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         DispatchQueue.main.async { [weak self] in
             guard let self, self.panel.isVisible, !self.panel.isKeyWindow else { return }
 
-            if self.coordinator.restorePanelState == .restoring
-                || self.coordinator.restorePanelState == .completedWithIncidents {
+            let hasProtectedPresentation = self.coordinator.restorePanelState == .restoring
+                || self.coordinator.restorePanelState == .completedWithIncidents
+                || self.coordinator.isSnapshotPreviewPresented
+                || self.coordinator.isOverlayPresented
+
+            if !MenuBarPanelFocusPolicy.shouldClosePanel(
+                hasProtectedPresentation: hasProtectedPresentation
+            ) {
+                if NSApp.isActive, self.coordinator.isOverlayPresented {
+                    self.panel.makeKeyAndOrderFront(nil)
+                }
                 return
-            } else if self.coordinator.isSnapshotPreviewPresented, NSApp.isActive {
-                return
-            } else if self.coordinator.isOverlayPresented, NSApp.isActive {
-                self.panel.makeKeyAndOrderFront(nil)
             } else {
                 self.closePanel()
             }
@@ -297,6 +303,12 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
             NSEvent.removeMonitor(eventMonitor)
             self.eventMonitor = nil
         }
+    }
+}
+
+enum MenuBarPanelFocusPolicy {
+    static func shouldClosePanel(hasProtectedPresentation: Bool) -> Bool {
+        !hasProtectedPresentation
     }
 }
 
