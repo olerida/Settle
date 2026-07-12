@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.1
+
+- Fixed transient focus changes intermittently hiding the Settle panel while opening Save Layout and other internal overlays.
+
 ## v1.6.0
 
 - Added Safari and Chrome-specific missing-window recovery that targets their actual New Window menu action before using the generic fallback.

@@ -4,6 +4,15 @@ import XCTest
 @testable import Settle
 
 final class SettleTests: XCTestCase {
+    func testPanelFocusPolicyKeepsProtectedPresentationsVisible() {
+        XCTAssertFalse(
+            MenuBarPanelFocusPolicy.shouldClosePanel(hasProtectedPresentation: true)
+        )
+        XCTAssertTrue(
+            MenuBarPanelFocusPolicy.shouldClosePanel(hasProtectedPresentation: false)
+        )
+    }
+
     @MainActor
     func testSuggestedLayoutNameUsesVisibleAppNames() {
         XCTAssertEqual(
