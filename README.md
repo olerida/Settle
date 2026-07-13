@@ -115,7 +115,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.6.1`
+Current documented release: `v1.6.2`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 

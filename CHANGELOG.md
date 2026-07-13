@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.2
+
+- Fixed the first internal overlay interaction hiding the Settle panel after a successful layout restore.
+
 ## v1.6.1
 
 - Fixed transient focus changes intermittently hiding the Settle panel while opening Save Layout and other internal overlays.

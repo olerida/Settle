@@ -158,13 +158,13 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
         }
 
         panel.setFrame(panelFrame, display: true)
+        NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
         coordinator.refreshActiveLayoutForCurrentSpace()
         DispatchQueue.main.async { [weak panel] in
             guard let panel else { return }
             panel.makeFirstResponder(panel.contentView)
         }
-        NSApp.activate(ignoringOtherApps: true)
         installEventMonitor()
     }
 
@@ -292,8 +292,17 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
     private func installEventMonitor() {
         removeEventMonitor()
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            let clickLocation = NSEvent.mouseLocation
             Task { @MainActor in
-                self?.closePanel()
+                guard let self else { return }
+                guard MenuBarPanelFocusPolicy.shouldClosePanelForGlobalClick(
+                    panelFrame: self.panel.frame,
+                    isPanelVisible: self.panel.isVisible,
+                    clickLocation: clickLocation
+                ) else {
+                    return
+                }
+                self.closePanel()
             }
         }
     }
@@ -309,6 +318,14 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
 enum MenuBarPanelFocusPolicy {
     static func shouldClosePanel(hasProtectedPresentation: Bool) -> Bool {
         !hasProtectedPresentation
+    }
+
+    static func shouldClosePanelForGlobalClick(
+        panelFrame: CGRect,
+        isPanelVisible: Bool,
+        clickLocation: CGPoint
+    ) -> Bool {
+        isPanelVisible && !panelFrame.contains(clickLocation)
     }
 }
 

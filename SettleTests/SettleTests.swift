@@ -13,6 +13,32 @@ final class SettleTests: XCTestCase {
         )
     }
 
+    func testGlobalClickPolicyIgnoresClicksInsideVisiblePanel() {
+        let panelFrame = CGRect(x: 100, y: 200, width: 430, height: 620)
+
+        XCTAssertFalse(
+            MenuBarPanelFocusPolicy.shouldClosePanelForGlobalClick(
+                panelFrame: panelFrame,
+                isPanelVisible: true,
+                clickLocation: CGPoint(x: 150, y: 250)
+            )
+        )
+        XCTAssertTrue(
+            MenuBarPanelFocusPolicy.shouldClosePanelForGlobalClick(
+                panelFrame: panelFrame,
+                isPanelVisible: true,
+                clickLocation: CGPoint(x: 80, y: 250)
+            )
+        )
+        XCTAssertFalse(
+            MenuBarPanelFocusPolicy.shouldClosePanelForGlobalClick(
+                panelFrame: panelFrame,
+                isPanelVisible: false,
+                clickLocation: CGPoint(x: 80, y: 250)
+            )
+        )
+    }
+
     @MainActor
     func testSuggestedLayoutNameUsesVisibleAppNames() {
         XCTAssertEqual(
