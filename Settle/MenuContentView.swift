@@ -773,8 +773,10 @@ private struct SaveLayoutPanel: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(coordinator.savePanelTitle)
                 .font(.headline)
-            TextField(L10n.tr("Layout name"), text: $coordinator.saveName)
-                .textFieldStyle(.roundedBorder)
+            if !coordinator.isUpdatingLayout {
+                TextField(L10n.tr("Layout name"), text: $coordinator.saveName)
+                    .textFieldStyle(.roundedBorder)
+            }
             if coordinator.canSaveBrowserTabs {
                 Toggle(L10n.tr("Save browser tabs"), isOn: $coordinator.shouldSaveBrowserTabs)
                 Text(L10n.tr("Saves normal Safari and Chrome tab URLs. macOS will ask for Automation permission."))

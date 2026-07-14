@@ -109,6 +109,10 @@ final class LayoutCoordinator: ObservableObject {
         previewedLayoutID != nil
     }
 
+    var isUpdatingLayout: Bool {
+        layoutBeingUpdated != nil
+    }
+
     var activeRestoredLayout: Layout? {
         guard let lastDetectedLayoutID else { return nil }
         return store.layouts.first(where: { $0.id == lastDetectedLayoutID })
@@ -273,7 +277,8 @@ final class LayoutCoordinator: ObservableObject {
         do {
             saveErrorMessage = nil
             isBrowserAutomationDenied = false
-            let normalized = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let normalized = layoutBeingUpdated?.name
+                ?? name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !normalized.isEmpty else {
                 statusMessage = L10n.tr("Name required")
                 return
@@ -307,14 +312,21 @@ final class LayoutCoordinator: ObservableObject {
         do {
             saveErrorMessage = nil
             isBrowserAutomationDenied = false
+            layoutBeingUpdated = layout
             canSaveBrowserTabs = try windowManager.captureVisibleAppSnapshots().contains {
                 BrowserTabManager.supports(bundleIdentifier: $0.bundleIdentifier)
             }
-            shouldSaveBrowserTabs = layout.restoresBrowserTabs && canSaveBrowserTabs
+            shouldSaveBrowserTabs = layout.restoresBrowserTabs
             saveName = layout.name
-            layoutBeingUpdated = layout
-            isSaveSheetPresented = true
+            if canSaveBrowserTabs {
+                isSaveSheetPresented = true
+            } else {
+                Task {
+                    await saveCurrentLayout(named: layout.name)
+                }
+            }
         } catch {
+            layoutBeingUpdated = nil
             statusMessage = error.localizedDescription
         }
     }
@@ -331,7 +343,7 @@ final class LayoutCoordinator: ObservableObject {
         guard let existing = layoutBeingUpdated else { return captured }
         return Layout(
             id: existing.id,
-            name: name,
+            name: existing.name,
             createdAt: existing.createdAt,
             updatedAt: .now,
             pinned: existing.pinned,
