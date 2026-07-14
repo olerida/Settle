@@ -25,6 +25,7 @@ final class LayoutCoordinator: ObservableObject {
     @Published var previewedLayoutID: UUID?
     @Published var latestReport: RestoreReport?
     @Published private(set) var restorePanelState: RestorePanelState = .idle
+    @Published private(set) var layoutSwitcherShortcutError: String?
 
     let permissionManager: AccessibilityPermissionManager
     let store: LayoutStore
@@ -33,9 +34,13 @@ final class LayoutCoordinator: ObservableObject {
     private let windowManager: WindowManager
     private let appLauncher: AppLauncher
     private let hudController: LayoutHUDController
+    private let layoutSwitcherHotKeyManager: LayoutSwitcherHotKeyManager
+    private let layoutSwitcherController: LayoutSwitcherController
     private var cancellables = Set<AnyCancellable>()
     private var restoredLayoutIDs = Set<UUID>()
     private var layoutNavigationMemory = LayoutNavigationMemory<WindowManager.LayoutNavigationTarget>()
+    private var recentlyActiveLayoutIDs: [UUID] = []
+    private var selectedSwitcherLayoutID: UUID?
     private var lastDetectedLayoutID: UUID? {
         didSet {
             guard lastDetectedLayoutID != oldValue else { return }
@@ -54,7 +59,9 @@ final class LayoutCoordinator: ObservableObject {
         settings: AppSettings = AppSettings(),
         windowManager: WindowManager = WindowManager(),
         appLauncher: AppLauncher = AppLauncher(),
-        hudController: LayoutHUDController = LayoutHUDController()
+        hudController: LayoutHUDController = LayoutHUDController(),
+        layoutSwitcherHotKeyManager: LayoutSwitcherHotKeyManager = LayoutSwitcherHotKeyManager(),
+        layoutSwitcherController: LayoutSwitcherController = LayoutSwitcherController()
     ) {
         self.permissionManager = permissionManager
         self.store = store
@@ -62,6 +69,8 @@ final class LayoutCoordinator: ObservableObject {
         self.windowManager = windowManager
         self.appLauncher = appLauncher
         self.hudController = hudController
+        self.layoutSwitcherHotKeyManager = layoutSwitcherHotKeyManager
+        self.layoutSwitcherController = layoutSwitcherController
         self.saveName = Self.defaultLayoutName()
         settings.reconcileDefaultLayout(availableLayoutIDs: Set(store.layouts.map(\.id)))
 
@@ -78,6 +87,18 @@ final class LayoutCoordinator: ObservableObject {
                 self?.scheduleActiveSpaceDetection()
             }
             .store(in: &cancellables)
+
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+            do {
+                try layoutSwitcherHotKeyManager.start(
+                    shortcut: settings.layoutSwitcherShortcut
+                ) { [weak self] event in
+                    self?.handleLayoutSwitcherHotKeyEvent(event)
+                }
+            } catch {
+                layoutSwitcherShortcutError = L10n.tr("The shortcut is already in use by Settle or another app.")
+            }
+        }
     }
 
     var layouts: [Layout] {
@@ -139,6 +160,40 @@ final class LayoutCoordinator: ObservableObject {
 
     func refreshActiveLayoutForCurrentSpace() {
         scheduleActiveSpaceDetection()
+    }
+
+    func setLayoutSwitcherShortcut(_ shortcut: LayoutSwitcherShortcut?) {
+        let previousShortcut = settings.layoutSwitcherShortcut
+        do {
+            try layoutSwitcherHotKeyManager.resume()
+            try layoutSwitcherHotKeyManager.apply(shortcut)
+            settings.setLayoutSwitcherShortcut(shortcut)
+            layoutSwitcherShortcutError = nil
+        } catch {
+            try? layoutSwitcherHotKeyManager.apply(previousShortcut)
+            layoutSwitcherShortcutError = L10n.tr("The shortcut is already in use by Settle or another app.")
+        }
+    }
+
+    func resetLayoutSwitcherShortcut() {
+        setLayoutSwitcherShortcut(.defaultShortcut)
+    }
+
+    func reportInvalidLayoutSwitcherShortcut() {
+        layoutSwitcherShortcutError = L10n.tr("Use exactly one modifier and one key. Shift is reserved for moving backward.")
+    }
+
+    func setLayoutSwitcherShortcutRecording(_ isRecording: Bool) {
+        if isRecording {
+            layoutSwitcherShortcutError = nil
+            layoutSwitcherHotKeyManager.suspend()
+        } else {
+            do {
+                try layoutSwitcherHotKeyManager.resume()
+            } catch {
+                layoutSwitcherShortcutError = L10n.tr("The shortcut is already in use by Settle or another app.")
+            }
+        }
     }
 
     func restoreDefaultLayoutAfterLogin() {
@@ -536,6 +591,109 @@ final class LayoutCoordinator: ObservableObject {
         }
     }
 
+    private func handleLayoutSwitcherHotKeyEvent(_ event: LayoutSwitcherHotKeyManager.Event) {
+        switch event {
+        case .cycle(let direction):
+            cycleActiveLayouts(direction: direction)
+        case .activate:
+            activateSelectedSwitcherLayout()
+        case .cancel:
+            dismissLayoutSwitcher()
+        }
+    }
+
+    private func cycleActiveLayouts(direction: LayoutSwitcherDirection) {
+        let layouts = activeLayoutsInRecencyOrder
+        guard !layouts.isEmpty else {
+            statusMessage = L10n.tr("No active layouts")
+            hudController.show(layoutName: L10n.tr("No active layouts"))
+            layoutSwitcherHotKeyManager.cancelCycle()
+            return
+        }
+
+        if layouts.count == 1, layouts[0].id == lastDetectedLayoutID {
+            statusMessage = L10n.tr("No other active layouts")
+            hudController.show(layoutName: L10n.tr("No other active layouts"))
+            layoutSwitcherHotKeyManager.cancelCycle()
+            return
+        }
+
+        let currentID = layoutSwitcherController.isVisible
+            ? selectedSwitcherLayoutID
+            : lastDetectedLayoutID
+        let currentIndex = currentID.flatMap { id in layouts.firstIndex(where: { $0.id == id }) }
+        guard let nextIndex = LayoutSwitcherSelection.nextIndex(
+            from: currentIndex,
+            count: layouts.count,
+            direction: direction
+        ) else {
+            layoutSwitcherHotKeyManager.cancelCycle()
+            return
+        }
+
+        let selectedLayout = layouts[nextIndex]
+        selectedSwitcherLayoutID = selectedLayout.id
+        layoutSwitcherController.show(
+            items: layouts.map(layoutSwitcherItem),
+            selectedID: selectedLayout.id,
+            shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut
+        )
+    }
+
+    private func activateSelectedSwitcherLayout() {
+        let layouts = activeLayoutsInRecencyOrder
+        let selectedLayout = selectedSwitcherLayoutID
+            .flatMap { selectedID in layouts.first(where: { $0.id == selectedID }) }
+            ?? layouts.first
+        dismissLayoutSwitcher()
+        guard let selectedLayout else { return }
+        navigateToRememberedLayout(selectedLayout)
+    }
+
+    private func dismissLayoutSwitcher() {
+        selectedSwitcherLayoutID = nil
+        layoutSwitcherController.dismiss()
+    }
+
+    private var activeLayoutsInRecencyOrder: [Layout] {
+        var orderedIDs = recentlyActiveLayoutIDs.filter {
+            layoutNavigationMemory.contains(layoutID: $0)
+        }
+        for layout in store.layouts where
+            layoutNavigationMemory.contains(layoutID: layout.id)
+                && !orderedIDs.contains(layout.id)
+        {
+            orderedIDs.append(layout.id)
+        }
+        return orderedIDs.compactMap { id in store.layouts.first(where: { $0.id == id }) }
+    }
+
+    private func layoutSwitcherItem(for layout: Layout) -> LayoutSwitcherItem {
+        LayoutSwitcherItem(
+            id: layout.id,
+            name: layout.name,
+            snapshotURL: store.snapshotURL(for: layout)
+        )
+    }
+
+    private func refreshVisibleLayoutSwitcher() {
+        guard layoutSwitcherController.isVisible else { return }
+        let layouts = activeLayoutsInRecencyOrder
+        guard !layouts.isEmpty else {
+            layoutSwitcherHotKeyManager.cancelCycle()
+            return
+        }
+        let selectedID = selectedSwitcherLayoutID
+            .flatMap { id in layouts.contains(where: { $0.id == id }) ? id : nil }
+            ?? layouts[0].id
+        selectedSwitcherLayoutID = selectedID
+        layoutSwitcherController.show(
+            items: layouts.map(layoutSwitcherItem),
+            selectedID: selectedID,
+            shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut
+        )
+    }
+
     private func scheduleActiveSpaceDetection() {
         activeSpaceTask?.cancel()
         activeSpaceTask = Task { [weak self] in
@@ -590,6 +748,10 @@ final class LayoutCoordinator: ObservableObject {
     ) {
         objectWillChange.send()
         layoutNavigationMemory.remember(layoutID: layoutID, targets: targets)
+        guard layoutNavigationMemory.contains(layoutID: layoutID) else { return }
+        recentlyActiveLayoutIDs.removeAll { $0 == layoutID }
+        recentlyActiveLayoutIDs.insert(layoutID, at: 0)
+        refreshVisibleLayoutSwitcher()
     }
 
     private func registerCapturedLayoutAsActive(_ layout: Layout) {
@@ -610,6 +772,8 @@ final class LayoutCoordinator: ObservableObject {
         guard layoutNavigationMemory.contains(layoutID: layoutID) else { return }
         objectWillChange.send()
         layoutNavigationMemory.forget(layoutID: layoutID)
+        recentlyActiveLayoutIDs.removeAll { $0 == layoutID }
+        refreshVisibleLayoutSwitcher()
     }
 
     private func forgetRememberedTargets(
@@ -619,12 +783,18 @@ final class LayoutCoordinator: ObservableObject {
         guard layoutNavigationMemory.contains(layoutID: layoutID, targetGroup: targets) else { return }
         objectWillChange.send()
         layoutNavigationMemory.forget(layoutID: layoutID, targetGroup: targets)
+        if !layoutNavigationMemory.contains(layoutID: layoutID) {
+            recentlyActiveLayoutIDs.removeAll { $0 == layoutID }
+        }
+        refreshVisibleLayoutSwitcher()
     }
 
     private func clearRememberedLayouts() {
         guard !layoutNavigationMemory.rememberedLayoutIDs.isEmpty else { return }
         objectWillChange.send()
         layoutNavigationMemory.removeAll()
+        recentlyActiveLayoutIDs.removeAll()
+        layoutSwitcherHotKeyManager.cancelCycle()
     }
 
     private func presentHUD(for layout: Layout) {
