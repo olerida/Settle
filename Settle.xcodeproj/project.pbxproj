@@ -32,6 +32,7 @@
 		A00000000000000000000116 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000020A /* Assets.xcassets */; };
 		A00000000000000000000117 /* SettleLoginHelper.app in Embed Login Items */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021C /* SettleLoginHelper.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A00000000000000000000118 /* LayoutNavigationMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021D /* LayoutNavigationMemory.swift */; };
+		A00000000000000000000119 /* DisplayPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000021E /* DisplayPlacement.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		A0000000000000000000021B /* SettleLoginHelperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettleLoginHelperApp.swift; sourceTree = "<group>"; };
 		A0000000000000000000021C /* SettleLoginHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SettleLoginHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0000000000000000000021D /* LayoutNavigationMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutNavigationMemory.swift; sourceTree = "<group>"; };
+		A0000000000000000000021E /* DisplayPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayPlacement.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +155,7 @@
 				A00000000000000000000219 /* ScreenRecordingPermissionManager.swift */,
 				A0000000000000000000021A /* LoginRestoreSignal.swift */,
 				A0000000000000000000021D /* LayoutNavigationMemory.swift */,
+				A0000000000000000000021E /* DisplayPlacement.swift */,
 				A0000000000000000000020A /* Assets.xcassets */,
 				A00000000000000000000212 /* Localizable.strings */,
 			);
@@ -332,6 +335,7 @@
 				A00000000000000000000112 /* ScreenRecordingPermissionManager.swift in Sources */,
 				A00000000000000000000113 /* LoginRestoreSignal.swift in Sources */,
 				A00000000000000000000118 /* LayoutNavigationMemory.swift in Sources */,
+				A00000000000000000000119 /* DisplayPlacement.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,7 +396,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = Settle/Settle.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -407,7 +411,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -425,7 +429,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = Settle/Settle.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -439,7 +443,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -488,7 +492,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -496,7 +500,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Settle;
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle.LoginHelper;
 				PRODUCT_NAME = SettleLoginHelper;
 				SDKROOT = macosx;
@@ -511,7 +515,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = V8L35RAQCL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -519,7 +523,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Settle;
 				INFOPLIST_KEY_LSUIElement = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.6.2;
+				MARKETING_VERSION = 1.7.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.olerida.Settle.LoginHelper;
 				PRODUCT_NAME = SettleLoginHelper;
 				SDKROOT = macosx;

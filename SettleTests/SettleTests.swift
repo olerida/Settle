@@ -4,6 +4,205 @@ import XCTest
 @testable import Settle
 
 final class SettleTests: XCTestCase {
+    func testDisplayCoordinateConversionUsesAXTopLeftOrigin() {
+        let primary = CGRect(x: 0, y: 0, width: 1440, height: 900)
+
+        XCTAssertEqual(
+            DisplayPlacement.appKitRectToAX(
+                CGRect(x: -1920, y: 0, width: 1920, height: 1080),
+                primaryFrame: primary
+            ),
+            CGRect(x: -1920, y: -180, width: 1920, height: 1080)
+        )
+        XCTAssertEqual(
+            DisplayPlacement.appKitRectToAX(
+                CGRect(x: 0, y: 900, width: 1920, height: 1080),
+                primaryFrame: primary
+            ),
+            CGRect(x: 0, y: -1080, width: 1920, height: 1080)
+        )
+    }
+
+    func testCaptureChoosesDisplayWithLargestIntersection() {
+        let main = display(uuid: "main", name: "Main", frame: CGRect(x: 0, y: 0, width: 1000, height: 800), isMain: true)
+        let right = display(uuid: "right", name: "Right", frame: CGRect(x: 1000, y: 0, width: 1200, height: 900))
+
+        let selected = DisplayPlacement.displayContainingLargestArea(
+            of: CGRect(x: 900, y: 100, width: 400, height: 500),
+            displays: [main, right]
+        )
+
+        XCTAssertEqual(selected, right)
+    }
+
+    func testDisplayMatchingUsesUUIDBeforeGeometry() {
+        let captured = display(uuid: "display-b", name: "Studio Display", frame: CGRect(x: 1000, y: 0, width: 1000, height: 800))
+        let moved = display(uuid: "display-b", name: "Studio Display", frame: CGRect(x: -1600, y: -200, width: 1600, height: 1000))
+        let other = display(uuid: "display-a", name: "Studio Display", frame: CGRect(x: 0, y: 0, width: 1200, height: 900), isMain: true)
+
+        let matches = DisplayPlacement.matchDisplays(captured: [captured], current: [other, moved])
+
+        XCTAssertEqual(matches[captured], moved)
+    }
+
+    func testDisplayMatchingUsesHardwareIdentityWhenUUIDChanges() {
+        let captured = display(
+            uuid: "old",
+            name: "External",
+            frame: CGRect(x: 1000, y: 0, width: 1000, height: 800),
+            hardware: (10, 20, 30)
+        )
+        let current = display(
+            uuid: "new",
+            name: "Renamed",
+            frame: CGRect(x: -1200, y: 0, width: 1200, height: 900),
+            hardware: (10, 20, 30)
+        )
+
+        XCTAssertEqual(
+            DisplayPlacement.matchDisplays(captured: [captured], current: [current])[captured],
+            current
+        )
+    }
+
+    func testAmbiguousDisplayNamesDoNotReuseOneDisplay() {
+        let capturedA = display(uuid: nil, name: "Display", frame: CGRect(x: 0, y: 0, width: 1000, height: 800), isMain: true)
+        let capturedB = display(uuid: nil, name: "Display", frame: CGRect(x: 1000, y: 0, width: 1000, height: 800))
+        let currentA = display(uuid: nil, name: "Display", frame: CGRect(x: 0, y: 0, width: 1200, height: 900), isMain: true)
+        let currentB = display(uuid: nil, name: "Display", frame: CGRect(x: 1200, y: 0, width: 1200, height: 900))
+
+        let matches = DisplayPlacement.matchDisplays(
+            captured: [capturedA, capturedB],
+            current: [currentA, currentB]
+        )
+
+        XCTAssertTrue(matches.isEmpty)
+    }
+
+    func testNormalizedPlacementTracksMovedAndResizedDisplay() throws {
+        let captured = display(uuid: "external", name: "External", frame: CGRect(x: 1000, y: 0, width: 1000, height: 800))
+        let current = display(uuid: "external", name: "External", frame: CGRect(x: -1200, y: -100, width: 1200, height: 900))
+        let normalized = try XCTUnwrap(
+            DisplayPlacement.normalizedFrame(
+                CGRect(x: 1100, y: 80, width: 500, height: 400),
+                in: captured.visibleFrame.cgRect
+            )
+        )
+        let snapshot = window(
+            frame: CGRect(x: 1100, y: 80, width: 500, height: 400),
+            display: captured,
+            normalizedFrame: normalized
+        )
+
+        let placement = try XCTUnwrap(
+            DisplayPlacement.placement(
+                for: snapshot,
+                currentDisplays: [current],
+                displayMatches: [captured: current]
+            )
+        )
+
+        XCTAssertEqual(placement.frame, CGRect(x: -1080, y: -10, width: 600, height: 450))
+        XCTAssertEqual(placement.display, current)
+    }
+
+    func testMissingDisplayFallsBackToMainUsingNormalizedGeometry() throws {
+        let missing = display(uuid: "missing", name: "Missing", frame: CGRect(x: 1000, y: 0, width: 1000, height: 800))
+        let main = display(uuid: "main", name: "Main", frame: CGRect(x: 0, y: 0, width: 1440, height: 900), isMain: true)
+        let snapshot = window(
+            frame: CGRect(x: 1250, y: 200, width: 500, height: 400),
+            display: missing,
+            normalizedFrame: WindowFrame(rect: CGRect(x: 0.25, y: 0.25, width: 0.5, height: 0.5))
+        )
+
+        let placement = try XCTUnwrap(
+            DisplayPlacement.placement(
+                for: snapshot,
+                currentDisplays: [main],
+                displayMatches: [:]
+            )
+        )
+
+        XCTAssertEqual(placement.frame, CGRect(x: 360, y: 225, width: 720, height: 450))
+        XCTAssertEqual(placement.display, main)
+    }
+
+    func testClampFitsOversizedWindowInsideVisibleFrame() {
+        XCTAssertEqual(
+            DisplayPlacement.clamp(
+                CGRect(x: -2000, y: -200, width: 2000, height: 1200),
+                to: CGRect(x: -1200, y: 0, width: 1200, height: 900)
+            ),
+            CGRect(x: -1200, y: 0, width: 1200, height: 900)
+        )
+    }
+
+    func testLegacyAbsoluteFrameUsesIntersectingDisplayAndClamps() throws {
+        let main = display(uuid: "main", name: "Main", frame: CGRect(x: 0, y: 0, width: 1000, height: 800), isMain: true)
+        let left = display(uuid: "left", name: "Left", frame: CGRect(x: -1200, y: 0, width: 1200, height: 900))
+        let legacy = window(frame: CGRect(x: -1300, y: 100, width: 500, height: 400))
+
+        let placement = try XCTUnwrap(
+            DisplayPlacement.placement(
+                for: legacy,
+                currentDisplays: [main, left],
+                displayMatches: [:]
+            )
+        )
+
+        XCTAssertEqual(placement.display, left)
+        XCTAssertEqual(placement.frame, CGRect(x: -1200, y: 100, width: 500, height: 400))
+    }
+
+    func testPlacementValidationRequiresReachableTitleBar() {
+        let display = display(uuid: "main", name: "Main", frame: CGRect(x: 0, y: 0, width: 1000, height: 800), isMain: true)
+
+        XCTAssertTrue(
+            DisplayPlacement.isUsable(CGRect(x: 100, y: 100, width: 500, height: 400), on: display)
+        )
+        XCTAssertFalse(
+            DisplayPlacement.isUsable(CGRect(x: 100, y: -20, width: 500, height: 400), on: display)
+        )
+        XCTAssertFalse(
+            DisplayPlacement.isUsable(CGRect(x: -450, y: 100, width: 500, height: 400), on: display)
+        )
+    }
+
+    private func display(
+        uuid: String?,
+        name: String,
+        frame: CGRect,
+        isMain: Bool = false,
+        hardware: (UInt32, UInt32, UInt32)? = nil
+    ) -> DisplaySnapshot {
+        DisplaySnapshot(
+            uuid: uuid,
+            vendorID: hardware?.0,
+            modelID: hardware?.1,
+            serialNumber: hardware?.2,
+            localizedName: name,
+            visibleFrame: WindowFrame(rect: frame),
+            isMain: isMain
+        )
+    }
+
+    private func window(
+        frame: CGRect,
+        display: DisplaySnapshot? = nil,
+        normalizedFrame: WindowFrame? = nil
+    ) -> WindowSnapshot {
+        WindowSnapshot(
+            windowTitleSnapshot: "Window",
+            frame: WindowFrame(rect: frame),
+            isMinimized: false,
+            isMainWindowCandidate: true,
+            orderIndex: 0,
+            stackingIndex: 0,
+            display: display,
+            normalizedFrame: normalizedFrame
+        )
+    }
+
     func testPanelFocusPolicyKeepsProtectedPresentationsVisible() {
         XCTAssertFalse(
             MenuBarPanelFocusPolicy.shouldClosePanel(hasProtectedPresentation: true)
@@ -375,7 +574,64 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(WindowMatcher.bestMatch(target: target, candidates: candidates), 1)
     }
 
+    func testWindowMatcherUsesResolvedFrameAfterDisplayRearrangement() {
+        let target = WindowSnapshot(
+            windowTitleSnapshot: "",
+            frame: WindowFrame(rect: CGRect(x: 5000, y: 100, width: 800, height: 600)),
+            isMinimized: false,
+            isMainWindowCandidate: true,
+            orderIndex: 0,
+            stackingIndex: 0
+        )
+        let resolvedFrame = CGRect(x: -1200, y: 100, width: 800, height: 600)
+        let candidates = [
+            WindowCandidate(
+                title: "",
+                frame: resolvedFrame,
+                orderIndex: 0,
+                isMainWindowCandidate: true
+            )
+        ]
+
+        XCTAssertEqual(
+            WindowMatcher.bestMatch(
+                target: target,
+                candidates: candidates,
+                referenceFrame: resolvedFrame
+            ),
+            0
+        )
+    }
+
+    func testWindowMatcherAcceptsUniqueExactTitleDespiteObsoleteGeometry() {
+        let target = WindowSnapshot(
+            windowTitleSnapshot: "Project",
+            frame: WindowFrame(rect: CGRect(x: 5000, y: 100, width: 800, height: 600)),
+            isMinimized: false,
+            isMainWindowCandidate: true,
+            orderIndex: 0,
+            stackingIndex: 0
+        )
+        let candidates = [
+            WindowCandidate(
+                title: "Project",
+                frame: CGRect(x: -1200, y: 100, width: 800, height: 600),
+                orderIndex: 0,
+                isMainWindowCandidate: true
+            )
+        ]
+
+        XCTAssertEqual(WindowMatcher.bestMatch(target: target, candidates: candidates), 0)
+    }
+
     func testLayoutDocumentRoundTrip() throws {
+        let capturedDisplay = display(
+            uuid: "display-uuid",
+            name: "Studio Display",
+            frame: CGRect(x: 0, y: 25, width: 1440, height: 875),
+            isMain: true,
+            hardware: (1, 2, 3)
+        )
         let layout = Layout(name: "Work", apps: [
             AppLayoutSnapshot(bundleIdentifier: "com.apple.TextEdit", appDisplayName: "TextEdit", windows: [
                 WindowSnapshot(
@@ -384,7 +640,12 @@ final class SettleTests: XCTestCase {
                     isMinimized: false,
                     isMainWindowCandidate: true,
                     orderIndex: 0,
-                    stackingIndex: 0
+                    stackingIndex: 0,
+                    screenHint: capturedDisplay.localizedName,
+                    display: capturedDisplay,
+                    normalizedFrame: WindowFrame(
+                        rect: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4)
+                    )
                 )
             ])
         ])
@@ -401,6 +662,11 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(decoded.layouts.first?.name, "Work")
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.windowTitleSnapshot, "Notes")
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 0)
+        XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.display, capturedDisplay)
+        XCTAssertEqual(
+            decoded.layouts.first?.apps.first?.windows.first?.normalizedFrame,
+            WindowFrame(rect: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4))
+        )
         XCTAssertFalse(decoded.layouts.first?.restoresBrowserTabs ?? true)
     }
 
@@ -445,6 +711,8 @@ final class SettleTests: XCTestCase {
         let decoded = try decoder.decode(LayoutDocument.self, from: json)
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.orderIndex, 3)
         XCTAssertEqual(decoded.layouts.first?.apps.first?.windows.first?.stackingIndex, 3)
+        XCTAssertNil(decoded.layouts.first?.apps.first?.windows.first?.display)
+        XCTAssertNil(decoded.layouts.first?.apps.first?.windows.first?.normalizedFrame)
         XCTAssertFalse(decoded.layouts.first?.restoresBrowserTabs ?? true)
     }
 
