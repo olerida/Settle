@@ -1047,6 +1047,52 @@ final class SettleTests: XCTestCase {
         XCTAssertTrue(memory.rememberedLayoutIDs.isEmpty)
     }
 
+    func testLayoutSwitcherSelectionCyclesAndWraps() {
+        XCTAssertEqual(
+            LayoutSwitcherSelection.nextIndex(from: 0, count: 3, direction: .forward),
+            1
+        )
+        XCTAssertEqual(
+            LayoutSwitcherSelection.nextIndex(from: 2, count: 3, direction: .forward),
+            0
+        )
+        XCTAssertEqual(
+            LayoutSwitcherSelection.nextIndex(from: 0, count: 3, direction: .backward),
+            2
+        )
+        XCTAssertEqual(
+            LayoutSwitcherSelection.nextIndex(from: nil, count: 3, direction: .backward),
+            2
+        )
+        XCTAssertNil(
+            LayoutSwitcherSelection.nextIndex(from: nil, count: 0, direction: .forward)
+        )
+    }
+
+    func testDefaultLayoutSwitcherShortcutUsesOptionTab() {
+        XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.modifier, .option)
+        XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.keyCode, 48)
+        XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.displayString, "⌥Tab")
+    }
+
+    @MainActor
+    func testLayoutSwitcherHotKeyRejectsDuplicateGlobalRegistration() throws {
+        let shortcut = LayoutSwitcherShortcut(
+            modifier: .control,
+            keyCode: 80,
+            keyLabel: "F19"
+        )
+        let firstManager = LayoutSwitcherHotKeyManager()
+        let secondManager = LayoutSwitcherHotKeyManager()
+        defer {
+            firstManager.stop()
+            secondManager.stop()
+        }
+
+        try firstManager.start(shortcut: shortcut) { _ in }
+        XCTAssertThrowsError(try secondManager.start(shortcut: shortcut) { _ in })
+    }
+
     func testUnmatchedVisibleWindowIndicesDetectExtraAppWindows() {
         let layout = Layout(
             name: "Work",
@@ -1169,6 +1215,41 @@ final class SettleTests: XCTestCase {
             loginItemService: FakeLoginItemService(state: .notRegistered)
         )
         XCTAssertEqual(reloadedSettings.defaultLayoutID, layoutID)
+    }
+
+    @MainActor
+    func testAppSettingsPersistsAndDisablesLayoutSwitcherShortcut() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let customShortcut = LayoutSwitcherShortcut(
+            modifier: .control,
+            keyCode: 49,
+            keyLabel: "Space"
+        )
+
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(settings.layoutSwitcherShortcut, .defaultShortcut)
+
+        settings.setLayoutSwitcherShortcut(customShortcut)
+        let reloadedCustomSettings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(reloadedCustomSettings.layoutSwitcherShortcut, customShortcut)
+
+        reloadedCustomSettings.setLayoutSwitcherShortcut(nil)
+        let reloadedDisabledSettings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertNil(reloadedDisabledSettings.layoutSwitcherShortcut)
+
+        reloadedDisabledSettings.resetLayoutSwitcherShortcut()
+        XCTAssertEqual(reloadedDisabledSettings.layoutSwitcherShortcut, .defaultShortcut)
     }
 
     @MainActor

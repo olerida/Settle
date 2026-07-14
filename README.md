@@ -30,6 +30,7 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Active layout highlighting that follows the current Space
 - Session-scoped indicators for layouts recently detected in other Spaces
 - Best-effort navigation to a remembered layout Space by clicking its row
+- Global active-layout switcher with snapshots, names, reverse navigation, and `Option-Tab` as the configurable default shortcut
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list
@@ -73,10 +74,13 @@ Settle needs macOS Accessibility permission to:
 - read visible window titles
 - detect app windows
 - move and resize windows during restore
+- observe the configured global layout-switcher shortcut
 
 Automatic layout restore also requires Accessibility permission. A signed embedded login helper starts Settle at login and requests the restore once; opening Settle manually never restores the default layout. If access is unavailable during login restore, the restore is skipped without changing the selected default layout.
 
 Settle does not use Accessibility to read document contents, passwords, browser page contents, or keystrokes.
+
+The layout switcher shortcut can be changed, disabled, or restored to `Option-Tab` in Settings. On macOS, that default may replace Safari's keyboard focus navigation while Settle is running.
 
 Screen Recording access is used only to capture layout preview thumbnails. Settle does not capture system audio.
 
@@ -117,7 +121,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.7.0`
+Current documented release: `v1.8.0`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 

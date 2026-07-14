@@ -77,9 +77,12 @@ final class AppSettings: ObservableObject {
     @Published private(set) var launchAtLoginState: LaunchAtLoginState
     @Published private(set) var launchAtLoginError: String?
     @Published private(set) var defaultLayoutID: UUID?
+    @Published private(set) var layoutSwitcherShortcut: LayoutSwitcherShortcut?
 
     private enum Keys {
         static let defaultLayoutID = "defaultLayoutID"
+        static let layoutSwitcherShortcut = "layoutSwitcherShortcut"
+        static let layoutSwitcherDisabled = "layoutSwitcherDisabled"
     }
 
     private let defaults: UserDefaults
@@ -95,6 +98,16 @@ final class AppSettings: ObservableObject {
         self.defaultLayoutID = defaults
             .string(forKey: Keys.defaultLayoutID)
             .flatMap(UUID.init(uuidString:))
+        if defaults.bool(forKey: Keys.layoutSwitcherDisabled) {
+            self.layoutSwitcherShortcut = nil
+        } else if
+            let data = defaults.data(forKey: Keys.layoutSwitcherShortcut),
+            let shortcut = try? JSONDecoder().decode(LayoutSwitcherShortcut.self, from: data)
+        {
+            self.layoutSwitcherShortcut = shortcut
+        } else {
+            self.layoutSwitcherShortcut = .defaultShortcut
+        }
     }
 
     var isLaunchAtLoginRequested: Bool {
@@ -118,6 +131,23 @@ final class AppSettings: ObservableObject {
     func clearDefaultLayout(ifMatches layoutID: UUID) {
         guard defaultLayoutID == layoutID else { return }
         setDefaultLayoutID(nil)
+    }
+
+    func setLayoutSwitcherShortcut(_ shortcut: LayoutSwitcherShortcut?) {
+        layoutSwitcherShortcut = shortcut
+        guard let shortcut else {
+            defaults.removeObject(forKey: Keys.layoutSwitcherShortcut)
+            defaults.set(true, forKey: Keys.layoutSwitcherDisabled)
+            return
+        }
+        if let data = try? JSONEncoder().encode(shortcut) {
+            defaults.set(data, forKey: Keys.layoutSwitcherShortcut)
+        }
+        defaults.set(false, forKey: Keys.layoutSwitcherDisabled)
+    }
+
+    func resetLayoutSwitcherShortcut() {
+        setLayoutSwitcherShortcut(.defaultShortcut)
     }
 
     func refreshLaunchAtLoginState() {

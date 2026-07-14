@@ -24,7 +24,7 @@ struct SettingsView: View {
                     Label(L10n.tr("Permissions"), systemImage: "hand.raised")
                 }
         }
-        .frame(width: 520, height: 420)
+        .frame(width: 540, height: 540)
         .onAppear {
             refreshSettingsState()
         }
@@ -44,6 +44,7 @@ struct SettingsView: View {
 }
 
 private struct GeneralSettingsPane: View {
+    @EnvironmentObject private var coordinator: LayoutCoordinator
     @ObservedObject var settings: AppSettings
     let layouts: [Layout]
 
@@ -103,6 +104,43 @@ private struct GeneralSettingsPane: View {
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            }
+
+            Section(L10n.tr("Layout Switcher")) {
+                LabeledContent(L10n.tr("Global Shortcut")) {
+                    LayoutSwitcherShortcutRecorder(
+                        shortcut: settings.layoutSwitcherShortcut,
+                        onChange: coordinator.setLayoutSwitcherShortcut,
+                        onInvalid: coordinator.reportInvalidLayoutSwitcherShortcut,
+                        onRecordingChanged: coordinator.setLayoutSwitcherShortcutRecording
+                    )
+                }
+
+                HStack {
+                    Button(L10n.tr("Restore Default")) {
+                        coordinator.resetLayoutSwitcherShortcut()
+                    }
+                    .disabled(settings.layoutSwitcherShortcut == .defaultShortcut)
+
+                    Button(L10n.tr("Disable")) {
+                        coordinator.setLayoutSwitcherShortcut(nil)
+                    }
+                    .disabled(settings.layoutSwitcherShortcut == nil)
+                }
+
+                Text(L10n.tr("Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text(L10n.tr("The default Option-Tab shortcut replaces Safari's control-navigation shortcut while Settle is running."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if let error = coordinator.layoutSwitcherShortcutError {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
             }
 
             Section(L10n.tr("Behavior")) {

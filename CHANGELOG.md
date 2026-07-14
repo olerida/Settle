@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.8.0
+
+- Added in-place layout updates that preserve the existing name and request explicit confirmation before refreshing browser tab URLs.
+- Added a global active-layout switcher with a centered snapshot overlay and `Option-Tab` as the default shortcut.
+- Added forward and reverse cyclic navigation, activation on modifier release, and cancellation with Escape.
+- Added a Settings shortcut recorder with persistence, conflict feedback, disable, and restore-default actions.
+- Limited switcher navigation to layouts remembered as active during the current Settle session.
+- Added complete English, Spanish, Catalan, French, and German localization for the new controls and overlay.
+
 ## v1.7.0
 
 - Added reliable multi-display layout capture using persistent display identity, hardware metadata, visible-frame geometry, and proportional per-window placement.
