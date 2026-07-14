@@ -12,6 +12,7 @@
 "Close Others" = "Andere schließen";
 "Close every standard window across every app and Space" = "Alle Standardfenster in allen Apps und auf allen Schreibtischen schließen";
 "Close visible windows that are not part of the active restored layout" = "Sichtbare Fenster schließen, die nicht zum aktiven wiederhergestellten Layout gehören";
+"Close extra windows automatically?" = "Zusätzliche Fenster automatisch schließen?";
 "Closed %d extra windows" = "%d zusätzliche Fenster geschlossen";
 "Closed %d apps" = "%d Apps geschlossen";
 "Closed %d windows" = "%d Fenster geschlossen";
@@ -26,12 +27,14 @@
 "Delete" = "Löschen";
 "Done" = "Fertig";
 "Extra windows" = "Zusätzliche Fenster";
+"Enable Automatic Closing" = "Automatisches Schließen aktivieren";
 "Grant Accessibility access in System Settings" = "Bedienungshilfen-Zugriff in den Systemeinstellungen gewähren";
 "Granted" = "Gewährt";
 "If you just enabled it in System Settings and this warning remains, close and reopen the app." = "Wenn du es gerade in den Systemeinstellungen aktiviert hast und dieser Hinweis weiter angezeigt wird, schließe die App und öffne sie erneut.";
 "Launching apps..." = "Apps werden geöffnet...";
 "Layout name" = "Layoutname";
 "Leave untouched" = "Unverändert lassen";
+"Minimize" = "Minimieren";
 "Minimize Others" = "Andere minimieren";
 "Minimize visible windows that are not part of the active restored layout" = "Sichtbare Fenster minimieren, die nicht zum aktiven wiederhergestellten Layout gehören";
 "Minimized %d extra windows" = "%d zusätzliche Fenster minimiert";
@@ -86,6 +89,8 @@
 "Active layout" = "Aktives Layout";
 "Ask every app across every Space to quit" = "Alle Apps auf allen Schreibtischen zum Beenden auffordern";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "Standardmäßig lässt das Wiederherstellen eines Layouts nicht zugehörige Fenster unverändert. Verwende die Menüaktionen, wenn du andere Fenster ausdrücklich schließen oder minimieren möchtest.";
+"Choose what Settle does with visible windows outside a restored layout in the current Space." = "Lege fest, was Settle mit sichtbaren Fenstern macht, die im aktuellen Space nicht zum wiederhergestellten Layout gehören.";
+"After restoring a layout, Settle will ask visible windows outside it to close. Some apps may ask you to save changes." = "Nach der Wiederherstellung eines Layouts fordert Settle sichtbare Fenster, die nicht dazugehören, zum Schließen auf. Einige Apps können dich auffordern, Änderungen zu sichern.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "v1 schließt, versteckt oder minimiert keine Fenster, die nicht Teil des ausgewählten Layouts sind.";
 "Window layouts for the current desktop" = "Fensterlayouts für den aktuellen Schreibtisch";
 "%d apps" = "%d Apps";

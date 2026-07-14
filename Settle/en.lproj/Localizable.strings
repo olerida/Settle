@@ -12,6 +12,7 @@
 "Close Others" = "Close Others";
 "Close every standard window across every app and Space" = "Close every standard window across every app and Space";
 "Close visible windows that are not part of the active restored layout" = "Close visible windows that are not part of the active restored layout";
+"Close extra windows automatically?" = "Close extra windows automatically?";
 "Closed %d extra windows" = "Closed %d extra windows";
 "Closed %d apps" = "Closed %d apps";
 "Closed %d windows" = "Closed %d windows";
@@ -26,12 +27,14 @@
 "Delete" = "Delete";
 "Done" = "Done";
 "Extra windows" = "Extra windows";
+"Enable Automatic Closing" = "Enable Automatic Closing";
 "Grant Accessibility access in System Settings" = "Grant Accessibility access in System Settings";
 "Granted" = "Granted";
 "If you just enabled it in System Settings and this warning remains, close and reopen the app." = "If you just enabled it in System Settings and this warning remains, close and reopen the app.";
 "Launching apps..." = "Launching apps...";
 "Layout name" = "Layout name";
 "Leave untouched" = "Leave untouched";
+"Minimize" = "Minimize";
 "Minimize Others" = "Minimize Others";
 "Minimize visible windows that are not part of the active restored layout" = "Minimize visible windows that are not part of the active restored layout";
 "Minimized %d extra windows" = "Minimized %d extra windows";
@@ -86,6 +89,8 @@
 "Active layout" = "Active layout";
 "Ask every app across every Space to quit" = "Ask every app across every Space to quit";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows.";
+"Choose what Settle does with visible windows outside a restored layout in the current Space." = "Choose what Settle does with visible windows outside a restored layout in the current Space.";
+"After restoring a layout, Settle will ask visible windows outside it to close. Some apps may ask you to save changes." = "After restoring a layout, Settle will ask visible windows outside it to close. Some apps may ask you to save changes.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "v1 does not close, hide, or minimize windows that are not part of the selected layout.";
 "Window layouts for the current desktop" = "Window layouts for the current desktop";
 "%d apps" = "%d apps";

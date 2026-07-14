@@ -12,6 +12,7 @@
 "Close Others" = "Tancar les altres";
 "Close every standard window across every app and Space" = "Tancar totes les finestres estàndard de totes les apps i de tots els escriptoris";
 "Close visible windows that are not part of the active restored layout" = "Tancar les finestres visibles que no formen part del layout restaurat actiu";
+"Close extra windows automatically?" = "Tancar automàticament les finestres addicionals?";
 "Closed %d extra windows" = "Tancades %d finestres extra";
 "Closed %d apps" = "Tancades %d apps";
 "Closed %d windows" = "Tancades %d finestres";
@@ -26,12 +27,14 @@
 "Delete" = "Eliminar";
 "Done" = "Fet";
 "Extra windows" = "Finestres extra";
+"Enable Automatic Closing" = "Activar el tancament automàtic";
 "Grant Accessibility access in System Settings" = "Concedeix accés d'Accessibilitat a Configuració del Sistema";
 "Granted" = "Concedit";
 "If you just enabled it in System Settings and this warning remains, close and reopen the app." = "Si ho acabes d'activar a Configuració del Sistema i aquest avís continua, tanca i torna a obrir l'app.";
 "Launching apps..." = "Obrint apps...";
 "Layout name" = "Nom del layout";
 "Leave untouched" = "Deixar intactes";
+"Minimize" = "Minimitzar";
 "Minimize Others" = "Minimitzar les altres";
 "Minimize visible windows that are not part of the active restored layout" = "Minimitzar les finestres visibles que no formen part del layout restaurat actiu";
 "Minimized %d extra windows" = "Minimitzades %d finestres extra";
@@ -86,6 +89,8 @@
 "Active layout" = "Layout actiu";
 "Ask every app across every Space to quit" = "Demanar a totes les apps de tots els escriptoris que surtin";
 "By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows." = "Per defecte, restaurar un layout deixa intactes les finestres no relacionades. Fes servir les accions del menú quan vulguis tancar o minimitzar altres finestres de manera explícita.";
+"Choose what Settle does with visible windows outside a restored layout in the current Space." = "Tria què fa Settle amb les finestres visibles que no formen part del layout restaurat a l'Space actual.";
+"After restoring a layout, Settle will ask visible windows outside it to close. Some apps may ask you to save changes." = "Després de restaurar un layout, Settle demanarà tancar les finestres visibles que no en formin part. Algunes apps et poden demanar que desis els canvis.";
 "v1 does not close, hide, or minimize windows that are not part of the selected layout." = "La v1 no tanca, oculta ni minimitza les finestres que no formen part del layout seleccionat.";
 "Window layouts for the current desktop" = "Layouts de finestres per a l'escriptori actual";
 "%d apps" = "%d apps";

@@ -1282,6 +1282,33 @@ final class SettleTests: XCTestCase {
     }
 
     @MainActor
+    func testAppSettingsPersistsAutomaticExtraWindowsBehavior() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(settings.automaticExtraWindowsBehavior, .leaveUntouched)
+
+        settings.setAutomaticExtraWindowsBehavior(.minimize)
+        let reloadedMinimizeSettings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(reloadedMinimizeSettings.automaticExtraWindowsBehavior, .minimize)
+
+        reloadedMinimizeSettings.setAutomaticExtraWindowsBehavior(.close)
+        let reloadedCloseSettings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(reloadedCloseSettings.automaticExtraWindowsBehavior, .close)
+    }
+
+    @MainActor
     func testAppSettingsClearsMissingDefaultLayout() throws {
         let suiteName = "SettleTests.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))

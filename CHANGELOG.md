@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.9.0 (unreleased)
+
+- Added a global Settings preference to leave, minimize, or close visible windows outside a successfully restored layout in the current Space.
+- Added a destructive confirmation before automatic closing can be enabled, while keeping manual close and minimize actions available.
+- Clarified in Settings that layout capture and restore operate only in the current macOS Space.
+
 ## v1.8.1
 
 - Fixed the active-layout switcher incorrectly reporting that no layout was active when the current layout was the only active layout.

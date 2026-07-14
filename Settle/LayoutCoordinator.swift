@@ -415,7 +415,33 @@ final class LayoutCoordinator: ObservableObject {
         restorePanelState = .restoring
         Task {
             statusMessage = L10n.tr("Launching apps...")
-            let report = await windowManager.restoreLayout(layout, appLauncher: appLauncher)
+            var report = await windowManager.restoreLayout(layout, appLauncher: appLauncher)
+
+            if report.completedSuccessfully, let action = automaticExtraWindowsAction {
+                do {
+                    statusMessage = action == .close
+                        ? L10n.tr("Closing other windows...")
+                        : L10n.tr("Minimizing other windows...")
+                    try? await Task.sleep(for: .milliseconds(150))
+                    let affectedWindows = try await windowManager.mutateVisibleWindowsOutsideLayoutInCurrentSpace(
+                        layout,
+                        action: action
+                    )
+                    if affectedWindows > 0 {
+                        statusMessage = action == .close
+                            ? L10n.format("Closed %d extra windows", affectedWindows)
+                            : L10n.format("Minimized %d extra windows", affectedWindows)
+                    }
+                } catch {
+                    report.failures.append(
+                        RestoreFailure(appName: "Settle", message: error.localizedDescription)
+                    )
+                    if !permissionManager.isTrusted {
+                        permissionManager.refresh()
+                    }
+                }
+            }
+
             latestReport = report
 
             if !report.missingApps.isEmpty {
@@ -437,6 +463,17 @@ final class LayoutCoordinator: ObservableObject {
                 try? await Task.sleep(for: .milliseconds(150))
                 await handleActiveSpaceChange()
             }
+        }
+    }
+
+    private var automaticExtraWindowsAction: WindowManager.WindowMutationAction? {
+        switch settings.automaticExtraWindowsBehavior {
+        case .leaveUntouched:
+            nil
+        case .minimize:
+            .minimize
+        case .close:
+            .close
         }
     }
 

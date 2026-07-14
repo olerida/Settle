@@ -47,6 +47,7 @@ private struct GeneralSettingsPane: View {
     @EnvironmentObject private var coordinator: LayoutCoordinator
     @ObservedObject var settings: AppSettings
     let layouts: [Layout]
+    @State private var isCloseExtraWindowsConfirmationPresented = false
 
     var body: some View {
         Form {
@@ -148,14 +149,53 @@ private struct GeneralSettingsPane: View {
                 Text(L10n.tr("Settle saves and restores layouts only in the current macOS Space."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                LabeledContent(L10n.tr("Extra windows"), value: L10n.tr("Leave untouched"))
-                Text(L10n.tr("By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows."))
+                Picker(
+                    L10n.tr("Extra windows"),
+                    selection: Binding(
+                        get: { settings.automaticExtraWindowsBehavior },
+                        set: { behavior in
+                            if behavior == .close {
+                                isCloseExtraWindowsConfirmationPresented = true
+                            } else {
+                                settings.setAutomaticExtraWindowsBehavior(behavior)
+                            }
+                        }
+                    )
+                ) {
+                    ForEach(AutomaticExtraWindowsBehavior.allCases, id: \.self) { behavior in
+                        Text(extraWindowsBehaviorTitle(behavior))
+                            .tag(behavior)
+                    }
+                }
+                Text(L10n.tr("Choose what Settle does with visible windows outside a restored layout in the current Space."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
         .padding()
+        .alert(
+            L10n.tr("Close extra windows automatically?"),
+            isPresented: $isCloseExtraWindowsConfirmationPresented
+        ) {
+            Button(L10n.tr("Cancel"), role: .cancel) {}
+            Button(L10n.tr("Enable Automatic Closing"), role: .destructive) {
+                settings.setAutomaticExtraWindowsBehavior(.close)
+            }
+        } message: {
+            Text(L10n.tr("After restoring a layout, Settle will ask visible windows outside it to close. Some apps may ask you to save changes."))
+        }
+    }
+
+    private func extraWindowsBehaviorTitle(_ behavior: AutomaticExtraWindowsBehavior) -> String {
+        switch behavior {
+        case .leaveUntouched:
+            L10n.tr("Leave untouched")
+        case .minimize:
+            L10n.tr("Minimize")
+        case .close:
+            L10n.tr("Close")
+        }
     }
 
     private var launchAtLoginStatusText: String {
