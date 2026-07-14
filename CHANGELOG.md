@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.8.1
+
+- Fixed the active-layout switcher incorrectly reporting that no layout was active when the current layout was the only active layout.
+- Kept the current layout in the switcher order even when it has no remembered navigation target, allowing consistent forward and reverse cycling.
+
 ## v1.8.0
 
 - Added in-place layout updates that preserve the existing name and request explicit confirmation before refreshing browser tab URLs.

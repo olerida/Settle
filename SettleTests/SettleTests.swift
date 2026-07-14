@@ -1069,6 +1069,35 @@ final class SettleTests: XCTestCase {
         )
     }
 
+    func testLayoutSwitcherActiveOrderIncludesCurrentLayoutWithoutNavigationTarget() {
+        let currentID = UUID()
+
+        XCTAssertEqual(
+            LayoutSwitcherActiveOrder.orderedIDs(
+                recentlyActiveIDs: [],
+                rememberedIDs: [],
+                currentID: currentID,
+                availableIDs: [currentID]
+            ),
+            [currentID]
+        )
+    }
+
+    func testLayoutSwitcherActiveOrderKeepsCurrentLayoutFirst() {
+        let currentID = UUID()
+        let otherID = UUID()
+
+        XCTAssertEqual(
+            LayoutSwitcherActiveOrder.orderedIDs(
+                recentlyActiveIDs: [otherID],
+                rememberedIDs: [otherID],
+                currentID: currentID,
+                availableIDs: [currentID, otherID]
+            ),
+            [currentID, otherID]
+        )
+    }
+
     func testDefaultLayoutSwitcherShortcutUsesOptionTab() {
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.modifier, .option)
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.keyCode, 48)
