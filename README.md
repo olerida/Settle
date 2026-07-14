@@ -16,6 +16,7 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Save named layouts for the current desktop, with app-based name suggestions
 - Keep newly saved or updated layouts active immediately in their current Space
 - Restore layouts without taking matching app windows away from other Spaces
+- Restore multi-display layouts proportionally after displays are moved, resized, reconfigured, or disconnected
 - Restore front-to-back layering consistently using native macOS application window groups
 - Smarter Safari and Chrome recovery: targets their New Window command before using the standard fallback for other apps
 - Optionally save and reopen normal Safari and Chrome tab URLs per layout (requires macOS Automation permission)
@@ -115,7 +116,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.6.2`
+Current documented release: `v1.7.0`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 
@@ -124,6 +125,7 @@ See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 - The app persists layouts locally as versioned JSON.
 - Cross-Space indicators are session-scoped and best-effort because macOS does not expose stable Space identifiers through public APIs.
 - Layout restore treats visible windows as authoritative for the current Space; if an app cannot create a missing local window, Settle leaves its other-Space windows untouched and reports the unresolved app by name.
+- Multi-display layouts identify each captured display, preserve proportional placement inside its visible frame, and fall back to a usable position on the main display when necessary.
 - Releases are published as signed DMG assets on GitHub.
 - The Homebrew cask is maintained separately in `~/Documents/homebrew-tap`.
 - Backlog work is tracked in GitHub Issues, not in repository TODO files.

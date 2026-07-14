@@ -29,6 +29,21 @@ struct WindowFrame: Codable, Hashable {
     }
 }
 
+struct DisplaySnapshot: Codable, Hashable {
+    var uuid: String?
+    var vendorID: UInt32?
+    var modelID: UInt32?
+    var serialNumber: UInt32?
+    var localizedName: String
+    var visibleFrame: WindowFrame
+    var isMain: Bool
+
+    var hasHardwareIdentity: Bool {
+        guard let vendorID, let modelID, let serialNumber else { return false }
+        return vendorID != 0 && modelID != 0 && serialNumber != 0
+    }
+}
+
 struct WindowSnapshot: Codable, Hashable, Identifiable {
     var id: UUID
     var windowTitleSnapshot: String
@@ -38,6 +53,8 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
     var orderIndex: Int
     var stackingIndex: Int
     var screenHint: String?
+    var display: DisplaySnapshot?
+    var normalizedFrame: WindowFrame?
 
     init(
         id: UUID = UUID(),
@@ -47,7 +64,9 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
         isMainWindowCandidate: Bool,
         orderIndex: Int,
         stackingIndex: Int,
-        screenHint: String? = nil
+        screenHint: String? = nil,
+        display: DisplaySnapshot? = nil,
+        normalizedFrame: WindowFrame? = nil
     ) {
         self.id = id
         self.windowTitleSnapshot = windowTitleSnapshot
@@ -57,6 +76,8 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
         self.orderIndex = orderIndex
         self.stackingIndex = stackingIndex
         self.screenHint = screenHint
+        self.display = display
+        self.normalizedFrame = normalizedFrame
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -68,6 +89,8 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
         case orderIndex
         case stackingIndex
         case screenHint
+        case display
+        case normalizedFrame
     }
 
     init(from decoder: Decoder) throws {
@@ -80,6 +103,8 @@ struct WindowSnapshot: Codable, Hashable, Identifiable {
         orderIndex = try container.decode(Int.self, forKey: .orderIndex)
         stackingIndex = try container.decodeIfPresent(Int.self, forKey: .stackingIndex) ?? orderIndex
         screenHint = try container.decodeIfPresent(String.self, forKey: .screenHint)
+        display = try container.decodeIfPresent(DisplaySnapshot.self, forKey: .display)
+        normalizedFrame = try container.decodeIfPresent(WindowFrame.self, forKey: .normalizedFrame)
     }
 }
 
@@ -186,7 +211,7 @@ struct LayoutDocument: Codable {
     var version: Int
     var layouts: [Layout]
 
-    static let currentVersion = 2
+    static let currentVersion = 3
 }
 
 struct RestoreFailure: Error, Identifiable, Hashable {

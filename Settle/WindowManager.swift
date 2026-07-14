@@ -186,6 +186,7 @@ struct WindowManager {
 
         let filtered = currentSpaceVisibleWindowRecords()
         let grouped = Dictionary(grouping: filtered, by: \.pid)
+        let displays = currentDisplaySnapshots()
         var previewWindows: [PreviewWindowCapture] = []
 
         let appSnapshots = grouped.compactMap { pid, windows -> AppLayoutSnapshot? in
@@ -206,7 +207,8 @@ struct WindowManager {
                     stackingIndex: entry.offset,
                     title: entry.title,
                     frame: entry.frame,
-                    accessibleWindows: accessibleWindows
+                    accessibleWindows: accessibleWindows,
+                    displays: displays
                 )
             }
 
@@ -605,6 +607,12 @@ struct WindowManager {
 
         var report = RestoreReport()
         var matchedWindows: [(WindowSnapshot, AXUIElement)] = []
+        let currentDisplays = currentDisplaySnapshots()
+        let capturedDisplays = layout.apps.flatMap(\.windows).compactMap(\.display)
+        let displayMatches = DisplayPlacement.matchDisplays(
+            captured: capturedDisplays,
+            current: currentDisplays
+        )
 
         for appSnapshot in layout.apps {
             do {
@@ -648,10 +656,25 @@ struct WindowManager {
                 var usedWindows: [AXUIElement] = []
 
                 for targetWindow in appSnapshot.windows.sorted(by: { $0.orderIndex < $1.orderIndex }) {
+                    guard let placement = DisplayPlacement.placement(
+                        for: targetWindow,
+                        currentDisplays: currentDisplays,
+                        displayMatches: displayMatches
+                    ) else {
+                        report.recordUnreconciledWindow(
+                            label(for: appSnapshot, window: targetWindow),
+                            appName: appSnapshot.appDisplayName
+                        )
+                        continue
+                    }
                     var windowCandidates = candidates(for: unmatchedWindows)
 
                     while
-                        WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) == nil,
+                        WindowMatcher.bestMatch(
+                            target: targetWindow,
+                            candidates: windowCandidates.map(\.1),
+                            referenceFrame: placement.frame
+                        ) == nil,
                         currentSpaceWindowRequests < appSnapshot.windows.count
                     {
                         try await appLauncher.requestWindowInCurrentSpace(
@@ -665,7 +688,11 @@ struct WindowManager {
                         windowCandidates = candidates(for: unmatchedWindows)
                     }
 
-                    if WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) == nil, !reopenAttempted {
+                    if WindowMatcher.bestMatch(
+                        target: targetWindow,
+                        candidates: windowCandidates.map(\.1),
+                        referenceFrame: placement.frame
+                    ) == nil, !reopenAttempted {
                         try await appLauncher.reopen(bundleIdentifier: appSnapshot.bundleIdentifier)
                         reopenAttempted = true
                         try await Task.sleep(for: .milliseconds(900))
@@ -674,7 +701,11 @@ struct WindowManager {
                         windowCandidates = candidates(for: unmatchedWindows)
                     }
 
-                    guard let matchIndex = WindowMatcher.bestMatch(target: targetWindow, candidates: windowCandidates.map(\.1)) else {
+                    guard let matchIndex = WindowMatcher.bestMatch(
+                        target: targetWindow,
+                        candidates: windowCandidates.map(\.1),
+                        referenceFrame: placement.frame
+                    ) else {
                         report.recordUnreconciledWindow(
                             label(for: appSnapshot, window: targetWindow),
                             appName: appSnapshot.appDisplayName
@@ -685,7 +716,15 @@ struct WindowManager {
                     let axIndex = windowCandidates[matchIndex].0
                     let element = unmatchedWindows.remove(at: axIndex)
                     usedWindows.append(element)
-                    apply(window: element, target: targetWindow)
+                    guard
+                        await apply(window: element, target: targetWindow, placement: placement)
+                    else {
+                        report.recordUnreconciledWindow(
+                            label(for: appSnapshot, window: targetWindow),
+                            appName: appSnapshot.appDisplayName
+                        )
+                        continue
+                    }
                     matchedWindows.append((targetWindow, element))
                     report.restoredWindows.append(label(for: appSnapshot, window: targetWindow))
                 }
@@ -755,12 +794,51 @@ struct WindowManager {
         return "\(appSnapshot.appDisplayName) - \(title)"
     }
 
+    private func currentDisplaySnapshots() -> [DisplaySnapshot] {
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else { return [] }
+
+        let screenDetails = screens.compactMap { screen -> (NSScreen, CGDirectDisplayID)? in
+            guard
+                let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
+            else {
+                return nil
+            }
+            return (screen, CGDirectDisplayID(number.uint32Value))
+        }
+        let mainDisplayID = CGMainDisplayID()
+        let primaryFrame = screenDetails.first(where: { $0.1 == mainDisplayID })?.0.frame
+            ?? screens.first?.frame
+            ?? .zero
+
+        return screenDetails.map { screen, displayID in
+            let displayUUID = CGDisplayCreateUUIDFromDisplayID(displayID).flatMap { uuid in
+                CFUUIDCreateString(nil, uuid.takeRetainedValue()) as String?
+            }
+            let vendorID = CGDisplayVendorNumber(displayID)
+            let modelID = CGDisplayModelNumber(displayID)
+            let serialNumber = CGDisplaySerialNumber(displayID)
+            return DisplaySnapshot(
+                uuid: displayUUID,
+                vendorID: vendorID == 0 ? nil : vendorID,
+                modelID: modelID == 0 ? nil : modelID,
+                serialNumber: serialNumber == 0 ? nil : serialNumber,
+                localizedName: screen.localizedName,
+                visibleFrame: WindowFrame(
+                    rect: DisplayPlacement.appKitRectToAX(screen.visibleFrame, primaryFrame: primaryFrame)
+                ),
+                isMain: displayID == mainDisplayID
+            )
+        }
+    }
+
     private func makeWindowSnapshot(
         orderIndex: Int,
         stackingIndex: Int,
         title: String,
         frame: CGRect,
-        accessibleWindows: [AXUIElement]
+        accessibleWindows: [AXUIElement],
+        displays: [DisplaySnapshot]
     ) -> WindowSnapshot? {
         var minimized = false
         var isMain = orderIndex == 0
@@ -776,6 +854,7 @@ struct WindowManager {
             isMain = (axBoolValue(match, attribute: kAXMainAttribute) ?? false) || orderIndex == 0
         }
 
+        let display = DisplayPlacement.displayContainingLargestArea(of: frame, displays: displays)
         return WindowSnapshot(
             windowTitleSnapshot: title,
             frame: WindowFrame(rect: frame),
@@ -783,7 +862,11 @@ struct WindowManager {
             isMainWindowCandidate: isMain,
             orderIndex: orderIndex,
             stackingIndex: stackingIndex,
-            screenHint: NSScreen.screens.first(where: { $0.frame.intersects(frame) })?.localizedName
+            screenHint: display?.localizedName,
+            display: display,
+            normalizedFrame: display.flatMap {
+                DisplayPlacement.normalizedFrame(frame, in: $0.visibleFrame.cgRect)
+            }
         )
     }
 
@@ -879,18 +962,58 @@ struct WindowManager {
         return extrasByPID
     }
 
-    private func apply(window: AXUIElement, target: WindowSnapshot) {
-        _ = setMinimized(target.isMinimized, for: window)
+    private func apply(
+        window: AXUIElement,
+        target: WindowSnapshot,
+        placement: WindowPlacement
+    ) async -> Bool {
+        if axBoolValue(window, attribute: kAXMinimizedAttribute) == true,
+           !setMinimized(false, for: window) {
+            return false
+        }
 
-        var position = CGPoint(x: target.frame.x, y: target.frame.y)
-        var size = CGSize(width: target.frame.width, height: target.frame.height)
-        if let positionValue = AXValueCreate(.cgPoint, &position) {
-            AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, positionValue)
+        var placedSuccessfully = false
+        for attempt in 0..<2 {
+            let writesSucceeded = setFrame(placement.frame, for: window)
+            try? await Task.sleep(for: .milliseconds(attempt == 0 ? 120 : 180))
+            if writesSucceeded,
+               let actualFrame = axFrameValue(window),
+               DisplayPlacement.isUsable(actualFrame, on: placement.display) {
+                placedSuccessfully = true
+                break
+            }
         }
-        if let sizeValue = AXValueCreate(.cgSize, &size) {
-            AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, sizeValue)
+
+        let minimizedStateSucceeded: Bool
+        if axBoolValue(window, attribute: kAXMinimizedAttribute) == target.isMinimized {
+            minimizedStateSucceeded = true
+        } else {
+            minimizedStateSucceeded = setMinimized(target.isMinimized, for: window)
         }
-        _ = setMinimized(target.isMinimized, for: window)
+        return placedSuccessfully && minimizedStateSucceeded
+    }
+
+    private func setFrame(_ frame: CGRect, for window: AXUIElement) -> Bool {
+        var size = frame.size
+        var position = frame.origin
+        guard
+            let sizeValue = AXValueCreate(.cgSize, &size),
+            let positionValue = AXValueCreate(.cgPoint, &position)
+        else {
+            return false
+        }
+
+        let sizeResult = AXUIElementSetAttributeValue(
+            window,
+            kAXSizeAttribute as CFString,
+            sizeValue
+        )
+        let positionResult = AXUIElementSetAttributeValue(
+            window,
+            kAXPositionAttribute as CFString,
+            positionValue
+        )
+        return sizeResult == .success && positionResult == .success
     }
 
     private func axWindows(for pid: pid_t) -> [AXUIElement] {

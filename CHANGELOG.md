@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.7.0
+
+- Added reliable multi-display layout capture using persistent display identity, hardware metadata, visible-frame geometry, and proportional per-window placement.
+- Advanced the layout document schema to version 3 while retaining decoding support for older absolute-frame layouts.
+- Restored windows to their intended display after display rearrangement, resolution, scaling, menu-bar, or Dock changes.
+- Added main-display fallback and usable-frame clamping when a captured display is disconnected or cannot be matched safely.
+- Added Accessibility read-back validation and bounded retry so rejected window placements are reported as unresolved instead of successful.
+- Preserved safe restore behavior for existing layouts that contain only absolute window frames.
+
 ## v1.6.2
 
 - Fixed the first internal overlay interaction hiding the Settle panel after a successful layout restore.
