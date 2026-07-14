@@ -22,7 +22,7 @@
 "Closed layout %@" = "Layout %@ geschlossen";
 "Current Space does not match a restored layout." = "Der aktuelle Schreibtisch entspricht keinem wiederhergestellten Layout.";
 "Capturing windows..." = "Fenster werden erfasst...";
-"Current desktop only" = "Nur aktueller Schreibtisch";
+"Current desktop only" = "Nur aktueller Space";
 "Delete" = "Löschen";
 "Done" = "Fertig";
 "Extra windows" = "Zusätzliche Fenster";
@@ -63,9 +63,10 @@
 "Saved Layouts" = "Gespeicherte Layouts";
 "Settings" = "Einstellungen";
 "Settle needs Accessibility permission to read, move, and resize windows." = "Settle benötigt die Berechtigung für Bedienungshilfen, um Fenster zu lesen, zu verschieben und ihre Größe zu ändern.";
+"Settle saves and restores layouts only in the current macOS Space." = "Settle sichert Layouts nur im aktuellen macOS Space und stellt sie dort wieder her.";
 "Settle uses the macOS Accessibility API to inspect visible windows and restore their frames." = "Settle verwendet die Bedienungshilfen-API von macOS, um sichtbare Fenster zu prüfen und ihre Rahmen wiederherzustellen.";
 "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows." = "Einige Apps stellen nicht jedes Fenster zuverlässig über Bedienungshilfen bereit. In diesen Fällen stellt Settle so viel wieder her, wie macOS erlaubt, und meldet nicht aufgelöste Fenster.";
-"Spaces" = "Schreibtische";
+"Spaces" = "macOS Spaces";
 "Status" = "Status";
 "The app %@ is not installed." = "Die App %@ ist nicht installiert.";
 "The current desktop could not be captured." = "Der aktuelle Schreibtisch konnte nicht erfasst werden.";

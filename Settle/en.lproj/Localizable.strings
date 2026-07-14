@@ -22,7 +22,7 @@
 "Closed layout %@" = "Closed layout %@";
 "Current Space does not match a restored layout." = "Current Space does not match a restored layout.";
 "Capturing windows..." = "Capturing windows...";
-"Current desktop only" = "Current desktop only";
+"Current desktop only" = "Current Space only";
 "Delete" = "Delete";
 "Done" = "Done";
 "Extra windows" = "Extra windows";
@@ -63,9 +63,10 @@
 "Saved Layouts" = "Saved Layouts";
 "Settings" = "Settings";
 "Settle needs Accessibility permission to read, move, and resize windows." = "Settle needs Accessibility permission to read, move, and resize windows.";
+"Settle saves and restores layouts only in the current macOS Space." = "Settle saves and restores layouts only in the current macOS Space.";
 "Settle uses the macOS Accessibility API to inspect visible windows and restore their frames." = "Settle uses the macOS Accessibility API to inspect visible windows and restore their frames.";
 "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows." = "Some apps do not expose every window reliably through Accessibility. In those cases Settle restores as much as macOS allows and reports unresolved windows.";
-"Spaces" = "Spaces";
+"Spaces" = "macOS Spaces";
 "Status" = "Status";
 "The app %@ is not installed." = "The app %@ is not installed.";
 "The current desktop could not be captured." = "The current desktop could not be captured.";

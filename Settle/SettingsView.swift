@@ -145,6 +145,9 @@ private struct GeneralSettingsPane: View {
 
             Section(L10n.tr("Behavior")) {
                 LabeledContent(L10n.tr("Spaces"), value: L10n.tr("Current desktop only"))
+                Text(L10n.tr("Settle saves and restores layouts only in the current macOS Space."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 LabeledContent(L10n.tr("Extra windows"), value: L10n.tr("Leave untouched"))
                 Text(L10n.tr("By default, restoring a layout leaves unrelated windows untouched. Use the menu actions when you explicitly want to close or minimize other windows."))
                     .font(.caption)
