@@ -612,8 +612,8 @@ final class LayoutCoordinator: ObservableObject {
         }
 
         if layouts.count == 1, layouts[0].id == lastDetectedLayoutID {
-            statusMessage = L10n.tr("No other active layouts")
-            hudController.show(layoutName: L10n.tr("No other active layouts"))
+            statusMessage = L10n.tr("You are already on the only active layout")
+            hudController.show(layoutName: L10n.tr("You are already on the only active layout"))
             layoutSwitcherHotKeyManager.cancelCycle()
             return
         }
@@ -647,6 +647,7 @@ final class LayoutCoordinator: ObservableObject {
             ?? layouts.first
         dismissLayoutSwitcher()
         guard let selectedLayout else { return }
+        guard selectedLayout.id != lastDetectedLayoutID else { return }
         navigateToRememberedLayout(selectedLayout)
     }
 
@@ -656,16 +657,16 @@ final class LayoutCoordinator: ObservableObject {
     }
 
     private var activeLayoutsInRecencyOrder: [Layout] {
-        var orderedIDs = recentlyActiveLayoutIDs.filter {
-            layoutNavigationMemory.contains(layoutID: $0)
+        let availableLayouts = store.layouts
+        let orderedIDs = LayoutSwitcherActiveOrder.orderedIDs(
+            recentlyActiveIDs: recentlyActiveLayoutIDs,
+            rememberedIDs: layoutNavigationMemory.rememberedLayoutIDs,
+            currentID: lastDetectedLayoutID,
+            availableIDs: availableLayouts.map(\.id)
+        )
+        return orderedIDs.compactMap { id in
+            availableLayouts.first(where: { $0.id == id })
         }
-        for layout in store.layouts where
-            layoutNavigationMemory.contains(layoutID: layout.id)
-                && !orderedIDs.contains(layout.id)
-        {
-            orderedIDs.append(layout.id)
-        }
-        return orderedIDs.compactMap { id in store.layouts.first(where: { $0.id == id }) }
     }
 
     private func layoutSwitcherItem(for layout: Layout) -> LayoutSwitcherItem {

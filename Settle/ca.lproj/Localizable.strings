@@ -161,7 +161,7 @@
 "Restore Default" = "Restaura la predeterminada";
 "Disable" = "Desactiva";
 "No active layouts" = "No hi ha layouts actius";
-"No other active layouts" = "No hi ha altres layouts actius";
+"You are already on the only active layout" = "Ja ets a l'únic layout actiu";
 "The shortcut is already in use by Settle or another app." = "Settle o una altra app ja utilitza aquesta drecera.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Utilitza exactament un modificador i una tecla. Maj està reservada per retrocedir.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Mantén premuda la drecera i repeteix la tecla per recórrer els layouts actius. Maj retrocedeix; deixa anar el modificador per canviar.";

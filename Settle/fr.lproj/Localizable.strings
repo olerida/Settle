@@ -161,7 +161,7 @@
 "Restore Default" = "Rétablir par défaut";
 "Disable" = "Désactiver";
 "No active layouts" = "Aucune disposition active";
-"No other active layouts" = "Aucune autre disposition active";
+"You are already on the only active layout" = "Vous êtes déjà sur la seule disposition active";
 "The shortcut is already in use by Settle or another app." = "Le raccourci est déjà utilisé par Settle ou une autre app.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Utilisez exactement une touche de modification et une touche. Maj est réservée au retour en arrière.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Maintenez le raccourci et appuyez plusieurs fois sur sa touche pour parcourir les dispositions actives. Maj revient en arrière ; relâchez la touche de modification pour changer.";

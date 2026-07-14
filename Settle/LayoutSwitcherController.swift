@@ -26,6 +26,28 @@ enum LayoutSwitcherSelection {
     }
 }
 
+enum LayoutSwitcherActiveOrder {
+    static func orderedIDs(
+        recentlyActiveIDs: [UUID],
+        rememberedIDs: Set<UUID>,
+        currentID: UUID?,
+        availableIDs: [UUID]
+    ) -> [UUID] {
+        let availableIDSet = Set(availableIDs)
+        var orderedIDs = recentlyActiveIDs.filter {
+            rememberedIDs.contains($0) && availableIDSet.contains($0)
+        }
+        for id in availableIDs where rememberedIDs.contains(id) && !orderedIDs.contains(id) {
+            orderedIDs.append(id)
+        }
+        if let currentID, availableIDSet.contains(currentID) {
+            orderedIDs.removeAll { $0 == currentID }
+            orderedIDs.insert(currentID, at: 0)
+        }
+        return orderedIDs
+    }
+}
+
 @MainActor
 final class LayoutSwitcherController {
     private let model = LayoutSwitcherModel()

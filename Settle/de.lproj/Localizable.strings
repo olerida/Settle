@@ -161,7 +161,7 @@
 "Restore Default" = "Standard wiederherstellen";
 "Disable" = "Deaktivieren";
 "No active layouts" = "Keine aktiven Layouts";
-"No other active layouts" = "Keine weiteren aktiven Layouts";
+"You are already on the only active layout" = "Du bist bereits im einzigen aktiven Layout";
 "The shortcut is already in use by Settle or another app." = "Das Tastenkürzel wird bereits von Settle oder einer anderen App verwendet.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Verwende genau eine Sondertaste und eine Taste. Die Umschalttaste ist für das Zurückgehen reserviert.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Halte das Tastenkürzel gedrückt und drücke die Taste wiederholt, um aktive Layouts zu durchlaufen. Umschalt geht zurück; lass die Sondertaste zum Wechseln los.";
