@@ -14,6 +14,7 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 
 - Native macOS app built with `SwiftUI` and `AppKit`
 - Save named layouts for the current desktop, with app-based name suggestions
+- Update a layout in place without renaming it; browser tab URLs require explicit confirmation
 - Keep newly saved or updated layouts active immediately in their current Space
 - Restore layouts without taking matching app windows away from other Spaces
 - Restore multi-display layouts proportionally after displays are moved, resized, reconfigured, or disconnected
