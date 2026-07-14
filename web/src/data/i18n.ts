@@ -113,9 +113,9 @@ export const copy: Record<Language, Copy> = {
     supportTwoTitle: "Restore with intent",
     supportTwoBody:
       "Reopen apps when possible and move windows back into place using Accessibility.",
-    supportThreeTitle: "Leave extra windows alone",
+    supportThreeTitle: "Handle extra windows your way",
     supportThreeBody:
-      "Does not close, hide, or minimize windows outside the selected layout.",
+      "Leave, minimize, or close unrelated visible windows after a successful restore.",
     workflowTitle: "A calmer reset for messy desktops.",
     workflowBody:
       "Use Settle after plugging into a display, returning from a meeting, or switching between deep work and review.",
@@ -125,7 +125,7 @@ export const copy: Record<Language, Copy> = {
     detailTitle: "Native, transparent, and predictable.",
     detailBody:
       "Settle uses the macOS Accessibility API only to inspect visible windows and restore their frames.",
-    detailOne: "Current desktop only",
+    detailOne: "Current macOS Space only",
     detailTwo: "Accessibility permission required",
     detailThree: "Unresolved windows are reported",
     privacyTitle: "Privacy",
@@ -137,7 +137,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle for macOS",
     languageLabel: "Languages",
     downloadMeta:
-      "Version 1.8.1 · universal DMG for Apple silicon and Intel · about 2.4 MB",
+      "Version 1.9.0 · universal DMG for Apple silicon and Intel · about 2.4 MB",
     trustLine:
       "Native macOS permissions. Layouts stay on your Mac.",
     midCtaTitle: "Ready when your desktop drifts.",
@@ -202,9 +202,9 @@ export const copy: Record<Language, Copy> = {
     supportTwoTitle: "Restaura con intención",
     supportTwoBody:
       "Reabre apps cuando es posible y recoloca ventanas mediante Accesibilidad.",
-    supportThreeTitle: "Deja intactas las ventanas extra",
+    supportThreeTitle: "Gestiona las ventanas extra a tu manera",
     supportThreeBody:
-      "No cierra, oculta ni minimiza ventanas fuera del layout seleccionado.",
+      "Déjalas intactas, minimízalas o ciérralas tras restaurar correctamente un layout.",
     workflowTitle: "Un reinicio más limpio para escritorios desordenados.",
     workflowBody:
       "Usa Settle al conectar una pantalla, volver de una reunión o cambiar entre foco y revisión.",
@@ -214,7 +214,7 @@ export const copy: Record<Language, Copy> = {
     detailTitle: "Nativa, transparente y predecible.",
     detailBody:
       "Settle usa la API de Accesibilidad de macOS solo para inspeccionar ventanas visibles y restaurar sus marcos.",
-    detailOne: "Solo escritorio actual",
+    detailOne: "Solo el Space actual de macOS",
     detailTwo: "Requiere permiso de Accesibilidad",
     detailThree: "Informa ventanas no resueltas",
     privacyTitle: "Privacidad",
@@ -226,7 +226,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle para macOS",
     languageLabel: "Idiomas",
     downloadMeta:
-      "Versión 1.8.1 · DMG universal para Apple silicon e Intel · alrededor de 2,4 MB",
+      "Versión 1.9.0 · DMG universal para Apple silicon e Intel · alrededor de 2,4 MB",
     trustLine:
       "Permisos nativos de macOS. Los layouts se quedan en tu Mac.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
@@ -291,9 +291,9 @@ export const copy: Record<Language, Copy> = {
     supportTwoTitle: "Restaura amb intenció",
     supportTwoBody:
       "Reobre apps quan és possible i recol·loca finestres amb Accessibilitat.",
-    supportThreeTitle: "Deixa intactes les finestres extra",
+    supportThreeTitle: "Gestiona les finestres extra a la teva manera",
     supportThreeBody:
-      "No tanca, amaga ni minimitza finestres fora del layout seleccionat.",
+      "Deixa-les intactes, minimitza-les o tanca-les després de restaurar correctament un layout.",
     workflowTitle: "Un reinici més net per a escriptoris desordenats.",
     workflowBody:
       "Fes servir Settle en connectar una pantalla, tornar d’una reunió o canviar entre focus i revisió.",
@@ -303,7 +303,7 @@ export const copy: Record<Language, Copy> = {
     detailTitle: "Nativa, transparent i previsible.",
     detailBody:
       "Settle usa l’API d’Accessibilitat de macOS només per inspeccionar finestres visibles i restaurar-ne els marcs.",
-    detailOne: "Només escriptori actual",
+    detailOne: "Només l’Space actual de macOS",
     detailTwo: "Cal permís d’Accessibilitat",
     detailThree: "Informa finestres no resoltes",
     privacyTitle: "Privacitat",
@@ -315,7 +315,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle per a macOS",
     languageLabel: "Idiomes",
     downloadMeta:
-      "Versió 1.8.1 · DMG universal per a Apple silicon i Intel · prop de 2,4 MB",
+      "Versió 1.9.0 · DMG universal per a Apple silicon i Intel · prop de 2,4 MB",
     trustLine:
       "Permisos natius de macOS. Els layouts es queden al Mac.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
@@ -381,9 +381,9 @@ export const copy: Record<Language, Copy> = {
     supportTwoTitle: "Restaurez avec précision",
     supportTwoBody:
       "Rouvrez les apps quand c’est possible et replacez les fenêtres avec Accessibilité.",
-    supportThreeTitle: "Laissez les fenêtres en plus tranquilles",
+    supportThreeTitle: "Gérez les fenêtres supplémentaires à votre façon",
     supportThreeBody:
-      "Ne ferme, ne masque ni ne minimise les fenêtres hors de l’agencement sélectionné.",
+      "Laissez, réduisez ou fermez les fenêtres visibles non liées après une restauration réussie.",
     workflowTitle: "Une remise en ordre plus calme pour les bureaux chargés.",
     workflowBody:
       "Utilisez Settle après avoir branché un écran, au retour d’une réunion ou en changeant de mode de travail.",
@@ -393,7 +393,7 @@ export const copy: Record<Language, Copy> = {
     detailTitle: "Native, transparente et prévisible.",
     detailBody:
       "Settle utilise l’API Accessibilité de macOS uniquement pour inspecter les fenêtres visibles et restaurer leur cadre.",
-    detailOne: "Bureau actuel uniquement",
+    detailOne: "Space macOS actuel uniquement",
     detailTwo: "Autorisation Accessibilité requise",
     detailThree: "Fenêtres non résolues signalées",
     privacyTitle: "Confidentialité",
@@ -405,7 +405,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle pour macOS",
     languageLabel: "Langues",
     downloadMeta:
-      "Version 1.8.1 · DMG universel Apple silicon et Intel · environ 2,4 Mo",
+      "Version 1.9.0 · DMG universel Apple silicon et Intel · environ 2,4 Mo",
     trustLine:
       "Autorisations natives de macOS. Les agencements restent sur votre Mac.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
@@ -470,9 +470,9 @@ export const copy: Record<Language, Copy> = {
     supportTwoTitle: "Gezielt wiederherstellen",
     supportTwoBody:
       "Apps nach Möglichkeit erneut öffnen und Fenster per Bedienungshilfen zurücksetzen.",
-    supportThreeTitle: "Zusätzliche Fenster bleiben unberührt",
+    supportThreeTitle: "Zusätzliche Fenster nach Wunsch behandeln",
     supportThreeBody:
-      "Schließt, versteckt oder minimiert keine Fenster außerhalb des gewählten Layouts.",
+      "Nicht zugehörige sichtbare Fenster nach erfolgreicher Wiederherstellung belassen, minimieren oder schließen.",
     workflowTitle: "Ein ruhiger Reset für unordentliche Schreibtische.",
     workflowBody:
       "Nutze Settle nach dem Anschließen eines Displays, nach Meetings oder beim Wechsel zwischen Fokus und Review.",
@@ -482,7 +482,7 @@ export const copy: Record<Language, Copy> = {
     detailTitle: "Nativ, transparent und vorhersehbar.",
     detailBody:
       "Settle nutzt die macOS-API für Bedienungshilfen nur, um sichtbare Fenster zu prüfen und ihre Rahmen wiederherzustellen.",
-    detailOne: "Nur aktueller Schreibtisch",
+    detailOne: "Nur aktueller macOS Space",
     detailTwo: "Berechtigung für Bedienungshilfen erforderlich",
     detailThree: "Nicht aufgelöste Fenster werden gemeldet",
     privacyTitle: "Datenschutz",
@@ -494,7 +494,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle für macOS",
     languageLabel: "Sprachen",
     downloadMeta:
-      "Version 1.8.1 · universelles DMG für Apple Silicon und Intel · etwa 2,4 MB",
+      "Version 1.9.0 · universelles DMG für Apple Silicon und Intel · etwa 2,4 MB",
     trustLine:
       "Native macOS-Berechtigungen. Layouts bleiben auf deinem Mac.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",

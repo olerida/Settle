@@ -24,7 +24,8 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Clear feedback when an app saved in a layout is no longer installed
 - Keep the menu panel open when a layout cannot be fully restored
 - Close every window belonging to the active layout directly from its row menu
-- Native Settings for launch behavior, permissions, and future preferences
+- Native Settings for launch behavior, layout switching, extra-window handling, and permissions
+- Choose whether successful layout restores leave, minimize, or close unrelated visible windows in the current Space
 - Optional launch at login using the macOS login item service
 - Optional automatic restore of an explicitly selected default layout at macOS login
 - Active layout highlighting that follows the current Space

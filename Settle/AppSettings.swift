@@ -9,6 +9,12 @@ enum LaunchAtLoginState: Equatable {
     case unavailable
 }
 
+enum AutomaticExtraWindowsBehavior: String, CaseIterable {
+    case leaveUntouched
+    case minimize
+    case close
+}
+
 protocol LoginItemServicing {
     var state: LaunchAtLoginState { get }
     func register() throws
@@ -78,11 +84,13 @@ final class AppSettings: ObservableObject {
     @Published private(set) var launchAtLoginError: String?
     @Published private(set) var defaultLayoutID: UUID?
     @Published private(set) var layoutSwitcherShortcut: LayoutSwitcherShortcut?
+    @Published private(set) var automaticExtraWindowsBehavior: AutomaticExtraWindowsBehavior
 
     private enum Keys {
         static let defaultLayoutID = "defaultLayoutID"
         static let layoutSwitcherShortcut = "layoutSwitcherShortcut"
         static let layoutSwitcherDisabled = "layoutSwitcherDisabled"
+        static let automaticExtraWindowsBehavior = "automaticExtraWindowsBehavior"
     }
 
     private let defaults: UserDefaults
@@ -95,6 +103,9 @@ final class AppSettings: ObservableObject {
         self.defaults = defaults
         self.loginItemService = loginItemService
         self.launchAtLoginState = loginItemService.state
+        self.automaticExtraWindowsBehavior = AutomaticExtraWindowsBehavior(
+            rawValue: defaults.string(forKey: Keys.automaticExtraWindowsBehavior) ?? ""
+        ) ?? .leaveUntouched
         self.defaultLayoutID = defaults
             .string(forKey: Keys.defaultLayoutID)
             .flatMap(UUID.init(uuidString:))
@@ -148,6 +159,11 @@ final class AppSettings: ObservableObject {
 
     func resetLayoutSwitcherShortcut() {
         setLayoutSwitcherShortcut(.defaultShortcut)
+    }
+
+    func setAutomaticExtraWindowsBehavior(_ behavior: AutomaticExtraWindowsBehavior) {
+        automaticExtraWindowsBehavior = behavior
+        defaults.set(behavior.rawValue, forKey: Keys.automaticExtraWindowsBehavior)
     }
 
     func refreshLaunchAtLoginState() {
