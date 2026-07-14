@@ -137,14 +137,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle for macOS",
     languageLabel: "Languages",
     downloadMeta:
-      "Version 1.6.0 · universal DMG for Apple silicon and Intel · about 1.2 MB",
+      "Version 1.7.0 · universal DMG for Apple silicon and Intel · about 2.1 MB",
     trustLine:
       "Native macOS permissions. Layouts stay on your Mac.",
     midCtaTitle: "Ready when your desktop drifts.",
     requirementsTitle: "Requirements",
     requirementMinimum: "macOS 14.0 or later",
     requirementChip: "Apple silicon and Intel Macs",
-    requirementSize: "DMG: about 1.2 MB",
+    requirementSize: "DMG: about 2.1 MB",
     requirementSignature: "Security and transparency",
     accessibilityTitle: "Why Accessibility permission is needed",
     accessibilityBody:
@@ -226,14 +226,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle para macOS",
     languageLabel: "Idiomas",
     downloadMeta:
-      "Versión 1.6.0 · DMG universal para Apple silicon e Intel · alrededor de 1,2 MB",
+      "Versión 1.7.0 · DMG universal para Apple silicon e Intel · alrededor de 2,1 MB",
     trustLine:
       "Permisos nativos de macOS. Los layouts se quedan en tu Mac.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
     requirementsTitle: "Requisitos",
     requirementMinimum: "macOS 14.0 o posterior",
     requirementChip: "Macs Apple silicon e Intel",
-    requirementSize: "DMG: alrededor de 1,2 MB",
+    requirementSize: "DMG: alrededor de 2,1 MB",
     requirementSignature: "Seguridad y transparencia",
     accessibilityTitle: "Por qué necesita permiso de Accesibilidad",
     accessibilityBody:
@@ -315,14 +315,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle per a macOS",
     languageLabel: "Idiomes",
     downloadMeta:
-      "Versió 1.6.0 · DMG universal per a Apple silicon i Intel · prop d’1,2 MB",
+      "Versió 1.7.0 · DMG universal per a Apple silicon i Intel · prop de 2,1 MB",
     trustLine:
       "Permisos natius de macOS. Els layouts es queden al Mac.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
     requirementsTitle: "Requisits",
     requirementMinimum: "macOS 14.0 o posterior",
     requirementChip: "Macs Apple silicon i Intel",
-    requirementSize: "DMG: prop d’1,2 MB",
+    requirementSize: "DMG: prop de 2,1 MB",
     requirementSignature: "Seguretat i transparència",
     accessibilityTitle: "Per què necessita permís d’Accessibilitat",
     accessibilityBody:
@@ -405,14 +405,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle pour macOS",
     languageLabel: "Langues",
     downloadMeta:
-      "Version 1.6.0 · DMG universel Apple silicon et Intel · environ 1,2 Mo",
+      "Version 1.7.0 · DMG universel Apple silicon et Intel · environ 2,1 Mo",
     trustLine:
       "Autorisations natives de macOS. Les agencements restent sur votre Mac.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
     requirementsTitle: "Prérequis",
     requirementMinimum: "macOS 14.0 ou plus récent",
     requirementChip: "Mac Apple silicon et Intel",
-    requirementSize: "DMG : environ 1,2 Mo",
+    requirementSize: "DMG : environ 2,1 Mo",
     requirementSignature: "Sécurité et transparence",
     accessibilityTitle: "Pourquoi l’autorisation Accessibilité est nécessaire",
     accessibilityBody:
@@ -494,14 +494,14 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle für macOS",
     languageLabel: "Sprachen",
     downloadMeta:
-      "Version 1.6.0 · universelles DMG für Apple Silicon und Intel · etwa 1,2 MB",
+      "Version 1.7.0 · universelles DMG für Apple Silicon und Intel · etwa 2,1 MB",
     trustLine:
       "Native macOS-Berechtigungen. Layouts bleiben auf deinem Mac.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",
     requirementsTitle: "Voraussetzungen",
     requirementMinimum: "macOS 14.0 oder neuer",
     requirementChip: "Apple-Silicon- und Intel-Macs",
-    requirementSize: "DMG: etwa 1,2 MB",
+    requirementSize: "DMG: etwa 2,1 MB",
     requirementSignature: "Sicherheit und Transparenz",
     accessibilityTitle: "Warum Bedienungshilfen benötigt werden",
     accessibilityBody:
