@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.9.0 (unreleased)
+## v1.9.0
 
 - Added a global Settings preference to leave, minimize, or close visible windows outside a successfully restored layout in the current Space.
 - Added a destructive confirmation before automatic closing can be enabled, while keeping manual close and minimize actions available.
