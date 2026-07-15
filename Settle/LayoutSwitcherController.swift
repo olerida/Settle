@@ -79,11 +79,13 @@ final class LayoutSwitcherController {
     func show(
         items: [LayoutSwitcherItem],
         selectedID: UUID,
-        shortcut: LayoutSwitcherShortcut
+        shortcut: LayoutSwitcherShortcut,
+        actionShortcuts: LayoutSwitcherActionShortcuts
     ) {
         model.items = items
         model.selectedID = selectedID
         model.shortcut = shortcut
+        model.actionShortcuts = actionShortcuts
         presentationState.beginPresentation()
 
         let panel = panel ?? makePanel()
@@ -160,7 +162,7 @@ final class LayoutSwitcherController {
         let visibleFrame = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
         let desiredWidth = CGFloat(max(itemCount, 1)) * 218 + 52
         let width = min(max(desiredWidth, 310), visibleFrame.width - 64)
-        let height: CGFloat = 238
+        let height: CGFloat = 260
         let frame = NSRect(
             x: visibleFrame.midX - width / 2,
             y: visibleFrame.midY - height / 2,
@@ -176,6 +178,7 @@ private final class LayoutSwitcherModel: ObservableObject {
     @Published var items: [LayoutSwitcherItem] = []
     @Published var selectedID: UUID?
     @Published var shortcut = LayoutSwitcherShortcut.defaultShortcut
+    @Published var actionShortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
 }
 
 private struct LayoutSwitcherOverlay: View {
@@ -214,6 +217,17 @@ private struct LayoutSwitcherOverlay: View {
                 L10n.format(
                     "%@ next · Shift previous · Esc cancel",
                     model.shortcut.displayString
+                )
+            )
+            .font(.caption2)
+            .foregroundStyle(Color.white.opacity(0.68))
+
+            Text(
+                L10n.format(
+                    "%@ close layout · %@ close others · %@ minimize others",
+                    model.actionShortcuts.closeActiveLayout.keyLabel,
+                    model.actionShortcuts.closeOtherWindows.keyLabel,
+                    model.actionShortcuts.minimizeOtherWindows.keyLabel
                 )
             )
             .font(.caption2)

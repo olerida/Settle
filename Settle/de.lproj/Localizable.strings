@@ -172,3 +172,13 @@
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Verwende genau eine Sondertaste und eine Taste. Die Umschalttaste ist für das Zurückgehen reserviert.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Halte das Tastenkürzel gedrückt und drücke die Taste wiederholt, um aktive Layouts zu durchlaufen. Umschalt geht zurück; lass die Sondertaste zum Wechseln los.";
 "The default Option-Tab shortcut replaces Safari's control-navigation shortcut while Settle is running." = "Das standardmäßige Wahl-Tab-Tastenkürzel ersetzt Safaris Steuerelementnavigation, solange Settle ausgeführt wird.";
+"Close Active Layout" = "Aktives Layout schließen";
+"Close active layout shortcut" = "Kurzbefehl zum Schließen des aktiven Layouts";
+"Close other windows shortcut" = "Kurzbefehl zum Schließen anderer Fenster";
+"Minimize other windows shortcut" = "Kurzbefehl zum Minimieren anderer Fenster";
+"Restore Action Defaults" = "Standardaktionen wiederherstellen";
+"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "Halte die Sondertaste des Layout-Umschalters gedrückt und drücke eine Aktionstaste, um das aktive Layout im aktuellen Space zu bearbeiten.";
+"Press key" = "Taste drücken";
+"The switcher and action keys must be unique. Escape is reserved." = "Die Umschalt- und Aktionstasten müssen eindeutig sein. Escape ist reserviert.";
+"Press one action key without modifiers." = "Drücke genau eine Aktionstaste ohne Sondertasten.";
+"%@ close layout · %@ close others · %@ minimize others" = "%@ Layout schließen · %@ andere schließen · %@ andere minimieren";

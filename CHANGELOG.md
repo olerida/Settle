@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.10.0
+
+- Added configurable layout-switcher action keys for closing the active layout, closing other visible windows, and minimizing other visible windows in the current Space.
+- Added `Option-Tab+C`, `Option-Tab+K`, and `Option-Tab+M` as the default action sequences, with conflict validation and persistent Settings controls.
+- Added localized action guidance to the layout switcher overlay in English, Spanish, Catalan, French, and German.
+
 ## v1.9.1
 
 - Fixed the active-layout snapshot overlay intermittently staying hidden when reopened during its dismissal animation.

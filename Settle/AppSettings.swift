@@ -84,12 +84,14 @@ final class AppSettings: ObservableObject {
     @Published private(set) var launchAtLoginError: String?
     @Published private(set) var defaultLayoutID: UUID?
     @Published private(set) var layoutSwitcherShortcut: LayoutSwitcherShortcut?
+    @Published private(set) var layoutSwitcherActionShortcuts: LayoutSwitcherActionShortcuts
     @Published private(set) var automaticExtraWindowsBehavior: AutomaticExtraWindowsBehavior
 
     private enum Keys {
         static let defaultLayoutID = "defaultLayoutID"
         static let layoutSwitcherShortcut = "layoutSwitcherShortcut"
         static let layoutSwitcherDisabled = "layoutSwitcherDisabled"
+        static let layoutSwitcherActionShortcuts = "layoutSwitcherActionShortcuts"
         static let automaticExtraWindowsBehavior = "automaticExtraWindowsBehavior"
     }
 
@@ -106,6 +108,7 @@ final class AppSettings: ObservableObject {
         self.automaticExtraWindowsBehavior = AutomaticExtraWindowsBehavior(
             rawValue: defaults.string(forKey: Keys.automaticExtraWindowsBehavior) ?? ""
         ) ?? .leaveUntouched
+        self.layoutSwitcherActionShortcuts = .defaultShortcuts
         self.defaultLayoutID = defaults
             .string(forKey: Keys.defaultLayoutID)
             .flatMap(UUID.init(uuidString:))
@@ -118,6 +121,13 @@ final class AppSettings: ObservableObject {
             self.layoutSwitcherShortcut = shortcut
         } else {
             self.layoutSwitcherShortcut = .defaultShortcut
+        }
+        if
+            let data = defaults.data(forKey: Keys.layoutSwitcherActionShortcuts),
+            let shortcuts = try? JSONDecoder().decode(LayoutSwitcherActionShortcuts.self, from: data),
+            shortcuts.isValid(primaryKeyCode: self.layoutSwitcherShortcut?.keyCode)
+        {
+            self.layoutSwitcherActionShortcuts = shortcuts
         }
     }
 
@@ -159,6 +169,17 @@ final class AppSettings: ObservableObject {
 
     func resetLayoutSwitcherShortcut() {
         setLayoutSwitcherShortcut(.defaultShortcut)
+    }
+
+    func setLayoutSwitcherActionShortcuts(_ shortcuts: LayoutSwitcherActionShortcuts) {
+        layoutSwitcherActionShortcuts = shortcuts
+        if let data = try? JSONEncoder().encode(shortcuts) {
+            defaults.set(data, forKey: Keys.layoutSwitcherActionShortcuts)
+        }
+    }
+
+    func resetLayoutSwitcherActionShortcuts() {
+        setLayoutSwitcherActionShortcuts(.defaultShortcuts)
     }
 
     func setAutomaticExtraWindowsBehavior(_ behavior: AutomaticExtraWindowsBehavior) {

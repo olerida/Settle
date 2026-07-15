@@ -31,7 +31,8 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Active layout highlighting that follows the current Space
 - Session-scoped indicators for layouts recently detected in other Spaces
 - Best-effort navigation to a remembered layout Space by clicking its row
-- Responsive global active-layout switcher with snapshots, names, reverse navigation, and `Option-Tab` as the configurable default shortcut
+- Responsive global active-layout switcher with snapshots, names, reverse navigation, and configurable navigation and action shortcuts
+- While holding the layout switcher, close the active layout or close/minimize unrelated windows in the current Space with configurable action keys
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list
@@ -81,7 +82,7 @@ Automatic layout restore also requires Accessibility permission. A signed embedd
 
 Settle does not use Accessibility to read document contents, passwords, browser page contents, or keystrokes.
 
-The layout switcher shortcut can be changed, disabled, or restored to `Option-Tab` in Settings. On macOS, that default may replace Safari's keyboard focus navigation while Settle is running.
+The layout switcher shortcut can be changed, disabled, or restored to `Option-Tab` in Settings. While holding it, the default action keys are `C` to close the active layout, `K` to close unrelated visible windows, and `M` to minimize them in the current Space. Every action key is configurable. On macOS, the default `Option-Tab` shortcut may replace Safari's keyboard focus navigation while Settle is running.
 
 Screen Recording access is used only to capture layout preview thumbnails. Settle does not capture system audio.
 
@@ -122,7 +123,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.9.1`
+Current documented release: `v1.10.0`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 

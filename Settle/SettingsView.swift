@@ -137,6 +137,50 @@ private struct GeneralSettingsPane: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Divider()
+
+                LabeledContent(L10n.tr("Close Active Layout")) {
+                    LayoutSwitcherActionShortcutRecorder(
+                        shortcut: settings.layoutSwitcherActionShortcuts.closeActiveLayout,
+                        switcherShortcut: settings.layoutSwitcherShortcut,
+                        accessibilityLabel: L10n.tr("Close active layout shortcut"),
+                        onChange: { coordinator.setLayoutSwitcherActionShortcut($0, for: .closeActiveLayout) },
+                        onInvalid: coordinator.reportInvalidLayoutSwitcherActionShortcut,
+                        onRecordingChanged: coordinator.setLayoutSwitcherShortcutRecording
+                    )
+                }
+
+                LabeledContent(L10n.tr("Close Others")) {
+                    LayoutSwitcherActionShortcutRecorder(
+                        shortcut: settings.layoutSwitcherActionShortcuts.closeOtherWindows,
+                        switcherShortcut: settings.layoutSwitcherShortcut,
+                        accessibilityLabel: L10n.tr("Close other windows shortcut"),
+                        onChange: { coordinator.setLayoutSwitcherActionShortcut($0, for: .closeOtherWindows) },
+                        onInvalid: coordinator.reportInvalidLayoutSwitcherActionShortcut,
+                        onRecordingChanged: coordinator.setLayoutSwitcherShortcutRecording
+                    )
+                }
+
+                LabeledContent(L10n.tr("Minimize Others")) {
+                    LayoutSwitcherActionShortcutRecorder(
+                        shortcut: settings.layoutSwitcherActionShortcuts.minimizeOtherWindows,
+                        switcherShortcut: settings.layoutSwitcherShortcut,
+                        accessibilityLabel: L10n.tr("Minimize other windows shortcut"),
+                        onChange: { coordinator.setLayoutSwitcherActionShortcut($0, for: .minimizeOtherWindows) },
+                        onInvalid: coordinator.reportInvalidLayoutSwitcherActionShortcut,
+                        onRecordingChanged: coordinator.setLayoutSwitcherShortcutRecording
+                    )
+                }
+
+                Button(L10n.tr("Restore Action Defaults")) {
+                    coordinator.resetLayoutSwitcherActionShortcuts()
+                }
+                .disabled(settings.layoutSwitcherActionShortcuts == .defaultShortcuts)
+
+                Text(L10n.tr("While holding the layout switcher modifier, press an action key to affect the active layout in the current Space."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 if let error = coordinator.layoutSwitcherShortcutError {
                     Text(error)
                         .font(.caption)
