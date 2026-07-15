@@ -31,7 +31,7 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Active layout highlighting that follows the current Space
 - Session-scoped indicators for layouts recently detected in other Spaces
 - Best-effort navigation to a remembered layout Space by clicking its row
-- Global active-layout switcher with snapshots, names, reverse navigation, and `Option-Tab` as the configurable default shortcut
+- Responsive global active-layout switcher with snapshots, names, reverse navigation, and `Option-Tab` as the configurable default shortcut
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list
@@ -122,7 +122,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.9.0`
+Current documented release: `v1.9.1`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 
