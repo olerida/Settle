@@ -191,13 +191,13 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 560px;
+  min-height: 680px;
   animation: rise 800ms 100ms ease both;
 }
 
 .real-app-shot {
   display: block;
-  width: min(100%, 620px);
+  width: min(100%, 430px);
 }
 
 .real-app-shot img {
@@ -278,6 +278,28 @@ h1 {
   color: rgba(255, 255, 255, 0.68);
   font-size: 21px;
   line-height: 1.45;
+}
+
+.shortcut-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.shortcut-eyebrow kbd {
+  min-width: 32px;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font: inherit;
+  text-align: center;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.12);
+}
+
+.shortcut-eyebrow span {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .demo-video {
@@ -576,6 +598,7 @@ h2 {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+    animation: none !important;
     animation-duration: 1ms !important;
     transition-duration: 1ms !important;
   }
@@ -598,7 +621,7 @@ h2 {
   }
 
   .product-visual {
-    min-height: 470px;
+    min-height: 620px;
   }
 
   .requirements-strip,
@@ -736,7 +759,7 @@ h2 {
   }
 
   .real-app-shot {
-    width: min(100%, 260px);
+    width: min(100%, 280px);
   }
 
   .real-app-shot img {

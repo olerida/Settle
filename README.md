@@ -1,14 +1,24 @@
 # Settle
 
-**Your Mac windows, right where you left them.**
+**Switch layouts. Keep your flow.**
 
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-007AFF?logo=apple&logoColor=white)](#requirements)
 [![Swift](https://img.shields.io/badge/Swift-native-F05138?logo=swift&logoColor=white)](Settle)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2EA44F)](LICENSE)
 
-Switch between work, coding, meeting, and study setups in seconds. Settle reopens your apps and restores every window's size and position while leaving unrelated windows untouched.
+Your work is more than one app. Save complete window layouts for coding, meetings, focus, or home, then move between active layouts in seconds with `Option-Tab`.
 
-![Settle menu preview](web/public/settle-preview.png)
+## Keyboard-driven layout switcher
+
+Hold `Option-Tab` to open a visual overview of the layouts active during the current Settle session. Keep pressing `Tab` to move forward, use `Shift` to move backward, and release the shortcut to restore the selected layout.
+
+While the switcher is open, the default action keys let you close the selected layout with `C`, close unrelated visible windows with `K`, or minimize them with `M`. Navigation and action shortcuts are configurable in Settings.
+
+![Settle layout switcher preview](web/public/layout-switcher-demo.jpg)
+
+## Multi-display support
+
+Settle records which display contains each window and its proportional position inside that display. Layouts remain usable after monitors are rearranged, resized, reconfigured, or temporarily disconnected. If a saved display is unavailable, Settle moves the affected window to a usable position on the main display.
 
 ## Highlights
 
@@ -17,7 +27,6 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Update a layout in place without renaming it; browser tab URLs require explicit confirmation
 - Keep newly saved or updated layouts active immediately in their current Space
 - Restore layouts without taking matching app windows away from other Spaces
-- Restore multi-display layouts proportionally after displays are moved, resized, reconfigured, or disconnected
 - Restore front-to-back layering consistently using native macOS application window groups
 - Smarter Safari and Chrome recovery: targets their New Window command before using the standard fallback for other apps
 - Optionally save and reopen normal Safari and Chrome tab URLs per layout (requires macOS Automation permission)
@@ -31,8 +40,6 @@ Switch between work, coding, meeting, and study setups in seconds. Settle reopen
 - Active layout highlighting that follows the current Space
 - Session-scoped indicators for layouts recently detected in other Spaces
 - Best-effort navigation to a remembered layout Space by clicking its row
-- Responsive global active-layout switcher with snapshots, names, reverse navigation, and configurable navigation and action shortcuts
-- While holding the layout switcher, close the active layout or close/minimize unrelated windows in the current Space with configurable action keys
 - Unified action bar with primary save, contextual window actions, and a clearly separated destructive quit action
 - Dedicated pinned layouts section with manual drag-to-reorder
 - Layout snapshot previews inside the saved layouts list

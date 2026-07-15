@@ -42,10 +42,9 @@ const githubUrl = 'https://github.com/olerida/Settle';
       </div>
 
       <div class="product-visual" aria-label={t.visualSubtitle}>
-        <picture class="real-app-shot">
-          <source srcset="/settle-menu-dark.png" media="(prefers-color-scheme: dark)" />
-          <img src="/settle-menu-light.png" width="960" height="960" alt={t.screenshotAlt} loading="eager" decoding="async" />
-        </picture>
+        <div class="real-app-shot">
+          <img src="/settle-panel.png" width="917" height="1487" alt={t.screenshotAlt} loading="eager" decoding="async" fetchpriority="high" />
+        </div>
       </div>
     </section>
 
@@ -66,12 +65,12 @@ const githubUrl = 'https://github.com/olerida/Settle';
 
     <section id="demo" class="demo-section" aria-labelledby="demo-title">
       <div class="demo-copy">
-        <p class="eyebrow">Settle</p>
+        <p class="eyebrow shortcut-eyebrow"><kbd>⌥</kbd><span>+</span><kbd>Tab</kbd></p>
         <h2 id="demo-title">{t.demoTitle}</h2>
         <p>{t.demoBody}</p>
       </div>
-      <video class="demo-video" controls playsinline preload="metadata" poster="/demo-poster.jpg" aria-label={t.demoVideoLabel}>
-        <source src="/Demo Settle.mov" type="video/quicktime" />
+      <video class="demo-video" controls playsinline preload="metadata" poster="/layout-switcher-demo.jpg" aria-label={t.demoVideoLabel}>
+        <source src="/settle-layout-switching.mp4" type="video/mp4" />
       </video>
     </section>
 

@@ -76,18 +76,18 @@ type Copy = {
 
 export const copy: Record<Language, Copy> = {
   en: {
-    metaTitle: "Settle - Save and restore macOS window layouts",
+    metaTitle: "Settle - Switch between macOS window layouts",
     metaDescription:
-      "Settle is a lightweight macOS menu bar app that saves and restores window layouts on the current desktop.",
+      "Save complete Mac window layouts and switch between them in seconds with Option-Tab.",
     navFeatures: "Features",
     navDemo: "Demo",
     navPrivacy: "Privacy",
     navInstall: "Install",
     navDownload: "Download",
     heroEyebrow: "Menu bar app for macOS",
-    heroTitle: "Your Mac windows, right where you left them.",
+    heroTitle: "Switch layouts. Keep your flow.",
     heroBody:
-      "Switch between work, coding, meeting, and study setups in seconds. Settle restores your windows, cycles through active layouts with Option-Tab, and runs layout actions with C, K, or M while you hold it.",
+      "Your work is more than one app. Save complete window layouts for coding, meetings, focus, or home, then move between them in seconds with Option-Tab.",
     primaryCta: "Download for macOS",
     secondaryCta: "View source",
     visualTitle: "Current desktop",
@@ -100,19 +100,19 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 apps",
     visualSixApps: "6 apps",
     screenshotAlt: "Settle menu showing saved window layouts",
-    demoTitle: "See Settle in action.",
+    demoTitle: "One shortcut. A complete context switch.",
     demoBody:
-      "Save a workspace, switch context, and restore every app and window to its place.",
-    demoVideoLabel: "Video demonstration of Settle restoring a window layout",
-    supportTitle: "Built for the way macOS already works.",
+      "Hold Option-Tab, preview your active layouts, and release to bring every window into place.",
+    demoVideoLabel: "Video showing Settle switching between complete window layouts with Option-Tab",
+    supportTitle: "Work in layouts, not individual apps.",
     supportBody:
-      "Settle stays in the menu bar, uses native permissions, and keeps the current desktop as the boundary.",
-    supportOneTitle: "Save the current layout",
+      "Settle turns each activity into a complete window setup while keeping the current macOS Space as the boundary.",
+    supportOneTitle: "Capture the whole context",
     supportOneBody:
-      "Capture visible app windows, their sizes, and their positions in one action.",
-    supportTwoTitle: "Restore with intent",
+      "Save the visible apps, windows, sizes, positions, and layering in one action.",
+    supportTwoTitle: "Switch with Option-Tab",
     supportTwoBody:
-      "Reopen apps when possible and move windows back into place using Accessibility.",
+      "Preview active layouts, choose one from the keyboard, and restore the complete setup.",
     supportThreeTitle: "Handle extra windows your way",
     supportThreeBody:
       "Leave, minimize, or close unrelated visible windows after a successful restore.",
@@ -165,18 +165,18 @@ export const copy: Record<Language, Copy> = {
     installVideoLabel: "Video showing how to install and set up Settle",
   },
   es: {
-    metaTitle: "Settle - Guarda y restaura layouts de ventanas en macOS",
+    metaTitle: "Settle - Cambia entre layouts de ventanas en macOS",
     metaDescription:
-      "Settle es una app ligera de barra de menús para macOS que guarda y restaura layouts de ventanas del escritorio actual.",
+      "Guarda layouts completos de ventanas del Mac y cambia entre ellos en segundos con Opción-Tab.",
     navFeatures: "Funciones",
     navDemo: "Demo",
     navPrivacy: "Privacidad",
     navInstall: "Instalación",
     navDownload: "Descargar",
     heroEyebrow: "App de barra de menús para macOS",
-    heroTitle: "Tus ventanas del Mac, justo donde las dejaste.",
+    heroTitle: "Cambia de layout. Mantén el ritmo.",
     heroBody:
-      "Cambia en segundos entre configuraciones de trabajo, programación, reuniones y estudio. Settle restaura tus ventanas, recorre los layouts activos con Opción-Tab y ejecuta acciones con C, K o M mientras lo mantienes pulsado.",
+      "Tu trabajo es más que una app. Guarda layouts completos para programar, reunirte, concentrarte o estar en casa y cambia entre ellos en segundos con Opción-Tab.",
     primaryCta: "Descargar para macOS",
     secondaryCta: "Ver código",
     visualTitle: "Escritorio actual",
@@ -189,19 +189,19 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 apps",
     visualSixApps: "6 apps",
     screenshotAlt: "Menú de Settle mostrando layouts de ventanas guardados",
-    demoTitle: "Mira Settle en acción.",
+    demoTitle: "Un atajo. Un cambio de contexto completo.",
     demoBody:
-      "Guarda un espacio de trabajo, cambia de contexto y devuelve cada app y ventana a su sitio.",
-    demoVideoLabel: "Vídeo de demostración de Settle restaurando un layout de ventanas",
-    supportTitle: "Pensada para cómo macOS ya funciona.",
+      "Mantén Opción-Tab, previsualiza tus layouts activos y suelta para devolver cada ventana a su sitio.",
+    demoVideoLabel: "Vídeo de Settle cambiando entre layouts completos con Opción-Tab",
+    supportTitle: "Trabaja con layouts, no con apps aisladas.",
     supportBody:
-      "Settle vive en la barra de menús, usa permisos nativos y toma el escritorio actual como límite.",
-    supportOneTitle: "Guarda el layout actual",
+      "Settle convierte cada actividad en una configuración completa de ventanas y mantiene el Space actual de macOS como límite.",
+    supportOneTitle: "Captura todo el contexto",
     supportOneBody:
-      "Captura ventanas visibles, tamaños y posiciones en una sola acción.",
-    supportTwoTitle: "Restaura con intención",
+      "Guarda apps visibles, ventanas, tamaños, posiciones y capas en una sola acción.",
+    supportTwoTitle: "Cambia con Opción-Tab",
     supportTwoBody:
-      "Reabre apps cuando es posible y recoloca ventanas mediante Accesibilidad.",
+      "Previsualiza los layouts activos, elige uno con el teclado y restaura toda la configuración.",
     supportThreeTitle: "Gestiona las ventanas extra a tu manera",
     supportThreeBody:
       "Déjalas intactas, minimízalas o ciérralas tras restaurar correctamente un layout.",
@@ -254,18 +254,18 @@ export const copy: Record<Language, Copy> = {
     installVideoLabel: "Vídeo del proceso de instalación y configuración de Settle",
   },
   ca: {
-    metaTitle: "Settle - Desa i restaura layouts de finestres a macOS",
+    metaTitle: "Settle - Canvia entre layouts de finestres a macOS",
     metaDescription:
-      "Settle és una app lleugera de barra de menús per a macOS que desa i restaura layouts de finestres de l’escriptori actual.",
+      "Desa layouts complets de finestres del Mac i canvia entre ells en segons amb Opció-Tab.",
     navFeatures: "Funcions",
     navDemo: "Demo",
     navPrivacy: "Privacitat",
     navInstall: "Instal·lació",
     navDownload: "Descarrega",
     heroEyebrow: "App de barra de menús per a macOS",
-    heroTitle: "Les finestres del Mac, just on les vas deixar.",
+    heroTitle: "Canvia de layout. Mantén el ritme.",
     heroBody:
-      "Canvia en segons entre configuracions de feina, programació, reunions i estudi. Settle restaura les finestres, recorre els layouts actius amb Opció-Tab i executa accions amb C, K o M mentre el mantens premut.",
+      "La teva feina és més que una app. Desa layouts complets per programar, reunir-te, concentrar-te o ser a casa i canvia entre ells en segons amb Opció-Tab.",
     primaryCta: "Descarrega per a macOS",
     secondaryCta: "Veure codi",
     visualTitle: "Escriptori actual",
@@ -278,19 +278,19 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 apps",
     visualSixApps: "6 apps",
     screenshotAlt: "Menú de Settle amb layouts de finestres desats",
-    demoTitle: "Mira Settle en acció.",
+    demoTitle: "Una drecera. Un canvi de context complet.",
     demoBody:
-      "Desa un espai de treball, canvia de context i torna cada app i finestra al seu lloc.",
-    demoVideoLabel: "Vídeo de demostració de Settle restaurant un layout de finestres",
-    supportTitle: "Feta per a la manera com macOS ja funciona.",
+      "Mantén Opció-Tab, previsualitza els layouts actius i deixa anar les tecles per tornar cada finestra al seu lloc.",
+    demoVideoLabel: "Vídeo de Settle canviant entre layouts complets amb Opció-Tab",
+    supportTitle: "Treballa amb layouts, no amb apps aïllades.",
     supportBody:
-      "Settle viu a la barra de menús, usa permisos natius i pren l’escriptori actual com a límit.",
-    supportOneTitle: "Desa el layout actual",
+      "Settle converteix cada activitat en una configuració completa de finestres i manté l’Space actual de macOS com a límit.",
+    supportOneTitle: "Captura tot el context",
     supportOneBody:
-      "Captura finestres visibles, mides i posicions en una sola acció.",
-    supportTwoTitle: "Restaura amb intenció",
+      "Desa apps visibles, finestres, mides, posicions i capes en una sola acció.",
+    supportTwoTitle: "Canvia amb Opció-Tab",
     supportTwoBody:
-      "Reobre apps quan és possible i recol·loca finestres amb Accessibilitat.",
+      "Previsualitza els layouts actius, tria'n un amb el teclat i restaura tota la configuració.",
     supportThreeTitle: "Gestiona les finestres extra a la teva manera",
     supportThreeBody:
       "Deixa-les intactes, minimitza-les o tanca-les després de restaurar correctament un layout.",
@@ -343,18 +343,18 @@ export const copy: Record<Language, Copy> = {
     installVideoLabel: "Vídeo del procés d’instal·lació i configuració de Settle",
   },
   fr: {
-    metaTitle: "Settle - Enregistrer et restaurer les fenêtres sur macOS",
+    metaTitle: "Settle - Passer d’un agencement de fenêtres à l’autre sur macOS",
     metaDescription:
-      "Settle est une app légère de barre des menus pour macOS qui enregistre et restaure les agencements de fenêtres du bureau actuel.",
+      "Enregistrez des agencements complets de fenêtres Mac et passez de l’un à l’autre en quelques secondes avec Option-Tab.",
     navFeatures: "Fonctions",
     navDemo: "Démo",
     navPrivacy: "Confidentialité",
     navInstall: "Installation",
     navDownload: "Télécharger",
     heroEyebrow: "App de barre des menus pour macOS",
-    heroTitle: "Les fenêtres de votre Mac, exactement là où vous les avez laissées.",
+    heroTitle: "Changez d’agencement. Gardez votre rythme.",
     heroBody:
-      "Passez en quelques secondes d’une configuration à une autre. Settle restaure vos fenêtres, parcourt les dispositions actives avec Option-Tab et exécute des actions avec C, K ou M tant que vous le maintenez.",
+      "Votre travail ne se limite pas à une app. Enregistrez des agencements complets pour coder, vous réunir ou vous concentrer, puis passez de l’un à l’autre avec Option-Tab.",
     primaryCta: "Télécharger pour macOS",
     secondaryCta: "Voir le code",
     visualTitle: "Bureau actuel",
@@ -368,19 +368,19 @@ export const copy: Record<Language, Copy> = {
     visualSixApps: "6 apps",
     screenshotAlt:
       "Menu Settle affichant des agencements de fenêtres enregistrés",
-    demoTitle: "Découvrez Settle en action.",
+    demoTitle: "Un raccourci. Un changement de contexte complet.",
     demoBody:
-      "Enregistrez un espace de travail, changez de contexte et remettez chaque app et fenêtre à sa place.",
-    demoVideoLabel: "Vidéo de démonstration de Settle restaurant un agencement de fenêtres",
-    supportTitle: "Pensée pour la façon dont macOS fonctionne déjà.",
+      "Maintenez Option-Tab, prévisualisez vos agencements actifs, puis relâchez pour remettre chaque fenêtre à sa place.",
+    demoVideoLabel: "Vidéo de Settle passant d’un agencement complet à l’autre avec Option-Tab",
+    supportTitle: "Travaillez par agencements, pas par apps isolées.",
     supportBody:
-      "Settle reste dans la barre des menus, utilise les autorisations natives et limite son action au bureau actuel.",
-    supportOneTitle: "Enregistrez l’agencement actuel",
+      "Settle transforme chaque activité en une configuration complète de fenêtres, limitée au Space macOS actuel.",
+    supportOneTitle: "Capturez tout le contexte",
     supportOneBody:
-      "Capturez les fenêtres visibles, leurs tailles et leurs positions en une action.",
-    supportTwoTitle: "Restaurez avec précision",
+      "Enregistrez les apps visibles, les fenêtres, les tailles, les positions et leur ordre en une action.",
+    supportTwoTitle: "Passez de l’un à l’autre avec Option-Tab",
     supportTwoBody:
-      "Rouvrez les apps quand c’est possible et replacez les fenêtres avec Accessibilité.",
+      "Prévisualisez les agencements actifs, choisissez au clavier et restaurez toute la configuration.",
     supportThreeTitle: "Gérez les fenêtres supplémentaires à votre façon",
     supportThreeBody:
       "Laissez, réduisez ou fermez les fenêtres visibles non liées après une restauration réussie.",
@@ -433,18 +433,18 @@ export const copy: Record<Language, Copy> = {
     installVideoLabel: "Vidéo du processus d’installation et de configuration de Settle",
   },
   de: {
-    metaTitle: "Settle - macOS-Fensterlayouts speichern und wiederherstellen",
+    metaTitle: "Settle - Zwischen macOS-Fensterlayouts wechseln",
     metaDescription:
-      "Settle ist eine leichte Menüleisten-App für macOS, die Fensterlayouts des aktuellen Schreibtischs speichert und wiederherstellt.",
+      "Speichere vollständige Mac-Fensterlayouts und wechsle mit Wahltaste-Tab in Sekunden zwischen ihnen.",
     navFeatures: "Funktionen",
     navDemo: "Demo",
     navPrivacy: "Datenschutz",
     navInstall: "Installation",
     navDownload: "Download",
     heroEyebrow: "Menüleisten-App für macOS",
-    heroTitle: "Deine Mac-Fenster, genau dort, wo du sie gelassen hast.",
+    heroTitle: "Layout wechseln. Im Flow bleiben.",
     heroBody:
-      "Wechsle in Sekunden zwischen Arbeits-, Programmier-, Meeting- und Lernumgebungen. Settle stellt Fenster wieder her, wechselt mit Wahltaste-Tab durch aktive Layouts und führt dabei mit C, K oder M Aktionen aus.",
+      "Deine Arbeit ist mehr als eine App. Speichere vollständige Layouts fürs Programmieren, Meetings oder fokussiertes Arbeiten und wechsle mit Wahltaste-Tab zwischen ihnen.",
     primaryCta: "Für macOS laden",
     secondaryCta: "Quellcode",
     visualTitle: "Aktueller Schreibtisch",
@@ -457,19 +457,19 @@ export const copy: Record<Language, Copy> = {
     visualFourApps: "4 Apps",
     visualSixApps: "6 Apps",
     screenshotAlt: "Settle-Menü mit gespeicherten Fensterlayouts",
-    demoTitle: "Settle in Aktion.",
+    demoTitle: "Ein Kurzbefehl. Ein vollständiger Kontextwechsel.",
     demoBody:
-      "Speichere einen Arbeitsbereich, wechsle den Kontext und bringe jede App und jedes Fenster zurück an seinen Platz.",
-    demoVideoLabel: "Videodemonstration von Settle beim Wiederherstellen eines Fensterlayouts",
-    supportTitle: "Gemacht für die Art, wie macOS bereits funktioniert.",
+      "Halte Wahltaste-Tab, sieh aktive Layouts in der Vorschau und lasse los, um jedes Fenster an seinen Platz zu bringen.",
+    demoVideoLabel: "Video von Settle beim Wechsel zwischen vollständigen Layouts mit Wahltaste-Tab",
+    supportTitle: "In Layouts arbeiten, nicht in einzelnen Apps.",
     supportBody:
-      "Settle bleibt in der Menüleiste, nutzt native Berechtigungen und behandelt den aktuellen Schreibtisch als Grenze.",
-    supportOneTitle: "Aktuelles Layout speichern",
+      "Settle macht aus jeder Tätigkeit eine vollständige Fensteranordnung und bleibt dabei im aktuellen macOS Space.",
+    supportOneTitle: "Den ganzen Kontext erfassen",
     supportOneBody:
-      "Sichtbare App-Fenster, Größen und Positionen mit einer Aktion erfassen.",
-    supportTwoTitle: "Gezielt wiederherstellen",
+      "Sichtbare Apps, Fenster, Größen, Positionen und Ebenen mit einer Aktion speichern.",
+    supportTwoTitle: "Mit Wahltaste-Tab wechseln",
     supportTwoBody:
-      "Apps nach Möglichkeit erneut öffnen und Fenster per Bedienungshilfen zurücksetzen.",
+      "Aktive Layouts ansehen, per Tastatur auswählen und die gesamte Anordnung wiederherstellen.",
     supportThreeTitle: "Zusätzliche Fenster nach Wunsch behandeln",
     supportThreeBody:
       "Nicht zugehörige sichtbare Fenster nach erfolgreicher Wiederherstellung belassen, minimieren oder schließen.",
