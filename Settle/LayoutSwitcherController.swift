@@ -48,11 +48,29 @@ enum LayoutSwitcherActiveOrder {
     }
 }
 
+struct LayoutSwitcherPresentationState {
+    private(set) var generation: UInt = 0
+
+    mutating func beginPresentation() {
+        generation &+= 1
+    }
+
+    mutating func beginDismissal() -> UInt {
+        generation &+= 1
+        return generation
+    }
+
+    func shouldCompleteDismissal(_ dismissalGeneration: UInt) -> Bool {
+        generation == dismissalGeneration
+    }
+}
+
 @MainActor
 final class LayoutSwitcherController {
     private let model = LayoutSwitcherModel()
     private var panel: LayoutSwitcherPanel?
     private var hostingView: NSHostingView<LayoutSwitcherOverlay>?
+    private var presentationState = LayoutSwitcherPresentationState()
 
     var isVisible: Bool {
         panel?.isVisible == true
@@ -66,15 +84,18 @@ final class LayoutSwitcherController {
         model.items = items
         model.selectedID = selectedID
         model.shortcut = shortcut
+        presentationState.beginPresentation()
 
         let panel = panel ?? makePanel()
         position(panel, itemCount: items.count)
 
-        guard !panel.isVisible else { return }
-        panel.alphaValue = 0
+        let wasVisible = panel.isVisible
+        if !wasVisible {
+            panel.alphaValue = 0
+        }
         panel.orderFrontRegardless()
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.12
+            context.duration = wasVisible ? 0.06 : 0.12
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().alphaValue = 1
         }
@@ -82,11 +103,18 @@ final class LayoutSwitcherController {
 
     func dismiss() {
         guard let panel, panel.isVisible else { return }
+        let dismissalGeneration = presentationState.beginDismissal()
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.08
             panel.animator().alphaValue = 0
-        }, completionHandler: { [weak panel] in
-            DispatchQueue.main.async {
+        }, completionHandler: { [weak self, weak panel] in
+            Task { @MainActor in
+                guard
+                    let self,
+                    self.presentationState.shouldCompleteDismissal(dismissalGeneration)
+                else {
+                    return
+                }
                 panel?.orderOut(nil)
                 panel?.alphaValue = 1
             }
@@ -212,6 +240,7 @@ private struct LayoutSwitcherOverlay: View {
 private struct LayoutSwitcherCard: View {
     let item: LayoutSwitcherItem
     let isSelected: Bool
+    @State private var snapshotImage: NSImage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
@@ -260,15 +289,39 @@ private struct LayoutSwitcherCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(item.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .task(id: item.snapshotURL) {
+            snapshotImage = nil
+            guard let snapshotURL = item.snapshotURL else { return }
+            let loadedImage = await LayoutSwitcherSnapshotImageLoader.shared.image(at: snapshotURL)
+            guard !Task.isCancelled else { return }
+            snapshotImage = loadedImage
+        }
     }
+}
 
-    private var snapshotImage: NSImage? {
-        guard let snapshotURL else { return nil }
-        return NSImage(contentsOf: snapshotURL)
-    }
+private struct LoadedSnapshotImage: @unchecked Sendable {
+    let image: NSImage?
+}
 
-    private var snapshotURL: URL? {
-        item.snapshotURL
+@MainActor
+private final class LayoutSwitcherSnapshotImageLoader {
+    static let shared = LayoutSwitcherSnapshotImageLoader()
+
+    private var cache: [URL: NSImage] = [:]
+
+    func image(at url: URL) async -> NSImage? {
+        if let cachedImage = cache[url] {
+            return cachedImage
+        }
+
+        let loadedImage = await Task.detached(priority: .userInitiated) {
+            LoadedSnapshotImage(image: NSImage(contentsOf: url))
+        }.value.image
+
+        if let loadedImage {
+            cache[url] = loadedImage
+        }
+        return loadedImage
     }
 }
 

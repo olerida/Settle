@@ -9,6 +9,15 @@ enum RestorePanelState: Equatable {
     case completedWithIncidents
 }
 
+private struct CurrentSpaceInspectionRequest: @unchecked Sendable {
+    let windowManager: WindowManager
+    let layouts: [Layout]
+}
+
+private struct CurrentSpaceInspectionResponse: @unchecked Sendable {
+    let inspection: WindowManager.CurrentSpaceInspection
+}
+
 @MainActor
 final class LayoutCoordinator: ObservableObject {
     @Published var statusMessage = L10n.tr("Ready")
@@ -350,7 +359,7 @@ final class LayoutCoordinator: ObservableObject {
             isSaveSheetPresented = false
             layoutBeingUpdated = nil
             presentHUD(for: layout)
-            registerCapturedLayoutAsActive(layout)
+            await registerCapturedLayoutAsActive(layout)
         } catch {
             statusMessage = error.localizedDescription
             saveErrorMessage = error.localizedDescription
@@ -751,7 +760,8 @@ final class LayoutCoordinator: ObservableObject {
         }
 
         do {
-            let inspection = try windowManager.inspectCurrentSpace(among: restoredLayouts)
+            let inspection = try await inspectCurrentSpace(among: restoredLayouts)
+            guard !Task.isCancelled else { return }
             let matchedLayoutID = inspection.matchedLayout?.id
 
             for rememberedLayoutID in layoutNavigationMemory.rememberedLayoutIDs where rememberedLayoutID != matchedLayoutID {
@@ -792,18 +802,33 @@ final class LayoutCoordinator: ObservableObject {
         refreshVisibleLayoutSwitcher()
     }
 
-    private func registerCapturedLayoutAsActive(_ layout: Layout) {
+    private func registerCapturedLayoutAsActive(_ layout: Layout) async {
         restoredLayoutIDs.insert(layout.id)
         lastDetectedLayoutID = layout.id
 
         guard
-            let inspection = try? windowManager.inspectCurrentSpace(among: [layout]),
+            let inspection = try? await inspectCurrentSpace(among: [layout]),
             inspection.matchedLayout?.id == layout.id,
             !inspection.navigationTargets.isEmpty
         else {
             return
         }
         rememberLayout(layout.id, targets: inspection.navigationTargets)
+    }
+
+    private func inspectCurrentSpace(
+        among layouts: [Layout]
+    ) async throws -> WindowManager.CurrentSpaceInspection {
+        let request = CurrentSpaceInspectionRequest(
+            windowManager: windowManager,
+            layouts: layouts
+        )
+        let response = try await Task.detached(priority: .userInitiated) {
+            CurrentSpaceInspectionResponse(
+                inspection: try request.windowManager.inspectCurrentSpace(among: request.layouts)
+            )
+        }.value
+        return response.inspection
     }
 
     private func forgetRememberedLayout(_ layoutID: UUID) {

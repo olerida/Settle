@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.9.1
+
+- Fixed the active-layout snapshot overlay intermittently staying hidden when reopened during its dismissal animation.
+- Moved snapshot image loading and current-Space Accessibility inspection off the main thread so the layout switcher appears promptly under load.
+
 ## v1.9.0
 
 - Added a global Settings preference to leave, minimize, or close visible windows outside a successfully restored layout in the current Space.

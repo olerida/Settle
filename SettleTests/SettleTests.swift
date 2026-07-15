@@ -1098,6 +1098,41 @@ final class SettleTests: XCTestCase {
         )
     }
 
+    func testLayoutSwitcherPresentationInvalidatesPendingDismissalWhenShownAgain() {
+        var state = LayoutSwitcherPresentationState()
+
+        state.beginPresentation()
+        let dismissalGeneration = state.beginDismissal()
+        XCTAssertTrue(state.shouldCompleteDismissal(dismissalGeneration))
+
+        state.beginPresentation()
+        XCTAssertFalse(state.shouldCompleteDismissal(dismissalGeneration))
+    }
+
+    @MainActor
+    func testLayoutSwitcherRemainsVisibleWhenShownDuringDismissal() async {
+        let controller = LayoutSwitcherController()
+        let item = LayoutSwitcherItem(id: UUID(), name: "Layout", snapshotURL: nil)
+
+        controller.show(
+            items: [item],
+            selectedID: item.id,
+            shortcut: .defaultShortcut
+        )
+        controller.dismiss()
+        controller.show(
+            items: [item],
+            selectedID: item.id,
+            shortcut: .defaultShortcut
+        )
+
+        try? await Task.sleep(for: .milliseconds(180))
+        XCTAssertTrue(controller.isVisible)
+
+        controller.dismiss()
+        try? await Task.sleep(for: .milliseconds(120))
+    }
+
     func testDefaultLayoutSwitcherShortcutUsesOptionTab() {
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.modifier, .option)
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.keyCode, 48)
