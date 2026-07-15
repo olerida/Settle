@@ -172,3 +172,13 @@
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Use exactly one modifier and one key. Shift is reserved for moving backward.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch.";
 "The default Option-Tab shortcut replaces Safari's control-navigation shortcut while Settle is running." = "The default Option-Tab shortcut replaces Safari's control-navigation shortcut while Settle is running.";
+"Close Active Layout" = "Close Active Layout";
+"Close active layout shortcut" = "Close active layout shortcut";
+"Close other windows shortcut" = "Close other windows shortcut";
+"Minimize other windows shortcut" = "Minimize other windows shortcut";
+"Restore Action Defaults" = "Restore Action Defaults";
+"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "While holding the layout switcher modifier, press an action key to affect the active layout in the current Space.";
+"Press key" = "Press key";
+"The switcher and action keys must be unique. Escape is reserved." = "The switcher and action keys must be unique. Escape is reserved.";
+"Press one action key without modifiers." = "Press one action key without modifiers.";
+"%@ close layout · %@ close others · %@ minimize others" = "%@ close layout · %@ close others · %@ minimize others";

@@ -1117,13 +1117,15 @@ final class SettleTests: XCTestCase {
         controller.show(
             items: [item],
             selectedID: item.id,
-            shortcut: .defaultShortcut
+            shortcut: .defaultShortcut,
+            actionShortcuts: .defaultShortcuts
         )
         controller.dismiss()
         controller.show(
             items: [item],
             selectedID: item.id,
-            shortcut: .defaultShortcut
+            shortcut: .defaultShortcut,
+            actionShortcuts: .defaultShortcuts
         )
 
         try? await Task.sleep(for: .milliseconds(180))
@@ -1137,6 +1139,29 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.modifier, .option)
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.keyCode, 48)
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.displayString, "⌥Tab")
+    }
+
+    func testDefaultLayoutSwitcherActionShortcutsUseCAndKAndM() {
+        let shortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
+
+        XCTAssertEqual(shortcuts.closeActiveLayout.keyCode, 8)
+        XCTAssertEqual(shortcuts.closeOtherWindows.keyCode, 40)
+        XCTAssertEqual(shortcuts.minimizeOtherWindows.keyCode, 46)
+        XCTAssertEqual(
+            shortcuts.closeActiveLayout.displayString(with: .defaultShortcut),
+            "⌥Tab+C"
+        )
+        XCTAssertTrue(shortcuts.isValid(primaryKeyCode: LayoutSwitcherShortcut.defaultShortcut.keyCode))
+    }
+
+    func testLayoutSwitcherActionShortcutValidationRejectsConflictingKeys() {
+        var shortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
+        shortcuts.closeOtherWindows = shortcuts.closeActiveLayout
+        XCTAssertFalse(shortcuts.isValid(primaryKeyCode: LayoutSwitcherShortcut.defaultShortcut.keyCode))
+
+        shortcuts = .defaultShortcuts
+        shortcuts.closeActiveLayout = LayoutSwitcherActionShortcut(keyCode: 48, keyLabel: "Tab")
+        XCTAssertFalse(shortcuts.isValid(primaryKeyCode: LayoutSwitcherShortcut.defaultShortcut.keyCode))
     }
 
     @MainActor
@@ -1314,6 +1339,31 @@ final class SettleTests: XCTestCase {
 
         reloadedDisabledSettings.resetLayoutSwitcherShortcut()
         XCTAssertEqual(reloadedDisabledSettings.layoutSwitcherShortcut, .defaultShortcut)
+    }
+
+    @MainActor
+    func testAppSettingsPersistsLayoutSwitcherActionShortcuts() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        var customShortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
+        customShortcuts.closeActiveLayout = LayoutSwitcherActionShortcut(keyCode: 38, keyLabel: "J")
+
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts, .defaultShortcuts)
+
+        settings.setLayoutSwitcherActionShortcuts(customShortcuts)
+        let reloadedSettings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+        XCTAssertEqual(reloadedSettings.layoutSwitcherActionShortcuts, customShortcuts)
+
+        reloadedSettings.resetLayoutSwitcherActionShortcuts()
+        XCTAssertEqual(reloadedSettings.layoutSwitcherActionShortcuts, .defaultShortcuts)
     }
 
     @MainActor

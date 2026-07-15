@@ -100,7 +100,8 @@ final class LayoutCoordinator: ObservableObject {
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
             do {
                 try layoutSwitcherHotKeyManager.start(
-                    shortcut: settings.layoutSwitcherShortcut
+                    shortcut: settings.layoutSwitcherShortcut,
+                    actionShortcuts: settings.layoutSwitcherActionShortcuts
                 ) { [weak self] event in
                     self?.handleLayoutSwitcherHotKeyEvent(event)
                 }
@@ -172,14 +173,24 @@ final class LayoutCoordinator: ObservableObject {
     }
 
     func setLayoutSwitcherShortcut(_ shortcut: LayoutSwitcherShortcut?) {
+        guard settings.layoutSwitcherActionShortcuts.isValid(primaryKeyCode: shortcut?.keyCode) else {
+            layoutSwitcherShortcutError = L10n.tr("The switcher and action keys must be unique. Escape is reserved.")
+            return
+        }
         let previousShortcut = settings.layoutSwitcherShortcut
         do {
             try layoutSwitcherHotKeyManager.resume()
-            try layoutSwitcherHotKeyManager.apply(shortcut)
+            try layoutSwitcherHotKeyManager.apply(
+                shortcut: shortcut,
+                actionShortcuts: settings.layoutSwitcherActionShortcuts
+            )
             settings.setLayoutSwitcherShortcut(shortcut)
             layoutSwitcherShortcutError = nil
         } catch {
-            try? layoutSwitcherHotKeyManager.apply(previousShortcut)
+            try? layoutSwitcherHotKeyManager.apply(
+                shortcut: previousShortcut,
+                actionShortcuts: settings.layoutSwitcherActionShortcuts
+            )
             layoutSwitcherShortcutError = L10n.tr("The shortcut is already in use by Settle or another app.")
         }
     }
@@ -188,8 +199,53 @@ final class LayoutCoordinator: ObservableObject {
         setLayoutSwitcherShortcut(.defaultShortcut)
     }
 
+    func setLayoutSwitcherActionShortcut(
+        _ shortcut: LayoutSwitcherActionShortcut,
+        for action: LayoutSwitcherAction
+    ) {
+        var proposedShortcuts = settings.layoutSwitcherActionShortcuts
+        proposedShortcuts[action] = shortcut
+        guard proposedShortcuts.isValid(primaryKeyCode: settings.layoutSwitcherShortcut?.keyCode) else {
+            layoutSwitcherShortcutError = L10n.tr("The switcher and action keys must be unique. Escape is reserved.")
+            return
+        }
+
+        do {
+            try layoutSwitcherHotKeyManager.apply(
+                shortcut: settings.layoutSwitcherShortcut,
+                actionShortcuts: proposedShortcuts
+            )
+            settings.setLayoutSwitcherActionShortcuts(proposedShortcuts)
+            layoutSwitcherShortcutError = nil
+        } catch {
+            layoutSwitcherShortcutError = L10n.tr("The shortcut is already in use by Settle or another app.")
+        }
+    }
+
+    func resetLayoutSwitcherActionShortcuts() {
+        let defaults = LayoutSwitcherActionShortcuts.defaultShortcuts
+        guard defaults.isValid(primaryKeyCode: settings.layoutSwitcherShortcut?.keyCode) else {
+            layoutSwitcherShortcutError = L10n.tr("The switcher and action keys must be unique. Escape is reserved.")
+            return
+        }
+        do {
+            try layoutSwitcherHotKeyManager.apply(
+                shortcut: settings.layoutSwitcherShortcut,
+                actionShortcuts: defaults
+            )
+            settings.resetLayoutSwitcherActionShortcuts()
+            layoutSwitcherShortcutError = nil
+        } catch {
+            layoutSwitcherShortcutError = L10n.tr("The shortcut is already in use by Settle or another app.")
+        }
+    }
+
     func reportInvalidLayoutSwitcherShortcut() {
         layoutSwitcherShortcutError = L10n.tr("Use exactly one modifier and one key. Shift is reserved for moving backward.")
+    }
+
+    func reportInvalidLayoutSwitcherActionShortcut() {
+        layoutSwitcherShortcutError = L10n.tr("Press one action key without modifiers.")
     }
 
     func setLayoutSwitcherShortcutRecording(_ isRecording: Bool) {
@@ -641,6 +697,8 @@ final class LayoutCoordinator: ObservableObject {
         switch event {
         case .cycle(let direction):
             cycleActiveLayouts(direction: direction)
+        case .perform(let action):
+            performLayoutSwitcherAction(action)
         case .activate:
             activateSelectedSwitcherLayout()
         case .cancel:
@@ -682,8 +740,25 @@ final class LayoutCoordinator: ObservableObject {
         layoutSwitcherController.show(
             items: layouts.map(layoutSwitcherItem),
             selectedID: selectedLayout.id,
-            shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut
+            shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut,
+            actionShortcuts: settings.layoutSwitcherActionShortcuts
         )
+    }
+
+    private func performLayoutSwitcherAction(_ action: LayoutSwitcherAction) {
+        dismissLayoutSwitcher()
+        switch action {
+        case .closeActiveLayout:
+            guard let layout = activeRestoredLayout else {
+                statusMessage = L10n.tr("Current Space does not match a restored layout.")
+                return
+            }
+            closeActiveLayout(layout)
+        case .closeOtherWindows:
+            closeWindowsOutsideActiveLayout()
+        case .minimizeOtherWindows:
+            minimizeWindowsOutsideActiveLayout()
+        }
     }
 
     private func activateSelectedSwitcherLayout() {
@@ -737,7 +812,8 @@ final class LayoutCoordinator: ObservableObject {
         layoutSwitcherController.show(
             items: layouts.map(layoutSwitcherItem),
             selectedID: selectedID,
-            shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut
+            shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut,
+            actionShortcuts: settings.layoutSwitcherActionShortcuts
         )
     }
 

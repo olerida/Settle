@@ -172,3 +172,13 @@
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Utilisez exactement une touche de modification et une touche. Maj est réservée au retour en arrière.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Maintenez le raccourci et appuyez plusieurs fois sur sa touche pour parcourir les dispositions actives. Maj revient en arrière ; relâchez la touche de modification pour changer.";
 "The default Option-Tab shortcut replaces Safari's control-navigation shortcut while Settle is running." = "Le raccourci Option-Tab par défaut remplace la navigation entre les commandes de Safari lorsque Settle est ouvert.";
+"Close Active Layout" = "Fermer la disposition active";
+"Close active layout shortcut" = "Raccourci pour fermer la disposition active";
+"Close other windows shortcut" = "Raccourci pour fermer les autres fenêtres";
+"Minimize other windows shortcut" = "Raccourci pour réduire les autres fenêtres";
+"Restore Action Defaults" = "Rétablir les actions par défaut";
+"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "Tout en maintenant le modificateur du sélecteur de dispositions, appuyez sur une touche d’action pour agir sur la disposition active dans l’Espace actuel.";
+"Press key" = "Appuyez sur une touche";
+"The switcher and action keys must be unique. Escape is reserved." = "La touche du sélecteur et les touches d’action doivent être uniques. Échap est réservée.";
+"Press one action key without modifiers." = "Appuyez sur une seule touche d’action sans modificateur.";
+"%@ close layout · %@ close others · %@ minimize others" = "%@ fermer la disposition · %@ fermer les autres · %@ réduire les autres";

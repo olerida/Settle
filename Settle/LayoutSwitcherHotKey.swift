@@ -53,10 +53,72 @@ struct LayoutSwitcherShortcut: Codable, Equatable {
     }
 }
 
+enum LayoutSwitcherAction: CaseIterable, Hashable {
+    case closeActiveLayout
+    case closeOtherWindows
+    case minimizeOtherWindows
+}
+
+struct LayoutSwitcherActionShortcut: Codable, Equatable {
+    var keyCode: UInt32
+    var keyLabel: String
+
+    func displayString(with switcherShortcut: LayoutSwitcherShortcut?) -> String {
+        guard let switcherShortcut else { return keyLabel }
+        return "\(switcherShortcut.displayString)+\(keyLabel)"
+    }
+}
+
+struct LayoutSwitcherActionShortcuts: Codable, Equatable {
+    var closeActiveLayout: LayoutSwitcherActionShortcut
+    var closeOtherWindows: LayoutSwitcherActionShortcut
+    var minimizeOtherWindows: LayoutSwitcherActionShortcut
+
+    static let defaultShortcuts = LayoutSwitcherActionShortcuts(
+        closeActiveLayout: LayoutSwitcherActionShortcut(
+            keyCode: UInt32(kVK_ANSI_C),
+            keyLabel: "C"
+        ),
+        closeOtherWindows: LayoutSwitcherActionShortcut(
+            keyCode: UInt32(kVK_ANSI_K),
+            keyLabel: "K"
+        ),
+        minimizeOtherWindows: LayoutSwitcherActionShortcut(
+            keyCode: UInt32(kVK_ANSI_M),
+            keyLabel: "M"
+        )
+    )
+
+    subscript(action: LayoutSwitcherAction) -> LayoutSwitcherActionShortcut {
+        get {
+            switch action {
+            case .closeActiveLayout: closeActiveLayout
+            case .closeOtherWindows: closeOtherWindows
+            case .minimizeOtherWindows: minimizeOtherWindows
+            }
+        }
+        set {
+            switch action {
+            case .closeActiveLayout: closeActiveLayout = newValue
+            case .closeOtherWindows: closeOtherWindows = newValue
+            case .minimizeOtherWindows: minimizeOtherWindows = newValue
+            }
+        }
+    }
+
+    func isValid(primaryKeyCode: UInt32?) -> Bool {
+        let keyCodes = LayoutSwitcherAction.allCases.map { self[$0].keyCode }
+        return Set(keyCodes).count == keyCodes.count
+            && !keyCodes.contains(UInt32(kVK_Escape))
+            && !keyCodes.contains(where: { $0 == primaryKeyCode })
+    }
+}
+
 @MainActor
 final class LayoutSwitcherHotKeyManager {
     enum Event {
         case cycle(LayoutSwitcherDirection)
+        case perform(LayoutSwitcherAction)
         case activate
         case cancel
     }
@@ -69,14 +131,19 @@ final class LayoutSwitcherHotKeyManager {
     private static let forwardID: UInt32 = 1
     private static let backwardID: UInt32 = 2
     private static let cancelID: UInt32 = 3
+    private static let closeActiveLayoutID: UInt32 = 4
+    private static let closeOtherWindowsID: UInt32 = 5
+    private static let minimizeOtherWindowsID: UInt32 = 6
 
     private var forwardReference: EventHotKeyRef?
     private var backwardReference: EventHotKeyRef?
     private var cancelReference: EventHotKeyRef?
+    private var actionReferences: [LayoutSwitcherAction: EventHotKeyRef] = [:]
     private var carbonEventHandler: EventHandlerRef?
     private var globalEventMonitor: Any?
     private var localEventMonitor: Any?
     private var currentShortcut: LayoutSwitcherShortcut?
+    private var currentActionShortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
     private var eventHandler: ((Event) -> Void)?
     private var isCycling = false
     private var isSuspended = false
@@ -84,32 +151,46 @@ final class LayoutSwitcherHotKeyManager {
 
     func start(
         shortcut: LayoutSwitcherShortcut?,
+        actionShortcuts: LayoutSwitcherActionShortcuts = .defaultShortcuts,
         eventHandler: @escaping (Event) -> Void
     ) throws {
         self.eventHandler = eventHandler
         guard !isStarted else {
-            try apply(shortcut)
+            try apply(shortcut: shortcut, actionShortcuts: actionShortcuts)
             return
         }
 
         isStarted = true
         try installCarbonEventHandler()
         installEventMonitors()
-        try apply(shortcut)
+        try apply(shortcut: shortcut, actionShortcuts: actionShortcuts)
     }
 
-    func apply(_ shortcut: LayoutSwitcherShortcut?) throws {
+    func apply(
+        shortcut: LayoutSwitcherShortcut?,
+        actionShortcuts: LayoutSwitcherActionShortcuts
+    ) throws {
+        guard actionShortcuts.isValid(primaryKeyCode: shortcut?.keyCode) else {
+            throw RegistrationError.unavailable
+        }
         let previousShortcut = currentShortcut
+        let previousActionShortcuts = currentActionShortcuts
         unregisterHotKeys()
         currentShortcut = shortcut
-
-        guard !isSuspended else { return }
+        currentActionShortcuts = actionShortcuts
 
         do {
-            try registerCurrentShortcut()
+            if !isSuspended {
+                try registerCurrentShortcut()
+            }
+            try validateActionShortcutAvailability()
         } catch {
+            unregisterHotKeys()
             currentShortcut = previousShortcut
-            try? registerCurrentShortcut()
+            currentActionShortcuts = previousActionShortcuts
+            if !isSuspended {
+                try? registerCurrentShortcut()
+            }
             throw error
         }
     }
@@ -124,13 +205,20 @@ final class LayoutSwitcherHotKeyManager {
     func resume() throws {
         guard isSuspended else { return }
         isSuspended = false
-        try registerCurrentShortcut()
+        do {
+            try registerCurrentShortcut()
+            try validateActionShortcutAvailability()
+        } catch {
+            unregisterHotKeys()
+            isSuspended = true
+            throw error
+        }
     }
 
     func cancelCycle() {
         guard isCycling else { return }
         isCycling = false
-        unregisterCancelHotKey()
+        unregisterCyclingHotKeys()
         eventHandler?(.cancel)
     }
 
@@ -232,8 +320,35 @@ final class LayoutSwitcherHotKeyManager {
         }
     }
 
+    private func validateActionShortcutAvailability() throws {
+        guard let shortcut = currentShortcut else { return }
+        var temporaryReferences: [EventHotKeyRef] = []
+        defer {
+            for reference in temporaryReferences {
+                UnregisterEventHotKey(reference)
+            }
+        }
+
+        for action in LayoutSwitcherAction.allCases {
+            let actionID = EventHotKeyID(signature: Self.signature, id: hotKeyID(for: action))
+            var reference: EventHotKeyRef?
+            let status = RegisterEventHotKey(
+                currentActionShortcuts[action].keyCode,
+                shortcut.modifier.carbonValue,
+                actionID,
+                GetApplicationEventTarget(),
+                0,
+                &reference
+            )
+            guard status == noErr, let reference else {
+                throw RegistrationError.unavailable
+            }
+            temporaryReferences.append(reference)
+        }
+    }
+
     private func unregisterHotKeys() {
-        unregisterCancelHotKey()
+        unregisterCyclingHotKeys()
         if let forwardReference {
             UnregisterEventHotKey(forwardReference)
             self.forwardReference = nil
@@ -244,7 +359,7 @@ final class LayoutSwitcherHotKeyManager {
         }
     }
 
-    private func registerCancelHotKey() {
+    private func registerCyclingHotKeys() {
         guard cancelReference == nil,
               let shortcut = currentShortcut else { return }
 
@@ -257,12 +372,49 @@ final class LayoutSwitcherHotKeyManager {
             0,
             &cancelReference
         )
+
+        for action in LayoutSwitcherAction.allCases {
+            let actionID = EventHotKeyID(signature: Self.signature, id: hotKeyID(for: action))
+            var reference: EventHotKeyRef?
+            let status = RegisterEventHotKey(
+                currentActionShortcuts[action].keyCode,
+                shortcut.modifier.carbonValue,
+                actionID,
+                GetApplicationEventTarget(),
+                0,
+                &reference
+            )
+            if status == noErr, let reference {
+                actionReferences[action] = reference
+            }
+        }
     }
 
-    private func unregisterCancelHotKey() {
+    private func unregisterCyclingHotKeys() {
         if let cancelReference {
             UnregisterEventHotKey(cancelReference)
             self.cancelReference = nil
+        }
+        for reference in actionReferences.values {
+            UnregisterEventHotKey(reference)
+        }
+        actionReferences.removeAll()
+    }
+
+    private func hotKeyID(for action: LayoutSwitcherAction) -> UInt32 {
+        switch action {
+        case .closeActiveLayout: Self.closeActiveLayoutID
+        case .closeOtherWindows: Self.closeOtherWindowsID
+        case .minimizeOtherWindows: Self.minimizeOtherWindowsID
+        }
+    }
+
+    private func action(for hotKeyID: UInt32) -> LayoutSwitcherAction? {
+        switch hotKeyID {
+        case Self.closeActiveLayoutID: .closeActiveLayout
+        case Self.closeOtherWindowsID: .closeOtherWindows
+        case Self.minimizeOtherWindowsID: .minimizeOtherWindows
+        default: nil
         }
     }
 
@@ -283,17 +435,24 @@ final class LayoutSwitcherHotKeyManager {
 
         switch hotKeyID.id {
         case Self.forwardID:
-            if !isCycling { registerCancelHotKey() }
+            if !isCycling { registerCyclingHotKeys() }
             isCycling = true
             eventHandler?(.cycle(.forward))
         case Self.backwardID:
-            if !isCycling { registerCancelHotKey() }
+            if !isCycling { registerCyclingHotKeys() }
             isCycling = true
             eventHandler?(.cycle(.backward))
         case Self.cancelID where isCycling:
             isCycling = false
-            unregisterCancelHotKey()
+            unregisterCyclingHotKeys()
             eventHandler?(.cancel)
+        case let id where isCycling:
+            guard let action = action(for: id) else {
+                return OSStatus(eventNotHandledErr)
+            }
+            isCycling = false
+            unregisterCyclingHotKeys()
+            eventHandler?(.perform(action))
         default:
             return OSStatus(eventNotHandledErr)
         }
@@ -306,7 +465,7 @@ final class LayoutSwitcherHotKeyManager {
 
         if event.type == .keyDown, event.keyCode == UInt16(kVK_Escape) {
             isCycling = false
-            unregisterCancelHotKey()
+            unregisterCyclingHotKeys()
             eventHandler?(.cancel)
             return true
         }
@@ -314,10 +473,115 @@ final class LayoutSwitcherHotKeyManager {
         if event.type == .flagsChanged,
            !event.modifierFlags.intersection(.deviceIndependentFlagsMask).contains(shortcut.modifier.eventFlag) {
             isCycling = false
-            unregisterCancelHotKey()
+            unregisterCyclingHotKeys()
             eventHandler?(.activate)
         }
         return false
+    }
+}
+
+struct LayoutSwitcherActionShortcutRecorder: NSViewRepresentable {
+    let shortcut: LayoutSwitcherActionShortcut
+    let switcherShortcut: LayoutSwitcherShortcut?
+    let accessibilityLabel: String
+    let onChange: (LayoutSwitcherActionShortcut) -> Void
+    let onInvalid: () -> Void
+    let onRecordingChanged: (Bool) -> Void
+
+    func makeNSView(context: Context) -> RecorderView {
+        let view = RecorderView()
+        view.setAccessibilityRole(.button)
+        update(view)
+        return view
+    }
+
+    func updateNSView(_ nsView: RecorderView, context: Context) {
+        update(nsView)
+    }
+
+    private func update(_ view: RecorderView) {
+        view.shortcut = shortcut
+        view.switcherShortcut = switcherShortcut
+        view.recorderAccessibilityLabel = accessibilityLabel
+        view.onChange = onChange
+        view.onInvalid = onInvalid
+        view.onRecordingChanged = onRecordingChanged
+        view.needsDisplay = true
+    }
+
+    final class RecorderView: NSView {
+        var shortcut = LayoutSwitcherActionShortcuts.defaultShortcuts.closeActiveLayout
+        var switcherShortcut: LayoutSwitcherShortcut?
+        var recorderAccessibilityLabel = ""
+        var onChange: ((LayoutSwitcherActionShortcut) -> Void)?
+        var onInvalid: (() -> Void)?
+        var onRecordingChanged: ((Bool) -> Void)?
+
+        override var acceptsFirstResponder: Bool { true }
+        override var intrinsicContentSize: NSSize { NSSize(width: 150, height: 30) }
+
+        override func mouseDown(with event: NSEvent) {
+            window?.makeFirstResponder(self)
+        }
+
+        override func accessibilityPerformPress() -> Bool {
+            window?.makeFirstResponder(self)
+            return true
+        }
+
+        override func becomeFirstResponder() -> Bool {
+            let result = super.becomeFirstResponder()
+            if result {
+                onRecordingChanged?(true)
+                needsDisplay = true
+            }
+            return result
+        }
+
+        override func resignFirstResponder() -> Bool {
+            let result = super.resignFirstResponder()
+            if result {
+                onRecordingChanged?(false)
+                needsDisplay = true
+            }
+            return result
+        }
+
+        override func keyDown(with event: NSEvent) {
+            let disallowedModifiers: NSEvent.ModifierFlags = [.command, .control, .option, .shift]
+            guard event.modifierFlags.intersection(disallowedModifiers).isEmpty,
+                  let keyLabel = LayoutSwitcherKeyLabel.label(for: event) else {
+                NSSound.beep()
+                onInvalid?()
+                return
+            }
+
+            onChange?(
+                LayoutSwitcherActionShortcut(
+                    keyCode: UInt32(event.keyCode),
+                    keyLabel: keyLabel
+                )
+            )
+            window?.makeFirstResponder(nil)
+        }
+
+        override func draw(_ dirtyRect: NSRect) {
+            super.draw(dirtyRect)
+            LayoutSwitcherRecorderDrawing.draw(
+                in: self,
+                text: window?.firstResponder === self
+                    ? L10n.tr("Press key")
+                    : shortcut.displayString(with: switcherShortcut)
+            )
+        }
+
+        override func accessibilityLabel() -> String? {
+            recorderAccessibilityLabel
+        }
+
+        override func accessibilityValue() -> Any? {
+            shortcut.displayString(with: switcherShortcut)
+        }
     }
 }
 
@@ -386,7 +650,7 @@ struct LayoutSwitcherShortcutRecorder: NSViewRepresentable {
             let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
             let modifiers = LayoutSwitcherModifier.allCases.filter { flags.contains($0.eventFlag) }
             guard modifiers.count == 1, !flags.contains(.shift), let modifier = modifiers.first,
-                  let keyLabel = Self.keyLabel(for: event) else {
+                  let keyLabel = LayoutSwitcherKeyLabel.label(for: event) else {
                 NSSound.beep()
                 onInvalid?()
                 return
@@ -403,25 +667,11 @@ struct LayoutSwitcherShortcutRecorder: NSViewRepresentable {
 
         override func draw(_ dirtyRect: NSRect) {
             super.draw(dirtyRect)
-            let rect = bounds.insetBy(dx: 0.5, dy: 0.5)
-            let path = NSBezierPath(roundedRect: rect, xRadius: 7, yRadius: 7)
-            (NSColor.controlBackgroundColor.withAlphaComponent(0.72)).setFill()
-            path.fill()
-            (window?.firstResponder === self ? NSColor.controlAccentColor : NSColor.separatorColor).setStroke()
-            path.lineWidth = window?.firstResponder === self ? 2 : 1
-            path.stroke()
-
-            let text = window?.firstResponder === self
-                ? L10n.tr("Press shortcut")
-                : shortcut?.displayString ?? L10n.tr("Disabled")
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: NSFont.systemFont(ofSize: 13, weight: .medium),
-                .foregroundColor: NSColor.labelColor
-            ]
-            let size = text.size(withAttributes: attributes)
-            text.draw(
-                at: NSPoint(x: (bounds.width - size.width) / 2, y: (bounds.height - size.height) / 2),
-                withAttributes: attributes
+            LayoutSwitcherRecorderDrawing.draw(
+                in: self,
+                text: window?.firstResponder === self
+                    ? L10n.tr("Press shortcut")
+                    : shortcut?.displayString ?? L10n.tr("Disabled")
             )
         }
 
@@ -433,45 +683,71 @@ struct LayoutSwitcherShortcutRecorder: NSViewRepresentable {
             shortcut?.displayString ?? L10n.tr("Disabled")
         }
 
-        private static func keyLabel(for event: NSEvent) -> String? {
-            let specialKeys: [UInt16: String] = [
-                UInt16(kVK_Tab): "Tab",
-                UInt16(kVK_Space): "Space",
-                UInt16(kVK_Return): "Return",
-                UInt16(kVK_ANSI_KeypadEnter): "Enter",
-                UInt16(kVK_Escape): "Esc",
-                UInt16(kVK_Delete): "Delete",
-                UInt16(kVK_ForwardDelete): "Forward Delete",
-                UInt16(kVK_LeftArrow): "←",
-                UInt16(kVK_RightArrow): "→",
-                UInt16(kVK_UpArrow): "↑",
-                UInt16(kVK_DownArrow): "↓",
-                UInt16(kVK_Home): "Home",
-                UInt16(kVK_End): "End",
-                UInt16(kVK_PageUp): "Page Up",
-                UInt16(kVK_PageDown): "Page Down",
-                UInt16(kVK_F1): "F1",
-                UInt16(kVK_F2): "F2",
-                UInt16(kVK_F3): "F3",
-                UInt16(kVK_F4): "F4",
-                UInt16(kVK_F5): "F5",
-                UInt16(kVK_F6): "F6",
-                UInt16(kVK_F7): "F7",
-                UInt16(kVK_F8): "F8",
-                UInt16(kVK_F9): "F9",
-                UInt16(kVK_F10): "F10",
-                UInt16(kVK_F11): "F11",
-                UInt16(kVK_F12): "F12"
-            ]
-            if let label = specialKeys[event.keyCode] {
-                return label
-            }
-            guard let characters = event.charactersIgnoringModifiers?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-                  !characters.isEmpty else {
-                return nil
-            }
-            return characters.uppercased()
+    }
+}
+
+@MainActor
+private enum LayoutSwitcherRecorderDrawing {
+    static func draw(in view: NSView, text: String) {
+        let rect = view.bounds.insetBy(dx: 0.5, dy: 0.5)
+        let path = NSBezierPath(roundedRect: rect, xRadius: 7, yRadius: 7)
+        NSColor.controlBackgroundColor.withAlphaComponent(0.72).setFill()
+        path.fill()
+        (view.window?.firstResponder === view ? NSColor.controlAccentColor : NSColor.separatorColor).setStroke()
+        path.lineWidth = view.window?.firstResponder === view ? 2 : 1
+        path.stroke()
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 13, weight: .medium),
+            .foregroundColor: NSColor.labelColor
+        ]
+        let size = text.size(withAttributes: attributes)
+        text.draw(
+            at: NSPoint(x: (view.bounds.width - size.width) / 2, y: (view.bounds.height - size.height) / 2),
+            withAttributes: attributes
+        )
+    }
+}
+
+private enum LayoutSwitcherKeyLabel {
+    static func label(for event: NSEvent) -> String? {
+        let specialKeys: [UInt16: String] = [
+            UInt16(kVK_Tab): "Tab",
+            UInt16(kVK_Space): "Space",
+            UInt16(kVK_Return): "Return",
+            UInt16(kVK_ANSI_KeypadEnter): "Enter",
+            UInt16(kVK_Escape): "Esc",
+            UInt16(kVK_Delete): "Delete",
+            UInt16(kVK_ForwardDelete): "Forward Delete",
+            UInt16(kVK_LeftArrow): "←",
+            UInt16(kVK_RightArrow): "→",
+            UInt16(kVK_UpArrow): "↑",
+            UInt16(kVK_DownArrow): "↓",
+            UInt16(kVK_Home): "Home",
+            UInt16(kVK_End): "End",
+            UInt16(kVK_PageUp): "Page Up",
+            UInt16(kVK_PageDown): "Page Down",
+            UInt16(kVK_F1): "F1",
+            UInt16(kVK_F2): "F2",
+            UInt16(kVK_F3): "F3",
+            UInt16(kVK_F4): "F4",
+            UInt16(kVK_F5): "F5",
+            UInt16(kVK_F6): "F6",
+            UInt16(kVK_F7): "F7",
+            UInt16(kVK_F8): "F8",
+            UInt16(kVK_F9): "F9",
+            UInt16(kVK_F10): "F10",
+            UInt16(kVK_F11): "F11",
+            UInt16(kVK_F12): "F12"
+        ]
+        if let label = specialKeys[event.keyCode] {
+            return label
         }
+        guard let characters = event.charactersIgnoringModifiers?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+              !characters.isEmpty else {
+            return nil
+        }
+        return characters.uppercased()
     }
 }

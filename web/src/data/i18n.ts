@@ -87,7 +87,7 @@ export const copy: Record<Language, Copy> = {
     heroEyebrow: "Menu bar app for macOS",
     heroTitle: "Your Mac windows, right where you left them.",
     heroBody:
-      "Switch between work, coding, meeting, and study setups in seconds. Settle reopens your apps, restores every window’s size and position, and lets you cycle through active layouts with Option-Tab.",
+      "Switch between work, coding, meeting, and study setups in seconds. Settle restores your windows, cycles through active layouts with Option-Tab, and runs layout actions with C, K, or M while you hold it.",
     primaryCta: "Download for macOS",
     secondaryCta: "View source",
     visualTitle: "Current desktop",
@@ -137,7 +137,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle for macOS",
     languageLabel: "Languages",
     downloadMeta:
-      "Version 1.9.1 · universal DMG for Apple silicon and Intel · about 2.5 MB",
+      "Version 1.10.0 · universal DMG for Apple silicon and Intel · about 2.5 MB",
     trustLine:
       "Native macOS permissions. Layouts stay on your Mac.",
     midCtaTitle: "Ready when your desktop drifts.",
@@ -176,7 +176,7 @@ export const copy: Record<Language, Copy> = {
     heroEyebrow: "App de barra de menús para macOS",
     heroTitle: "Tus ventanas del Mac, justo donde las dejaste.",
     heroBody:
-      "Cambia en segundos entre configuraciones de trabajo, programación, reuniones y estudio. Settle vuelve a abrir tus apps, restaura cada ventana y te permite recorrer los layouts activos con Opción-Tab.",
+      "Cambia en segundos entre configuraciones de trabajo, programación, reuniones y estudio. Settle restaura tus ventanas, recorre los layouts activos con Opción-Tab y ejecuta acciones con C, K o M mientras lo mantienes pulsado.",
     primaryCta: "Descargar para macOS",
     secondaryCta: "Ver código",
     visualTitle: "Escritorio actual",
@@ -226,7 +226,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle para macOS",
     languageLabel: "Idiomas",
     downloadMeta:
-      "Versión 1.9.1 · DMG universal para Apple silicon e Intel · alrededor de 2,5 MB",
+      "Versión 1.10.0 · DMG universal para Apple silicon e Intel · alrededor de 2,5 MB",
     trustLine:
       "Permisos nativos de macOS. Los layouts se quedan en tu Mac.",
     midCtaTitle: "Listo cuando tu escritorio se desordena.",
@@ -265,7 +265,7 @@ export const copy: Record<Language, Copy> = {
     heroEyebrow: "App de barra de menús per a macOS",
     heroTitle: "Les finestres del Mac, just on les vas deixar.",
     heroBody:
-      "Canvia en segons entre configuracions de feina, programació, reunions i estudi. Settle torna a obrir les apps, restaura cada finestra i et permet recórrer els layouts actius amb Opció-Tab.",
+      "Canvia en segons entre configuracions de feina, programació, reunions i estudi. Settle restaura les finestres, recorre els layouts actius amb Opció-Tab i executa accions amb C, K o M mentre el mantens premut.",
     primaryCta: "Descarrega per a macOS",
     secondaryCta: "Veure codi",
     visualTitle: "Escriptori actual",
@@ -315,7 +315,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle per a macOS",
     languageLabel: "Idiomes",
     downloadMeta:
-      "Versió 1.9.1 · DMG universal per a Apple silicon i Intel · prop de 2,5 MB",
+      "Versió 1.10.0 · DMG universal per a Apple silicon i Intel · prop de 2,5 MB",
     trustLine:
       "Permisos natius de macOS. Els layouts es queden al Mac.",
     midCtaTitle: "A punt quan l’escriptori es desordena.",
@@ -354,7 +354,7 @@ export const copy: Record<Language, Copy> = {
     heroEyebrow: "App de barre des menus pour macOS",
     heroTitle: "Les fenêtres de votre Mac, exactement là où vous les avez laissées.",
     heroBody:
-      "Passez en quelques secondes d’une configuration de travail, de programmation, de réunion ou d’étude à une autre. Settle rouvre vos apps, restaure chaque fenêtre et parcourt les agencements actifs avec Option-Tab.",
+      "Passez en quelques secondes d’une configuration à une autre. Settle restaure vos fenêtres, parcourt les dispositions actives avec Option-Tab et exécute des actions avec C, K ou M tant que vous le maintenez.",
     primaryCta: "Télécharger pour macOS",
     secondaryCta: "Voir le code",
     visualTitle: "Bureau actuel",
@@ -405,7 +405,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle pour macOS",
     languageLabel: "Langues",
     downloadMeta:
-      "Version 1.9.1 · DMG universel Apple silicon et Intel · environ 2,5 Mo",
+      "Version 1.10.0 · DMG universel Apple silicon et Intel · environ 2,5 Mo",
     trustLine:
       "Autorisations natives de macOS. Les agencements restent sur votre Mac.",
     midCtaTitle: "Prête quand votre bureau se dérange.",
@@ -444,7 +444,7 @@ export const copy: Record<Language, Copy> = {
     heroEyebrow: "Menüleisten-App für macOS",
     heroTitle: "Deine Mac-Fenster, genau dort, wo du sie gelassen hast.",
     heroBody:
-      "Wechsle in Sekunden zwischen Arbeits-, Programmier-, Meeting- und Lernumgebungen. Settle öffnet Apps erneut, stellt jedes Fenster wieder her und wechselt mit Wahltaste-Tab durch aktive Layouts.",
+      "Wechsle in Sekunden zwischen Arbeits-, Programmier-, Meeting- und Lernumgebungen. Settle stellt Fenster wieder her, wechselt mit Wahltaste-Tab durch aktive Layouts und führt dabei mit C, K oder M Aktionen aus.",
     primaryCta: "Für macOS laden",
     secondaryCta: "Quellcode",
     visualTitle: "Aktueller Schreibtisch",
@@ -494,7 +494,7 @@ export const copy: Record<Language, Copy> = {
     footer: "Settle für macOS",
     languageLabel: "Sprachen",
     downloadMeta:
-      "Version 1.9.1 · universelles DMG für Apple Silicon und Intel · etwa 2,5 MB",
+      "Version 1.10.0 · universelles DMG für Apple Silicon und Intel · etwa 2,5 MB",
     trustLine:
       "Native macOS-Berechtigungen. Layouts bleiben auf deinem Mac.",
     midCtaTitle: "Bereit, wenn dein Schreibtisch aus dem Takt gerät.",
