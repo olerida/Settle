@@ -1110,6 +1110,17 @@ final class SettleTests: XCTestCase {
     }
 
     @MainActor
+    func testLayoutSwitcherPanelFollowsActiveSpace() {
+        let behavior = LayoutSwitcherController.panelCollectionBehavior
+
+        XCTAssertTrue(behavior.contains(.moveToActiveSpace))
+        XCTAssertTrue(behavior.contains(.fullScreenAuxiliary))
+        XCTAssertTrue(behavior.contains(.ignoresCycle))
+        XCTAssertFalse(behavior.contains(.canJoinAllSpaces))
+        XCTAssertFalse(behavior.contains(.stationary))
+    }
+
+    @MainActor
     func testLayoutSwitcherRemainsVisibleWhenShownDuringDismissal() async {
         let controller = LayoutSwitcherController()
         let item = LayoutSwitcherItem(id: UUID(), name: "Layout", snapshotURL: nil)

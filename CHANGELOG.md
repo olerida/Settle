@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.10.1
+
+- Fixed the Option-Tab layout switcher overlay remaining outside the visible macOS Space while layout navigation continued to work.
+- Changed the switcher panel to follow the active Space on every presentation while retaining full-screen compatibility.
+
 ## v1.10.0
 
 - Added configurable layout-switcher action keys for closing the active layout, closing other visible windows, and minimizing other visible windows in the current Space.

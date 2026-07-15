@@ -67,6 +67,12 @@ struct LayoutSwitcherPresentationState {
 
 @MainActor
 final class LayoutSwitcherController {
+    static let panelCollectionBehavior: NSWindow.CollectionBehavior = [
+        .moveToActiveSpace,
+        .fullScreenAuxiliary,
+        .ignoresCycle
+    ]
+
     private let model = LayoutSwitcherModel()
     private var panel: LayoutSwitcherPanel?
     private var hostingView: NSHostingView<LayoutSwitcherOverlay>?
@@ -134,7 +140,7 @@ final class LayoutSwitcherController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+        panel.collectionBehavior = Self.panelCollectionBehavior
         panel.hidesOnDeactivate = false
         panel.isMovable = false
 
