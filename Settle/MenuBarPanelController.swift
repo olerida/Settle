@@ -27,6 +27,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
     private var preferredResizeTask: Task<Void, Never>?
     private var loginRestoreObserver: NSObjectProtocol?
     private var restorePanelStateCancellable: AnyCancellable?
+    private var saveSheetPresentationCancellable: AnyCancellable?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         loginRestoreObserver = DistributedNotificationCenter.default().addObserver(
@@ -56,6 +57,7 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
             DistributedNotificationCenter.default().removeObserver(loginRestoreObserver)
         }
         restorePanelStateCancellable?.cancel()
+        saveSheetPresentationCancellable?.cancel()
     }
 
     private func consumeLoginRestoreRequest() {
@@ -132,6 +134,14 @@ final class MenuBarAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegat
                 case .idle, .restoring:
                     break
                 }
+            }
+
+        saveSheetPresentationCancellable = coordinator.$isSaveSheetPresented
+            .removeDuplicates()
+            .dropFirst()
+            .sink { [weak self] isPresented in
+                guard let self, isPresented, !self.panel.isVisible else { return }
+                self.showPanel()
             }
     }
 

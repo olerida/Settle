@@ -715,13 +715,6 @@ final class LayoutCoordinator: ObservableObject {
             return
         }
 
-        if layouts.count == 1, layouts[0].id == lastDetectedLayoutID {
-            statusMessage = L10n.tr("You are already on the only active layout")
-            hudController.show(layoutName: L10n.tr("You are already on the only active layout"))
-            layoutSwitcherHotKeyManager.cancelCycle()
-            return
-        }
-
         let currentID = layoutSwitcherController.isVisible
             ? selectedSwitcherLayoutID
             : lastDetectedLayoutID
@@ -740,6 +733,7 @@ final class LayoutCoordinator: ObservableObject {
         layoutSwitcherController.show(
             items: layouts.map(layoutSwitcherItem),
             selectedID: selectedLayout.id,
+            activeLayoutName: activeRestoredLayout?.name,
             shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut,
             actionShortcuts: settings.layoutSwitcherActionShortcuts
         )
@@ -758,6 +752,18 @@ final class LayoutCoordinator: ObservableObject {
             closeWindowsOutsideActiveLayout()
         case .minimizeOtherWindows:
             minimizeWindowsOutsideActiveLayout()
+        case .updateActiveLayout:
+            guard let layout = activeRestoredLayout else {
+                statusMessage = L10n.tr("Current Space does not match a restored layout.")
+                return
+            }
+            prepareOverwrite(layout)
+        case .restoreActiveLayout:
+            guard let layout = activeRestoredLayout else {
+                statusMessage = L10n.tr("Current Space does not match a restored layout.")
+                return
+            }
+            restore(layout)
         }
     }
 
@@ -812,6 +818,7 @@ final class LayoutCoordinator: ObservableObject {
         layoutSwitcherController.show(
             items: layouts.map(layoutSwitcherItem),
             selectedID: selectedID,
+            activeLayoutName: activeRestoredLayout?.name,
             shortcut: settings.layoutSwitcherShortcut ?? .defaultShortcut,
             actionShortcuts: settings.layoutSwitcherActionShortcuts
         )

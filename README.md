@@ -12,7 +12,7 @@ Your work is more than one app. Save complete window layouts for coding, meeting
 
 Hold `Option-Tab` to open a visual overview of the layouts active during the current Settle session. Keep pressing `Tab` to move forward, use `Shift` to move backward, and release the shortcut to restore the selected layout.
 
-While the switcher is open, the default action keys let you close the selected layout with `C`, close unrelated visible windows with `K`, or minimize them with `M`. Navigation and action shortcuts are configurable in Settings.
+The highlighted preview is only the destination selected when you release `Option`. Action keys always affect the layout that is active now: `C` closes it, `K` closes unrelated visible windows, `M` minimizes those windows, `U` updates the active layout, and `R` restores it. The overlay identifies the affected active layout explicitly, and every navigation or action shortcut is configurable in Settings.
 
 ![Settle layout switcher preview](web/public/layout-switcher-demo.jpg)
 
@@ -89,7 +89,7 @@ Automatic layout restore also requires Accessibility permission. A signed embedd
 
 Settle does not use Accessibility to read document contents, passwords, browser page contents, or keystrokes.
 
-The layout switcher shortcut can be changed, disabled, or restored to `Option-Tab` in Settings. While holding it, the default action keys are `C` to close the active layout, `K` to close unrelated visible windows, and `M` to minimize them in the current Space. Every action key is configurable. On macOS, the default `Option-Tab` shortcut may replace Safari's keyboard focus navigation while Settle is running.
+The layout switcher shortcut can be changed, disabled, or restored to `Option-Tab` in Settings. While holding it, the default action keys are `C` to close the active layout, `K` to close unrelated visible windows, `M` to minimize them, `U` to update the active layout, and `R` to restore it in the current Space. These actions always target the current active layout, never the highlighted switcher preview. Every action key is configurable. On macOS, the default `Option-Tab` shortcut may replace Safari's keyboard focus navigation while Settle is running.
 
 Screen Recording access is used only to capture layout preview thumbnails. Settle does not capture system audio.
 
@@ -130,7 +130,7 @@ npm run build
 
 ## Recent release
 
-Current documented release: `v1.10.1`
+Current documented release: `v1.11.0`
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 
@@ -139,7 +139,7 @@ See [`CHANGELOG.md`](CHANGELOG.md) for release history.
 - The app persists layouts locally as versioned JSON.
 - Cross-Space indicators are session-scoped and best-effort because macOS does not expose stable Space identifiers through public APIs.
 - Layout restore treats visible windows as authoritative for the current Space; if an app cannot create a missing local window, Settle leaves its other-Space windows untouched and reports the unresolved app by name.
-- Multi-display layouts identify each captured display, preserve proportional placement inside its visible frame, and fall back to a usable position on the main display when necessary.
+- Multi-display layouts identify each captured display, preserve proportional placement inside its visible frame, and verify the final window position and size after restoration.
 - Releases are published as signed DMG assets on GitHub.
 - The Homebrew cask is maintained separately in `~/Documents/homebrew-tap`.
 - Backlog work is tracked in GitHub Issues, not in repository TODO files.

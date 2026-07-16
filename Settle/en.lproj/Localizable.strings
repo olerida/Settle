@@ -159,7 +159,7 @@
 "Open Automation Settings" = "Open Automation Settings";
 "Active Layouts" = "Active Layouts";
 "No snapshot" = "No snapshot";
-"%@ next · Shift previous · Esc cancel" = "%@ next · Shift previous · Esc cancel";
+"%@ next · Shift previous · release to switch · Esc cancel" = "%@ next · Shift previous · release to switch · Esc cancel";
 "Layout Switcher" = "Layout Switcher";
 "Global Shortcut" = "Global Shortcut";
 "Press shortcut" = "Press shortcut";
@@ -167,7 +167,6 @@
 "Restore Default" = "Restore Default";
 "Disable" = "Disable";
 "No active layouts" = "No active layouts";
-"You are already on the only active layout" = "You are already on the only active layout";
 "The shortcut is already in use by Settle or another app." = "The shortcut is already in use by Settle or another app.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Use exactly one modifier and one key. Shift is reserved for moving backward.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch.";
@@ -176,9 +175,15 @@
 "Close active layout shortcut" = "Close active layout shortcut";
 "Close other windows shortcut" = "Close other windows shortcut";
 "Minimize other windows shortcut" = "Minimize other windows shortcut";
+"Update Active Layout" = "Update Active Layout";
+"Update active layout shortcut" = "Update active layout shortcut";
+"Restore Active Layout" = "Restore Active Layout";
+"Restore active layout shortcut" = "Restore active layout shortcut";
 "Restore Action Defaults" = "Restore Action Defaults";
-"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "While holding the layout switcher modifier, press an action key to affect the active layout in the current Space.";
+"Action keys always affect the active layout in the current Space, never the layout highlighted in the switcher." = "Action keys always affect the active layout in the current Space, never the layout highlighted in the switcher.";
 "Press key" = "Press key";
 "The switcher and action keys must be unique. Escape is reserved." = "The switcher and action keys must be unique. Escape is reserved.";
 "Press one action key without modifiers." = "Press one action key without modifiers.";
-"%@ close layout · %@ close others · %@ minimize others" = "%@ close layout · %@ close others · %@ minimize others";
+"Actions apply to active layout “%@”, not the highlighted preview." = "Actions apply to active layout “%@”, not the highlighted preview.";
+"No active layout in this Space; action keys are unavailable." = "No active layout in this Space; action keys are unavailable.";
+"%@ close · %@ close others · %@ minimize others · %@ update · %@ restore" = "%@ close · %@ close others · %@ minimize others · %@ update · %@ restore";

@@ -172,12 +172,34 @@ private struct GeneralSettingsPane: View {
                     )
                 }
 
+                LabeledContent(L10n.tr("Update Active Layout")) {
+                    LayoutSwitcherActionShortcutRecorder(
+                        shortcut: settings.layoutSwitcherActionShortcuts.updateActiveLayout,
+                        switcherShortcut: settings.layoutSwitcherShortcut,
+                        accessibilityLabel: L10n.tr("Update active layout shortcut"),
+                        onChange: { coordinator.setLayoutSwitcherActionShortcut($0, for: .updateActiveLayout) },
+                        onInvalid: coordinator.reportInvalidLayoutSwitcherActionShortcut,
+                        onRecordingChanged: coordinator.setLayoutSwitcherShortcutRecording
+                    )
+                }
+
+                LabeledContent(L10n.tr("Restore Active Layout")) {
+                    LayoutSwitcherActionShortcutRecorder(
+                        shortcut: settings.layoutSwitcherActionShortcuts.restoreActiveLayout,
+                        switcherShortcut: settings.layoutSwitcherShortcut,
+                        accessibilityLabel: L10n.tr("Restore active layout shortcut"),
+                        onChange: { coordinator.setLayoutSwitcherActionShortcut($0, for: .restoreActiveLayout) },
+                        onInvalid: coordinator.reportInvalidLayoutSwitcherActionShortcut,
+                        onRecordingChanged: coordinator.setLayoutSwitcherShortcutRecording
+                    )
+                }
+
                 Button(L10n.tr("Restore Action Defaults")) {
                     coordinator.resetLayoutSwitcherActionShortcuts()
                 }
                 .disabled(settings.layoutSwitcherActionShortcuts == .defaultShortcuts)
 
-                Text(L10n.tr("While holding the layout switcher modifier, press an action key to affect the active layout in the current Space."))
+                Text(L10n.tr("Action keys always affect the active layout in the current Space, never the layout highlighted in the switcher."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 

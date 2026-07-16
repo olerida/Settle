@@ -57,6 +57,8 @@ enum LayoutSwitcherAction: CaseIterable, Hashable {
     case closeActiveLayout
     case closeOtherWindows
     case minimizeOtherWindows
+    case updateActiveLayout
+    case restoreActiveLayout
 }
 
 struct LayoutSwitcherActionShortcut: Codable, Equatable {
@@ -73,6 +75,46 @@ struct LayoutSwitcherActionShortcuts: Codable, Equatable {
     var closeActiveLayout: LayoutSwitcherActionShortcut
     var closeOtherWindows: LayoutSwitcherActionShortcut
     var minimizeOtherWindows: LayoutSwitcherActionShortcut
+    var updateActiveLayout: LayoutSwitcherActionShortcut
+    var restoreActiveLayout: LayoutSwitcherActionShortcut
+
+    private enum CodingKeys: String, CodingKey {
+        case closeActiveLayout
+        case closeOtherWindows
+        case minimizeOtherWindows
+        case updateActiveLayout
+        case restoreActiveLayout
+    }
+
+    init(
+        closeActiveLayout: LayoutSwitcherActionShortcut,
+        closeOtherWindows: LayoutSwitcherActionShortcut,
+        minimizeOtherWindows: LayoutSwitcherActionShortcut,
+        updateActiveLayout: LayoutSwitcherActionShortcut,
+        restoreActiveLayout: LayoutSwitcherActionShortcut
+    ) {
+        self.closeActiveLayout = closeActiveLayout
+        self.closeOtherWindows = closeOtherWindows
+        self.minimizeOtherWindows = minimizeOtherWindows
+        self.updateActiveLayout = updateActiveLayout
+        self.restoreActiveLayout = restoreActiveLayout
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let defaults = Self.defaultShortcuts
+        closeActiveLayout = try container.decode(LayoutSwitcherActionShortcut.self, forKey: .closeActiveLayout)
+        closeOtherWindows = try container.decode(LayoutSwitcherActionShortcut.self, forKey: .closeOtherWindows)
+        minimizeOtherWindows = try container.decode(LayoutSwitcherActionShortcut.self, forKey: .minimizeOtherWindows)
+        updateActiveLayout = try container.decodeIfPresent(
+            LayoutSwitcherActionShortcut.self,
+            forKey: .updateActiveLayout
+        ) ?? defaults.updateActiveLayout
+        restoreActiveLayout = try container.decodeIfPresent(
+            LayoutSwitcherActionShortcut.self,
+            forKey: .restoreActiveLayout
+        ) ?? defaults.restoreActiveLayout
+    }
 
     static let defaultShortcuts = LayoutSwitcherActionShortcuts(
         closeActiveLayout: LayoutSwitcherActionShortcut(
@@ -86,8 +128,72 @@ struct LayoutSwitcherActionShortcuts: Codable, Equatable {
         minimizeOtherWindows: LayoutSwitcherActionShortcut(
             keyCode: UInt32(kVK_ANSI_M),
             keyLabel: "M"
+        ),
+        updateActiveLayout: LayoutSwitcherActionShortcut(
+            keyCode: UInt32(kVK_ANSI_U),
+            keyLabel: "U"
+        ),
+        restoreActiveLayout: LayoutSwitcherActionShortcut(
+            keyCode: UInt32(kVK_ANSI_R),
+            keyLabel: "R"
         )
     )
+
+    private static let migrationFallbacks = [
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_U), keyLabel: "U"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_R), keyLabel: "R"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_A), keyLabel: "A"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_S), keyLabel: "S"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_D), keyLabel: "D"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_F), keyLabel: "F"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_G), keyLabel: "G"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_H), keyLabel: "H"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_J), keyLabel: "J"),
+        LayoutSwitcherActionShortcut(keyCode: UInt32(kVK_ANSI_L), keyLabel: "L")
+    ]
+
+    func resolvingExpandedActionConflicts(
+        primaryKeyCode: UInt32?
+    ) -> LayoutSwitcherActionShortcuts? {
+        let existingShortcuts = [closeActiveLayout, closeOtherWindows, minimizeOtherWindows]
+        let existingKeyCodes = existingShortcuts.map(\.keyCode)
+        var unavailableKeyCodes = Set(existingKeyCodes)
+        unavailableKeyCodes.insert(UInt32(kVK_Escape))
+        if let primaryKeyCode {
+            unavailableKeyCodes.insert(primaryKeyCode)
+        }
+
+        guard Set(existingKeyCodes).count == existingKeyCodes.count,
+              !existingKeyCodes.contains(UInt32(kVK_Escape)),
+              !existingKeyCodes.contains(where: { $0 == primaryKeyCode }) else {
+            return nil
+        }
+
+        var resolved = self
+        if unavailableKeyCodes.contains(resolved.updateActiveLayout.keyCode) {
+            let protectedRestoreKeyCode = unavailableKeyCodes.contains(resolved.restoreActiveLayout.keyCode)
+                ? nil
+                : resolved.restoreActiveLayout.keyCode
+            guard let replacement = Self.migrationFallbacks.first(where: {
+                !unavailableKeyCodes.contains($0.keyCode) && $0.keyCode != protectedRestoreKeyCode
+            }) else {
+                return nil
+            }
+            resolved.updateActiveLayout = replacement
+        }
+        unavailableKeyCodes.insert(resolved.updateActiveLayout.keyCode)
+
+        if unavailableKeyCodes.contains(resolved.restoreActiveLayout.keyCode) {
+            guard let replacement = Self.migrationFallbacks.first(where: {
+                !unavailableKeyCodes.contains($0.keyCode)
+            }) else {
+                return nil
+            }
+            resolved.restoreActiveLayout = replacement
+        }
+
+        return resolved
+    }
 
     subscript(action: LayoutSwitcherAction) -> LayoutSwitcherActionShortcut {
         get {
@@ -95,6 +201,8 @@ struct LayoutSwitcherActionShortcuts: Codable, Equatable {
             case .closeActiveLayout: closeActiveLayout
             case .closeOtherWindows: closeOtherWindows
             case .minimizeOtherWindows: minimizeOtherWindows
+            case .updateActiveLayout: updateActiveLayout
+            case .restoreActiveLayout: restoreActiveLayout
             }
         }
         set {
@@ -102,6 +210,8 @@ struct LayoutSwitcherActionShortcuts: Codable, Equatable {
             case .closeActiveLayout: closeActiveLayout = newValue
             case .closeOtherWindows: closeOtherWindows = newValue
             case .minimizeOtherWindows: minimizeOtherWindows = newValue
+            case .updateActiveLayout: updateActiveLayout = newValue
+            case .restoreActiveLayout: restoreActiveLayout = newValue
             }
         }
     }
@@ -134,6 +244,8 @@ final class LayoutSwitcherHotKeyManager {
     private static let closeActiveLayoutID: UInt32 = 4
     private static let closeOtherWindowsID: UInt32 = 5
     private static let minimizeOtherWindowsID: UInt32 = 6
+    private static let updateActiveLayoutID: UInt32 = 7
+    private static let restoreActiveLayoutID: UInt32 = 8
 
     private var forwardReference: EventHotKeyRef?
     private var backwardReference: EventHotKeyRef?
@@ -406,6 +518,8 @@ final class LayoutSwitcherHotKeyManager {
         case .closeActiveLayout: Self.closeActiveLayoutID
         case .closeOtherWindows: Self.closeOtherWindowsID
         case .minimizeOtherWindows: Self.minimizeOtherWindowsID
+        case .updateActiveLayout: Self.updateActiveLayoutID
+        case .restoreActiveLayout: Self.restoreActiveLayoutID
         }
     }
 
@@ -414,6 +528,8 @@ final class LayoutSwitcherHotKeyManager {
         case Self.closeActiveLayoutID: .closeActiveLayout
         case Self.closeOtherWindowsID: .closeOtherWindows
         case Self.minimizeOtherWindowsID: .minimizeOtherWindows
+        case Self.updateActiveLayoutID: .updateActiveLayout
+        case Self.restoreActiveLayoutID: .restoreActiveLayout
         default: nil
         }
     }

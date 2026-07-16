@@ -159,7 +159,7 @@
 "Open Automation Settings" = "Ouvrir les réglages d’automatisation";
 "Active Layouts" = "Dispositions actives";
 "No snapshot" = "Aucun aperçu";
-"%@ next · Shift previous · Esc cancel" = "%@ suivant · Maj précédent · Échap annuler";
+"%@ next · Shift previous · release to switch · Esc cancel" = "%@ suivant · Maj précédent · relâcher pour changer · Échap annuler";
 "Layout Switcher" = "Sélecteur de dispositions";
 "Global Shortcut" = "Raccourci global";
 "Press shortcut" = "Appuyez sur le raccourci";
@@ -167,7 +167,6 @@
 "Restore Default" = "Rétablir par défaut";
 "Disable" = "Désactiver";
 "No active layouts" = "Aucune disposition active";
-"You are already on the only active layout" = "Vous êtes déjà sur la seule disposition active";
 "The shortcut is already in use by Settle or another app." = "Le raccourci est déjà utilisé par Settle ou une autre app.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Utilisez exactement une touche de modification et une touche. Maj est réservée au retour en arrière.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Maintenez le raccourci et appuyez plusieurs fois sur sa touche pour parcourir les dispositions actives. Maj revient en arrière ; relâchez la touche de modification pour changer.";
@@ -176,9 +175,15 @@
 "Close active layout shortcut" = "Raccourci pour fermer la disposition active";
 "Close other windows shortcut" = "Raccourci pour fermer les autres fenêtres";
 "Minimize other windows shortcut" = "Raccourci pour réduire les autres fenêtres";
+"Update Active Layout" = "Mettre à jour la disposition active";
+"Update active layout shortcut" = "Raccourci pour mettre à jour la disposition active";
+"Restore Active Layout" = "Restaurer la disposition active";
+"Restore active layout shortcut" = "Raccourci pour restaurer la disposition active";
 "Restore Action Defaults" = "Rétablir les actions par défaut";
-"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "Tout en maintenant le modificateur du sélecteur de dispositions, appuyez sur une touche d’action pour agir sur la disposition active dans l’Espace actuel.";
+"Action keys always affect the active layout in the current Space, never the layout highlighted in the switcher." = "Les touches d’action agissent toujours sur la disposition active dans l’Espace actuel, jamais sur celle qui est mise en évidence dans le sélecteur.";
 "Press key" = "Appuyez sur une touche";
 "The switcher and action keys must be unique. Escape is reserved." = "La touche du sélecteur et les touches d’action doivent être uniques. Échap est réservée.";
 "Press one action key without modifiers." = "Appuyez sur une seule touche d’action sans modificateur.";
-"%@ close layout · %@ close others · %@ minimize others" = "%@ fermer la disposition · %@ fermer les autres · %@ réduire les autres";
+"Actions apply to active layout “%@”, not the highlighted preview." = "Les actions s’appliquent à la disposition active « %@ », pas à l’aperçu mis en évidence.";
+"No active layout in this Space; action keys are unavailable." = "Il n’y a aucune disposition active dans cet Espace ; les touches d’action sont indisponibles.";
+"%@ close · %@ close others · %@ minimize others · %@ update · %@ restore" = "%@ fermer · %@ fermer les autres · %@ réduire les autres · %@ mettre à jour · %@ restaurer";

@@ -168,6 +168,27 @@ final class SettleTests: XCTestCase {
         )
     }
 
+    func testRestoredFrameValidationRequiresPositionAndSizeMatch() {
+        let target = CGRect(x: 900, y: 30, width: 1640, height: 1410)
+
+        XCTAssertTrue(
+            DisplayPlacement.matchesTargetFrame(
+                CGRect(x: 903, y: 28, width: 1637, height: 1407),
+                target: target
+            )
+        )
+        XCTAssertFalse(
+            DisplayPlacement.matchesTargetFrame(
+                CGRect(x: 900, y: 30, width: 1640, height: 600),
+                target: target
+            )
+        )
+    }
+
+    func testFrameRestoreRepeatsSizeAfterMovingWindow() {
+        XCTAssertEqual(WindowFrameRestoration.writeOrder, [.size, .position, .size])
+    }
+
     private func display(
         uuid: String?,
         name: String,
@@ -1064,6 +1085,10 @@ final class SettleTests: XCTestCase {
             LayoutSwitcherSelection.nextIndex(from: nil, count: 3, direction: .backward),
             2
         )
+        XCTAssertEqual(
+            LayoutSwitcherSelection.nextIndex(from: 0, count: 1, direction: .forward),
+            0
+        )
         XCTAssertNil(
             LayoutSwitcherSelection.nextIndex(from: nil, count: 0, direction: .forward)
         )
@@ -1128,6 +1153,7 @@ final class SettleTests: XCTestCase {
         controller.show(
             items: [item],
             selectedID: item.id,
+            activeLayoutName: item.name,
             shortcut: .defaultShortcut,
             actionShortcuts: .defaultShortcuts
         )
@@ -1135,6 +1161,7 @@ final class SettleTests: XCTestCase {
         controller.show(
             items: [item],
             selectedID: item.id,
+            activeLayoutName: item.name,
             shortcut: .defaultShortcut,
             actionShortcuts: .defaultShortcuts
         )
@@ -1152,12 +1179,14 @@ final class SettleTests: XCTestCase {
         XCTAssertEqual(LayoutSwitcherShortcut.defaultShortcut.displayString, "⌥Tab")
     }
 
-    func testDefaultLayoutSwitcherActionShortcutsUseCAndKAndM() {
+    func testDefaultLayoutSwitcherActionShortcutsUseCAndKAndMAndUAndR() {
         let shortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
 
         XCTAssertEqual(shortcuts.closeActiveLayout.keyCode, 8)
         XCTAssertEqual(shortcuts.closeOtherWindows.keyCode, 40)
         XCTAssertEqual(shortcuts.minimizeOtherWindows.keyCode, 46)
+        XCTAssertEqual(shortcuts.updateActiveLayout.keyCode, 32)
+        XCTAssertEqual(shortcuts.restoreActiveLayout.keyCode, 15)
         XCTAssertEqual(
             shortcuts.closeActiveLayout.displayString(with: .defaultShortcut),
             "⌥Tab+C"
@@ -1172,6 +1201,10 @@ final class SettleTests: XCTestCase {
 
         shortcuts = .defaultShortcuts
         shortcuts.closeActiveLayout = LayoutSwitcherActionShortcut(keyCode: 48, keyLabel: "Tab")
+        XCTAssertFalse(shortcuts.isValid(primaryKeyCode: LayoutSwitcherShortcut.defaultShortcut.keyCode))
+
+        shortcuts = .defaultShortcuts
+        shortcuts.restoreActiveLayout = shortcuts.updateActiveLayout
         XCTAssertFalse(shortcuts.isValid(primaryKeyCode: LayoutSwitcherShortcut.defaultShortcut.keyCode))
     }
 
@@ -1375,6 +1408,79 @@ final class SettleTests: XCTestCase {
 
         reloadedSettings.resetLayoutSwitcherActionShortcuts()
         XCTAssertEqual(reloadedSettings.layoutSwitcherActionShortcuts, .defaultShortcuts)
+    }
+
+    @MainActor
+    func testAppSettingsMigratesLegacyLayoutSwitcherActionShortcuts() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let legacyShortcuts: [String: Any] = [
+            "closeActiveLayout": ["keyCode": 32, "keyLabel": "U"],
+            "closeOtherWindows": ["keyCode": 40, "keyLabel": "K"],
+            "minimizeOtherWindows": ["keyCode": 46, "keyLabel": "M"]
+        ]
+        defaults.set(
+            try JSONSerialization.data(withJSONObject: legacyShortcuts),
+            forKey: "layoutSwitcherActionShortcuts"
+        )
+
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.closeActiveLayout.keyLabel, "U")
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.closeOtherWindows.keyLabel, "K")
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.minimizeOtherWindows.keyLabel, "M")
+        XCTAssertEqual(
+            settings.layoutSwitcherActionShortcuts.updateActiveLayout.keyLabel,
+            "A"
+        )
+        XCTAssertEqual(
+            settings.layoutSwitcherActionShortcuts.restoreActiveLayout,
+            LayoutSwitcherActionShortcuts.defaultShortcuts.restoreActiveLayout
+        )
+    }
+
+    @MainActor
+    func testAppSettingsMigratesLegacyActionsAroundCustomPrimaryShortcut() throws {
+        let suiteName = "SettleTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let primaryShortcut = LayoutSwitcherShortcut(
+            modifier: .option,
+            keyCode: 32,
+            keyLabel: "U"
+        )
+        defaults.set(
+            try JSONEncoder().encode(primaryShortcut),
+            forKey: "layoutSwitcherShortcut"
+        )
+        let legacyShortcuts: [String: Any] = [
+            "closeActiveLayout": ["keyCode": 8, "keyLabel": "C"],
+            "closeOtherWindows": ["keyCode": 40, "keyLabel": "K"],
+            "minimizeOtherWindows": ["keyCode": 46, "keyLabel": "M"]
+        ]
+        defaults.set(
+            try JSONSerialization.data(withJSONObject: legacyShortcuts),
+            forKey: "layoutSwitcherActionShortcuts"
+        )
+
+        let settings = AppSettings(
+            defaults: defaults,
+            loginItemService: FakeLoginItemService(state: .notRegistered)
+        )
+
+        XCTAssertEqual(settings.layoutSwitcherShortcut, primaryShortcut)
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.closeActiveLayout.keyLabel, "C")
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.closeOtherWindows.keyLabel, "K")
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.minimizeOtherWindows.keyLabel, "M")
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.updateActiveLayout.keyLabel, "A")
+        XCTAssertEqual(settings.layoutSwitcherActionShortcuts.restoreActiveLayout.keyLabel, "R")
+        XCTAssertTrue(
+            settings.layoutSwitcherActionShortcuts.isValid(primaryKeyCode: primaryShortcut.keyCode)
+        )
     }
 
     @MainActor

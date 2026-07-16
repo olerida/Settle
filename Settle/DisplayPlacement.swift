@@ -174,4 +174,15 @@ enum DisplayPlacement {
         return visibleTitleBar.width >= min(80, titleBar.width)
             && visibleTitleBar.height >= min(20, titleBar.height)
     }
+
+    static func matchesTargetFrame(
+        _ actualFrame: CGRect,
+        target targetFrame: CGRect,
+        tolerance: CGFloat = 4
+    ) -> Bool {
+        abs(actualFrame.minX - targetFrame.minX) <= tolerance
+            && abs(actualFrame.minY - targetFrame.minY) <= tolerance
+            && abs(actualFrame.width - targetFrame.width) <= tolerance
+            && abs(actualFrame.height - targetFrame.height) <= tolerance
+    }
 }
