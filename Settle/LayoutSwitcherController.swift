@@ -85,11 +85,13 @@ final class LayoutSwitcherController {
     func show(
         items: [LayoutSwitcherItem],
         selectedID: UUID,
+        activeLayoutName: String?,
         shortcut: LayoutSwitcherShortcut,
         actionShortcuts: LayoutSwitcherActionShortcuts
     ) {
         model.items = items
         model.selectedID = selectedID
+        model.activeLayoutName = activeLayoutName
         model.shortcut = shortcut
         model.actionShortcuts = actionShortcuts
         presentationState.beginPresentation()
@@ -168,7 +170,7 @@ final class LayoutSwitcherController {
         let visibleFrame = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
         let desiredWidth = CGFloat(max(itemCount, 1)) * 218 + 52
         let width = min(max(desiredWidth, 310), visibleFrame.width - 64)
-        let height: CGFloat = 260
+        let height: CGFloat = 360
         let frame = NSRect(
             x: visibleFrame.midX - width / 2,
             y: visibleFrame.midY - height / 2,
@@ -183,6 +185,7 @@ final class LayoutSwitcherController {
 private final class LayoutSwitcherModel: ObservableObject {
     @Published var items: [LayoutSwitcherItem] = []
     @Published var selectedID: UUID?
+    @Published var activeLayoutName: String?
     @Published var shortcut = LayoutSwitcherShortcut.defaultShortcut
     @Published var actionShortcuts = LayoutSwitcherActionShortcuts.defaultShortcuts
 }
@@ -221,23 +224,46 @@ private struct LayoutSwitcherOverlay: View {
 
             Text(
                 L10n.format(
-                    "%@ next · Shift previous · Esc cancel",
+                    "%@ next · Shift previous · release to switch · Esc cancel",
                     model.shortcut.displayString
                 )
             )
             .font(.caption2)
             .foregroundStyle(Color.white.opacity(0.68))
 
-            Text(
-                L10n.format(
-                    "%@ close layout · %@ close others · %@ minimize others",
-                    model.actionShortcuts.closeActiveLayout.keyLabel,
-                    model.actionShortcuts.closeOtherWindows.keyLabel,
-                    model.actionShortcuts.minimizeOtherWindows.keyLabel
+            VStack(spacing: 4) {
+                if let activeLayoutName = model.activeLayoutName {
+                    Text(
+                        L10n.format(
+                            "Actions apply to active layout “%@”, not the highlighted preview.",
+                            activeLayoutName
+                        )
+                    )
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Color.white.opacity(0.86))
+                } else {
+                    Text(L10n.tr("No active layout in this Space; action keys are unavailable."))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(Color.white.opacity(0.72))
+                }
+
+                Text(
+                    L10n.format(
+                        "%@ close · %@ close others · %@ minimize others · %@ update · %@ restore",
+                        model.actionShortcuts.closeActiveLayout.keyLabel,
+                        model.actionShortcuts.closeOtherWindows.keyLabel,
+                        model.actionShortcuts.minimizeOtherWindows.keyLabel,
+                        model.actionShortcuts.updateActiveLayout.keyLabel,
+                        model.actionShortcuts.restoreActiveLayout.keyLabel
+                    )
                 )
-            )
-            .font(.caption2)
-            .foregroundStyle(Color.white.opacity(0.68))
+                .font(.caption2)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(Color.white.opacity(model.activeLayoutName == nil ? 0.44 : 0.68))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(Color.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
         }
         .padding(16)
         .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))

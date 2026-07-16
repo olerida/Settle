@@ -125,9 +125,15 @@ final class AppSettings: ObservableObject {
         if
             let data = defaults.data(forKey: Keys.layoutSwitcherActionShortcuts),
             let shortcuts = try? JSONDecoder().decode(LayoutSwitcherActionShortcuts.self, from: data),
-            shortcuts.isValid(primaryKeyCode: self.layoutSwitcherShortcut?.keyCode)
+            let resolvedShortcuts = shortcuts.resolvingExpandedActionConflicts(
+                primaryKeyCode: self.layoutSwitcherShortcut?.keyCode
+            ),
+            resolvedShortcuts.isValid(primaryKeyCode: self.layoutSwitcherShortcut?.keyCode)
         {
-            self.layoutSwitcherActionShortcuts = shortcuts
+            self.layoutSwitcherActionShortcuts = resolvedShortcuts
+            if let resolvedData = try? JSONEncoder().encode(resolvedShortcuts) {
+                defaults.set(resolvedData, forKey: Keys.layoutSwitcherActionShortcuts)
+            }
         }
     }
 

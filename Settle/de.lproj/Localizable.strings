@@ -159,7 +159,7 @@
 "Open Automation Settings" = "Automatisierungseinstellungen öffnen";
 "Active Layouts" = "Aktive Layouts";
 "No snapshot" = "Keine Vorschau";
-"%@ next · Shift previous · Esc cancel" = "%@ weiter · Umschalt zurück · Esc abbrechen";
+"%@ next · Shift previous · release to switch · Esc cancel" = "%@ weiter · Umschalt zurück · loslassen zum Wechseln · Esc abbrechen";
 "Layout Switcher" = "Layout-Umschalter";
 "Global Shortcut" = "Globales Tastenkürzel";
 "Press shortcut" = "Tastenkürzel drücken";
@@ -167,7 +167,6 @@
 "Restore Default" = "Standard wiederherstellen";
 "Disable" = "Deaktivieren";
 "No active layouts" = "Keine aktiven Layouts";
-"You are already on the only active layout" = "Du bist bereits im einzigen aktiven Layout";
 "The shortcut is already in use by Settle or another app." = "Das Tastenkürzel wird bereits von Settle oder einer anderen App verwendet.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Verwende genau eine Sondertaste und eine Taste. Die Umschalttaste ist für das Zurückgehen reserviert.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Halte das Tastenkürzel gedrückt und drücke die Taste wiederholt, um aktive Layouts zu durchlaufen. Umschalt geht zurück; lass die Sondertaste zum Wechseln los.";
@@ -176,9 +175,15 @@
 "Close active layout shortcut" = "Kurzbefehl zum Schließen des aktiven Layouts";
 "Close other windows shortcut" = "Kurzbefehl zum Schließen anderer Fenster";
 "Minimize other windows shortcut" = "Kurzbefehl zum Minimieren anderer Fenster";
+"Update Active Layout" = "Aktives Layout aktualisieren";
+"Update active layout shortcut" = "Tastenkürzel zum Aktualisieren des aktiven Layouts";
+"Restore Active Layout" = "Aktives Layout wiederherstellen";
+"Restore active layout shortcut" = "Tastenkürzel zum Wiederherstellen des aktiven Layouts";
 "Restore Action Defaults" = "Standardaktionen wiederherstellen";
-"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "Halte die Sondertaste des Layout-Umschalters gedrückt und drücke eine Aktionstaste, um das aktive Layout im aktuellen Space zu bearbeiten.";
+"Action keys always affect the active layout in the current Space, never the layout highlighted in the switcher." = "Aktionstasten wirken immer auf das aktive Layout im aktuellen Space, niemals auf das im Umschalter hervorgehobene Layout.";
 "Press key" = "Taste drücken";
 "The switcher and action keys must be unique. Escape is reserved." = "Die Umschalt- und Aktionstasten müssen eindeutig sein. Escape ist reserviert.";
 "Press one action key without modifiers." = "Drücke genau eine Aktionstaste ohne Sondertasten.";
-"%@ close layout · %@ close others · %@ minimize others" = "%@ Layout schließen · %@ andere schließen · %@ andere minimieren";
+"Actions apply to active layout “%@”, not the highlighted preview." = "Aktionen gelten für das aktive Layout „%@“, nicht für die hervorgehobene Vorschau.";
+"No active layout in this Space; action keys are unavailable." = "Kein aktives Layout in diesem Space; Aktionstasten sind nicht verfügbar.";
+"%@ close · %@ close others · %@ minimize others · %@ update · %@ restore" = "%@ schließen · %@ andere schließen · %@ andere minimieren · %@ aktualisieren · %@ wiederherstellen";

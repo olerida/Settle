@@ -159,7 +159,7 @@
 "Open Automation Settings" = "Obrir els ajustos d’Automatització";
 "Active Layouts" = "Layouts actius";
 "No snapshot" = "Sense captura";
-"%@ next · Shift previous · Esc cancel" = "%@ següent · Maj anterior · Esc cancel·lar";
+"%@ next · Shift previous · release to switch · Esc cancel" = "%@ següent · Maj anterior · deixa anar per canviar · Esc cancel·lar";
 "Layout Switcher" = "Selector de layouts";
 "Global Shortcut" = "Drecera global";
 "Press shortcut" = "Prem la drecera";
@@ -167,7 +167,6 @@
 "Restore Default" = "Restaura la predeterminada";
 "Disable" = "Desactiva";
 "No active layouts" = "No hi ha layouts actius";
-"You are already on the only active layout" = "Ja ets a l'únic layout actiu";
 "The shortcut is already in use by Settle or another app." = "Settle o una altra app ja utilitza aquesta drecera.";
 "Use exactly one modifier and one key. Shift is reserved for moving backward." = "Utilitza exactament un modificador i una tecla. Maj està reservada per retrocedir.";
 "Hold the shortcut and press its key repeatedly to cycle through active layouts. Shift moves backward; release the modifier to switch." = "Mantén premuda la drecera i repeteix la tecla per recórrer els layouts actius. Maj retrocedeix; deixa anar el modificador per canviar.";
@@ -176,9 +175,15 @@
 "Close active layout shortcut" = "Drecera per tancar el layout actiu";
 "Close other windows shortcut" = "Drecera per tancar altres finestres";
 "Minimize other windows shortcut" = "Drecera per minimitzar altres finestres";
+"Update Active Layout" = "Actualitzar el layout actiu";
+"Update active layout shortcut" = "Drecera per actualitzar el layout actiu";
+"Restore Active Layout" = "Restaurar el layout actiu";
+"Restore active layout shortcut" = "Drecera per restaurar el layout actiu";
 "Restore Action Defaults" = "Restaurar les accions predeterminades";
-"While holding the layout switcher modifier, press an action key to affect the active layout in the current Space." = "Mentre mantens premut el modificador del selector de layouts, prem una tecla d'acció per actuar sobre el layout actiu a l'Space actual.";
+"Action keys always affect the active layout in the current Space, never the layout highlighted in the switcher." = "Les tecles d'acció sempre afecten el layout actiu a l'Space actual, mai el layout ressaltat al selector.";
 "Press key" = "Prem una tecla";
 "The switcher and action keys must be unique. Escape is reserved." = "La tecla del selector i les tecles d'acció han de ser úniques. Esc està reservada.";
 "Press one action key without modifiers." = "Prem una sola tecla d'acció sense modificadors.";
-"%@ close layout · %@ close others · %@ minimize others" = "%@ tancar layout · %@ tancar altres · %@ minimitzar altres";
+"Actions apply to active layout “%@”, not the highlighted preview." = "Les accions s'apliquen al layout actiu «%@», no a la previsualització ressaltada.";
+"No active layout in this Space; action keys are unavailable." = "No hi ha cap layout actiu en aquest Space; les tecles d'acció no estan disponibles.";
+"%@ close · %@ close others · %@ minimize others · %@ update · %@ restore" = "%@ tancar · %@ tancar altres · %@ minimitzar altres · %@ actualitzar · %@ restaurar";

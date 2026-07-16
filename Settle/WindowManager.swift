@@ -4,6 +4,17 @@ import CoreGraphics
 import Darwin
 import Foundation
 
+enum WindowFrameWrite: Equatable {
+    case size
+    case position
+}
+
+enum WindowFrameRestoration {
+    // macOS can constrain the first size against the window's old position.
+    // Move it, then repeat the size once it is on the target display.
+    static let writeOrder: [WindowFrameWrite] = [.size, .position, .size]
+}
+
 enum WindowManagerError: LocalizedError {
     case accessibilityPermissionMissing
     case captureFailed
@@ -972,13 +983,20 @@ struct WindowManager {
             return false
         }
 
+        let interWriteDelays: [Duration?] = [nil, .milliseconds(300), .milliseconds(500)]
+        let settleDelays = [120, 350, 500]
         var placedSuccessfully = false
-        for attempt in 0..<2 {
-            let writesSucceeded = setFrame(placement.frame, for: window)
-            try? await Task.sleep(for: .milliseconds(attempt == 0 ? 120 : 180))
-            if writesSucceeded,
-               let actualFrame = axFrameValue(window),
-               DisplayPlacement.isUsable(actualFrame, on: placement.display) {
+
+        for attempt in interWriteDelays.indices {
+            await setFrame(
+                placement.frame,
+                for: window,
+                delayBetweenWrites: interWriteDelays[attempt]
+            )
+            try? await Task.sleep(for: .milliseconds(settleDelays[attempt]))
+            if let actualFrame = axFrameValue(window),
+               DisplayPlacement.isUsable(actualFrame, on: placement.display),
+               DisplayPlacement.matchesTargetFrame(actualFrame, target: placement.frame) {
                 placedSuccessfully = true
                 break
             }
@@ -993,27 +1011,41 @@ struct WindowManager {
         return placedSuccessfully && minimizedStateSucceeded
     }
 
-    private func setFrame(_ frame: CGRect, for window: AXUIElement) -> Bool {
+    private func setFrame(
+        _ frame: CGRect,
+        for window: AXUIElement,
+        delayBetweenWrites: Duration?
+    ) async {
         var size = frame.size
         var position = frame.origin
         guard
             let sizeValue = AXValueCreate(.cgSize, &size),
             let positionValue = AXValueCreate(.cgPoint, &position)
         else {
-            return false
+            return
         }
 
-        let sizeResult = AXUIElementSetAttributeValue(
-            window,
-            kAXSizeAttribute as CFString,
-            sizeValue
-        )
-        let positionResult = AXUIElementSetAttributeValue(
-            window,
-            kAXPositionAttribute as CFString,
-            positionValue
-        )
-        return sizeResult == .success && positionResult == .success
+        for (index, write) in WindowFrameRestoration.writeOrder.enumerated() {
+            switch write {
+            case .size:
+                _ = AXUIElementSetAttributeValue(
+                    window,
+                    kAXSizeAttribute as CFString,
+                    sizeValue
+                )
+            case .position:
+                _ = AXUIElementSetAttributeValue(
+                    window,
+                    kAXPositionAttribute as CFString,
+                    positionValue
+                )
+            }
+
+            if let delayBetweenWrites,
+               index < WindowFrameRestoration.writeOrder.count - 1 {
+                try? await Task.sleep(for: delayBetweenWrites)
+            }
+        }
     }
 
     private func axWindows(for pid: pid_t) -> [AXUIElement] {

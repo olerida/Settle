@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.11.0
+
+- Added configurable `Option-Tab+U` and `Option-Tab+R` action sequences for updating and restoring the active layout.
+- Clarified in the switcher overlay and Settings that all action keys target the layout active in the current Space, never the highlighted switcher preview.
+- Kept the switcher open when the current layout is the only active layout so its action keys remain available.
+- Preserved existing custom `C`, `K`, and `M` action keys while migrating preferences to the expanded five-action set.
+- Fixed layout restore for windows whose target size is constrained at their old position by moving them before reapplying and validating the saved size.
+
 ## v1.10.1
 
 - Fixed the Option-Tab layout switcher overlay remaining outside the visible macOS Space while layout navigation continued to work.
